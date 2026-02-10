@@ -16,10 +16,14 @@
     overflow: hidden;
 }
 
+/* LEFT */
 .left {
     width: 50%;
     background: #f4f8ff;
     padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .left h2 {
@@ -31,11 +35,12 @@
     background: #1e90ff;
     border-radius: 20px;
     padding: 20px;
-    text-align: center;
+    display: flex;
+    justify-content: center;
 }
 
 .image-box img {
-    width: 260px;
+    width: 240px;
 }
 
 .stats {
@@ -51,37 +56,93 @@
     font-size: 13px;
 }
 
+/* RIGHT */
 .right {
     width: 50%;
     padding: 50px;
+    display: flex;
+    flex-direction: column;
 }
 
+.brand {
+    margin-bottom: 20px;
+}
+
+/* TABS */
 .tabs {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 30px;
 }
 
-.tabs button {
+.tab {
     flex: 1;
-    padding: 10px;
+    padding: 12px;
     border: none;
     background: #eee;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
+    font-weight: 500;
 }
 
-.tabs .active {
+.tab.active {
     background: #1e90ff;
     color: white;
+}
+
+/* LOGIN TEXT */
+.login-text {
+    margin-bottom: 25px;
+}
+
+.login-text p {
+    color: #666;
+    font-size: 14px;
+}
+
+/* FORM */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field input {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.reset {
+    font-size: 13px;
+    color: #1e90ff;
+    text-align: right;
+    margin-top: 5px;
+    text-decoration: none;
 }
 
 .login-btn {
-    padding: 12px;
+    margin-top: 10px;
+    padding: 14px;
     background: #1e90ff;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     color: white;
     font-size: 16px;
     cursor: pointer;
+}
+
+/* CODE LOGIN */
+.code-login {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #1e90ff;
+    text-decoration: none;
 }

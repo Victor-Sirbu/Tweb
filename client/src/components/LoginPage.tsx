@@ -25,24 +25,29 @@ const LoginPage = () => {
 
                 {/* RIGHT */}
                 <div className="right">
-                    <h3>MyHub</h3>
+                    <h3 className="brand">MyHub</h3>
 
                     <div className="tabs">
-                        <button className="active">New Patient</button>
-                        <button>Existing Patient</button>
+                        <button className="tab active">New Patient</button>
+                        <button className="tab">Existing Patient</button>
                     </div>
 
-                    <h4>Login to start your session</h4>
-                    <p className="subtext">Secure, quick, and easy</p>
+                    <div className="login-text">
+                        <h4>Login to start your session</h4>
+                        <p>Secure, quick, and easy</p>
+                    </div>
 
-                    <form>
-                        <label>Email ID / Phone</label>
-                        <input type="text" placeholder="+373 xx xxx xxx" />
+                    <form className="form">
+                        <div className="field">
+                            <label>Email ID / Phone</label>
+                            <input type="text" placeholder="+373 xx xxx xxx" />
+                        </div>
 
-                        <label>Password</label>
-                        <input type="password" placeholder="********" />
-
-                        <a href="#" className="reset">Reset Password</a>
+                        <div className="field">
+                            <label>Password</label>
+                            <input type="password" placeholder="********" />
+                            <a href="#" className="reset">Reset Password</a>
+                        </div>
 
                         <button className="login-btn">Login</button>
                     </form>
