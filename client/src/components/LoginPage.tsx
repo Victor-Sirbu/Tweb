@@ -28,7 +28,7 @@ const LoginPage = () => {
                     <h3 className="brand">MyHub</h3>
 
                     <div className="tabs">
-                        <button className="tab active">New Patient</button>
+                        <button className="tab">New Patient</button>
                         <button className="tab">Existing Patient</button>
                     </div>
 

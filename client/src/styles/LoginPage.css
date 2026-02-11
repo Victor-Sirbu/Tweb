@@ -86,20 +86,19 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    background-color: #e5e5e5;
-    color: #000;
+
+    background-color: #1e90ff;  /* ← LINIA IMPORTANTĂ */
+    color: white;
+    box-shadow: none;
 }
+
 
 .tab:hover {
     background-color: #2f80ed;
-    color: white;
     transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(47, 128, 237, 0.3);
 }
-.tab.active {
-    background: #1e90ff;
-    color: white;
-}
+
 
 /* LOGIN TEXT */
 .login-text {
