@@ -1,12 +1,11 @@
 import "../styles/LoginPage.css";
-import doctor from "../../public/doctor.svg";
+import doctor from "../assets/doctor.png";
 
 const LoginPage = () => {
     return (
         <div className="page">
             <div className="card">
 
-                {/* LEFT */}
                 <div className="left">
                     <h2>
                         Protect Yourself and Your Family — <br />
@@ -23,7 +22,6 @@ const LoginPage = () => {
                     </div>
                 </div>
 
-                {/* RIGHT */}
                 <div className="right">
                     <h3 className="brand">MyHub</h3>
 
