@@ -146,6 +146,11 @@
     font-size: 16px;
     cursor: pointer;
 }
+.login-btn:hover {
+    background-color: #2f80ed;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(47, 128, 237, 0.3);
+}
 
 /* CODE LOGIN */
 .code-login {
