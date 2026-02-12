@@ -23,16 +23,14 @@ const LoginPage = () => {
                 </div>
 
                 <div className="right">
-                    <h3 className="brand">MyHub</h3>
+                    <div className="login-header">
+                        <h2>Login to start your session</h2>
+                        <p>Secure, quick, and easy</p>
+                    </div>
 
                     <div className="tabs">
                         <button className="tab">New Patient</button>
                         <button className="tab">Existing Patient</button>
-                    </div>
-
-                    <div className="login-text">
-                        <h4>Login to start your session</h4>
-                        <p>Secure, quick, and easy</p>
                     </div>
 
                     <form className="form">
