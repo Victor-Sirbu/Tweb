@@ -1,5 +1,5 @@
-import "../styles/LoginPage.css";
-import doctor from "../assets/doctor.png";
+import "./LoginPage.css";
+import doctor from "../../assets/doctor.png";
 
 const LoginPage = () => {
     return (
