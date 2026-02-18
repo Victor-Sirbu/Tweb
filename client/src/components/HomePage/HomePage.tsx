@@ -117,7 +117,7 @@ const HomePage = () => {
 
     return (
         <div className="homepage">
-            {/* Navigation Bar */}
+
             <nav className="navbar">
                 <div className="navbar-container">
                     <div className="navbar-logo">
@@ -146,7 +146,7 @@ const HomePage = () => {
                 </div>
             </nav>
 
-            {/* Hero Section */}
+
             <section id="acasa" className="hero-section">
                 <div className="hero-container">
                     <div className="hero-content">
@@ -200,7 +200,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* Features Section */}
+
             <section className="features-section">
                 <div className="features-container">
                     <div className="feature-box">
@@ -222,7 +222,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* Services Section */}
+
             <section id="servicii" className="services-section">
                 <div className="section-container">
                     <div className="section-header">
@@ -246,7 +246,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* Team Section */}
+
             <section id="echipa" className="team-section">
                 <div className="section-container">
                     <div className="section-header">
@@ -274,7 +274,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* How It Works Section */}
+
             <section className="how-it-works-section">
                 <div className="section-container">
                     <div className="section-header">
@@ -312,7 +312,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* Testimonials Section */}
+
             <section id="testimoniale" className="testimonials-section">
                 <div className="section-container">
                     <div className="section-header">
@@ -345,7 +345,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* CTA Section */}
+
             <section className="cta-section">
                 <div className="cta-container">
                     <div className="cta-content">
@@ -372,7 +372,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* Footer */}
+
             <footer id="contact" className="footer">
                 <div className="footer-container">
                     <div className="footer-section">
