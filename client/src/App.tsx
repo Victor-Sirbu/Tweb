@@ -1,8 +1,8 @@
-import LoginPage from "./components/LoginPage/LoginPage";
+import HomePage from "./components/HomePage/HomePage";
 
 
 function App() {
-    return <LoginPage />;
+    return <HomePage />;
 }
 
 export default App;
