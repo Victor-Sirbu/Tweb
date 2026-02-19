@@ -642,31 +642,6 @@
     box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
 }
 
-.danger-zone {
-    margin-top: 24px;
-    padding-top: 20px;
-    border-top: 2px solid #ffe0e0;
-}
-
-.danger-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: #e53e3e;
-    margin-bottom: 12px;
-}
-
-.danger-btn {
-    padding: 10px 20px;
-    background: white;
-    color: #e53e3e;
-    border: 2px solid #e53e3e;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
 .danger-btn:hover {
     background: #e53e3e;
     color: white;
@@ -721,4 +696,32 @@
 
 .toggle-input:checked + .toggle-slider::after {
     transform: translateX(22px);
+}
+
+.outline-btn {
+    padding: 12px 28px;
+    background: white;
+    color: #1e90ff;
+    border: 2px solid #1e90ff;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.outline-btn:hover {
+    background: #1e90ff;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(47, 128, 237, 0.3);
+}
+
+.security-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-card .form-group {
+    margin-bottom: 8px;
 }

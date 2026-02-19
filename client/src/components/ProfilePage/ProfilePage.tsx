@@ -3,8 +3,27 @@ import { useState } from "react";
 
 const ProfilePage = () => {
     const [menuOpen, setMenuOpen] = useState(false);
-
     const [activeTab, setActiveTab] = useState("programari");
+
+    const [numeComplet, setNumeComplet] = useState("Ion Popescu");
+    const [email, setEmail] = useState("ion.popescu@email.com");
+    const [telefon, setTelefon] = useState("+373 69 123 456");
+    const [dataNasterii, setDataNasterii] = useState("15-03-1985");
+    const [oras, setOras] = useState("Chisinau, Moldova");
+
+    const [numeCompletTemp, setNumeCompletTemp] = useState("Ion Popescu");
+    const [emailTemp, setEmailTemp] = useState("ion.popescu@email.com");
+    const [telefonTemp, setTelefonTemp] = useState("+373 69 123 456");
+    const [dataNasteriiTemp, setDataNasteriiTemp] = useState("1985-03-15");
+    const [orasTemp, setOrasTemp] = useState("Chisinau, Moldova");
+
+    const salveazaModificarile = () => {
+        setNumeComplet(numeCompletTemp);
+        setEmail(emailTemp);
+        setTelefon(telefonTemp);
+        setDataNasterii(dataNasteriiTemp);
+        setOras(orasTemp);
+    };
 
     const programari = [
         {
@@ -82,16 +101,14 @@ const ProfilePage = () => {
                         </div>
                     </div>
 
-
-
                     <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
                         ☰
                     </button>
 
                     <ul className={`navbar-menu ${menuOpen ? "active" : ""}`}>
-                        <li><a href="/">Acasă</a></li>
+                        <li><a href="/">Acasa</a></li>
                         <li><a href="/#servicii">Servicii</a></li>
-                   np     <li><a href="/#echipa">Echipa</a></li>
+                        <li><a href="/#echipa">Echipa</a></li>
                         <li><a href="/#testimoniale">Testimoniale</a></li>
                         <li><a href="/#contact">Contact</a></li>
                     </ul>
@@ -107,20 +124,21 @@ const ProfilePage = () => {
                 <div className="profile-hero-container">
                     <div className="profile-hero-badge">Contul Meu</div>
                     <h1 className="profile-hero-title">
-                        Bine ai revenit, <span className="hero-highlight">Ion Popescu</span>
+                        Bine ai revenit, <span className="hero-highlight">{numeComplet}</span>
                     </h1>
                     <p className="profile-hero-subtitle">
-                        Gestionează programările, analizele și datele tale medicale într-un singur loc.
+                        Gestioneaza programarile, analizele si datele tale medicale intr-un singur loc.
                     </p>
                 </div>
             </section>
+
             <div className="profile-main">
                 <div className="profile-layout">
 
                     <aside className="profile-sidebar">
                         <div className="sidebar-card avatar-card">
                             <div className="profile-avatar">IP</div>
-                            <h2 className="profile-name">Ion Popescu</h2>
+                            <h2 className="profile-name">{numeComplet}</h2>
                             <p className="profile-role">Pacient</p>
                             <div className="profile-badge-verified">✓ Cont Verificat</div>
                         </div>
@@ -129,23 +147,26 @@ const ProfilePage = () => {
                             <h3 className="sidebar-card-title">Date Personale</h3>
                             <ul className="info-list">
                                 <li className="info-item">
+                                    <span className="info-label">Nume:</span>
+                                    <span>{numeComplet}</span>
+                                </li>
+                                <li className="info-item">
                                     <span className="info-label">Email:</span>
-                                    <span>ion.popescu@email.com</span>
+                                    <span>{email}</span>
                                 </li>
                                 <li className="info-item">
                                     <span className="info-label">Telefon:</span>
-                                    <span>+373 69 123 456</span>
+                                    <span>{telefon}</span>
                                 </li>
                                 <li className="info-item">
-                                    <span className="info-label">Născut:</span>
-                                    <span>15 Martie 1985</span>
+                                    <span className="info-label">Nascut:</span>
+                                    <span>{dataNasterii.split("-").reverse().join("-")}</span>
                                 </li>
                                 <li className="info-item">
-                                    <span className="info-label">Oraș:</span>
-                                    <span>Chișinău, Moldova</span>
+                                    <span className="info-label">Oras:</span>
+                                    <span>{oras}</span>
                                 </li>
                             </ul>
-                            <button className="edit-btn">Editează Profilul</button>
                         </div>
 
                         <div className="sidebar-card stats-card">
@@ -153,7 +174,7 @@ const ProfilePage = () => {
                             <div className="stats-grid">
                                 <div className="stat-box">
                                     <span className="stat-number">7</span>
-                                    <span className="stat-label">Programări</span>
+                                    <span className="stat-label">Programari</span>
                                 </div>
                                 <div className="stat-box">
                                     <span className="stat-number">12</span>
@@ -218,9 +239,9 @@ const ProfilePage = () => {
                                                 </div>
                                             </div>
                                             <div className="appointment-right">
-                        <span className={`status-badge ${getStatusClass(p.status)}`}>
-                            {p.status}
-                        </span>
+                                                <span className={`status-badge ${getStatusClass(p.status)}`}>
+                                                    {p.status}
+                                                </span>
                                                 {p.status !== "finalizat" && (
                                                     <button className="cancel-btn">Anuleaza</button>
                                                 )}
@@ -248,9 +269,9 @@ const ProfilePage = () => {
                                                 <p className="analiza-date">{a.date}</p>
                                             </div>
                                             <div className="analiza-right">
-                        <span className={`status-badge ${getStatusClass(a.status)}`}>
-                            {a.status}
-                        </span>
+                                                <span className={`status-badge ${getStatusClass(a.status)}`}>
+                                                    {a.status}
+                                                </span>
                                                 <button className="navbar-btn">Descarca PDF</button>
                                             </div>
                                         </div>
@@ -265,28 +286,60 @@ const ProfilePage = () => {
                                     <h2 className="content-title">Setari Cont</h2>
                                 </div>
                                 <div className="settings-grid">
+
                                     <div className="settings-card">
                                         <h3 className="settings-card-title">Date Personale</h3>
                                         <div className="form-group">
                                             <label className="form-label">Nume complet</label>
-                                            <input className="form-input" type="text" defaultValue="Ion Popescu" />
+                                            <input
+                                                className="form-input"
+                                                type="text"
+                                                value={numeCompletTemp}
+                                                onChange={(e) => setNumeCompletTemp(e.target.value)}
+                                            />
                                         </div>
                                         <div className="form-group">
                                             <label className="form-label">Email</label>
-                                            <input className="form-input" type="email" defaultValue="ion.popescu@email.com" />
+                                            <input
+                                                className="form-input"
+                                                type="email"
+                                                value={emailTemp}
+                                                onChange={(e) => setEmailTemp(e.target.value)}
+                                            />
                                         </div>
                                         <div className="form-group">
                                             <label className="form-label">Telefon</label>
-                                            <input className="form-input" type="tel" defaultValue="+373 69 123 456" />
+                                            <input
+                                                className="form-input"
+                                                type="tel"
+                                                value={telefonTemp}
+                                                onChange={(e) => setTelefonTemp(e.target.value)}
+                                            />
                                         </div>
                                         <div className="form-group">
                                             <label className="form-label">Data nasterii</label>
-                                            <input className="form-input" type="date" defaultValue="1985-03-15" />
+                                            <input
+                                                className="form-input"
+                                                type="date"
+                                                value={dataNasteriiTemp}
+                                                onChange={(e) => setDataNasteriiTemp(e.target.value)}
+                                            />
                                         </div>
-                                        <button className="navbar-btn">Salveaza Modificarile</button>
+                                        <div className="form-group">
+                                            <label className="form-label">Oras</label>
+                                            <input
+                                                className="form-input"
+                                                type="text"
+                                                value={orasTemp}
+                                                onChange={(e) => setOrasTemp(e.target.value)}
+                                            />
+                                        </div>
+                                        <button className="outline-btn" onClick={salveazaModificarile}>
+                                            Salveaza Modificarile
+                                        </button>
                                     </div>
 
-                                    <div className="settings-card">
+                                    <div className="settings-card security-card">
                                         <h3 className="settings-card-title">Securitate</h3>
                                         <div className="form-group">
                                             <label className="form-label">Parola curenta</label>
@@ -300,11 +353,7 @@ const ProfilePage = () => {
                                             <label className="form-label">Confirma parola noua</label>
                                             <input className="form-input" type="password" placeholder="••••••••" />
                                         </div>
-                                        <button className="navbar-btn">Schimba Parola</button>
-                                        <div className="danger-zone">
-                                            <h4 className="danger-title">Zona Periculoasa</h4>
-                                            <button className="danger-btn">Sterge Contul</button>
-                                        </div>
+                                        <button className="outline-btn">Schimba Parola</button>
                                     </div>
 
                                     <div className="settings-card full-width">
@@ -324,14 +373,26 @@ const ProfilePage = () => {
                                             ))}
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         )}
 
                     </main>
-
                 </div>
             </div>
+
+            <footer className="profile-footer">
+                <div className="footer-inner">
+                    <p>© 2026 MediCare Cabinet Medical. Toate drepturile rezervate.</p>
+                    <div className="footer-links">
+                        <a href="#">Politica Confidentialitate</a>
+                        <a href="#">Termeni si Conditii</a>
+                        <a href="#">GDPR</a>
+                    </div>
+                </div>
+            </footer>
+
         </div>
     );
 };
