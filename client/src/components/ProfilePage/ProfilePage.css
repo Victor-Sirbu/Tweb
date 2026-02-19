@@ -725,3 +725,231 @@
 .settings-card .form-group {
     margin-bottom: 8px;
 }
+
+.hero-next-appointment {
+    margin-top: 32px;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 16px;
+    padding: 20px 28px;
+    max-width: 520px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.hero-appointment-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e90ff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+}
+
+.hero-appointment-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.hero-appointment-doctor {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.hero-doctor-avatar {
+    width: 46px;
+    height: 46px;
+    background: linear-gradient(135deg, #1e90ff, #2f80ed);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.hero-doctor-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+}
+
+.hero-doctor-specialty {
+    font-size: 13px;
+    color: #1e90ff;
+    font-weight: 500;
+}
+
+.hero-appointment-time {
+    text-align: right;
+}
+
+.hero-appointment-date {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+}
+
+.hero-appointment-hour {
+    font-size: 13px;
+    color: #666;
+}
+
+.profile-hero-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+}
+
+.profile-hero-left {
+    flex: 1;
+}
+
+.profile-hero-right {
+    flex-shrink: 0;
+}
+
+.mini-calendar {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 24px;
+    width: 320px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.calendar-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.calendar-nav {
+    background: #f4f8ff;
+    border: none;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    color: #1e90ff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-nav:hover {
+    background: #1e90ff;
+    color: white;
+}
+
+.calendar-grid-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 8px;
+}
+
+.calendar-day-name {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e90ff;
+    padding: 4px 0;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.calendar-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1a1a1a;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.calendar-cell:hover:not(.calendar-empty) {
+    background: #f4f8ff;
+}
+
+.calendar-empty {
+    cursor: default;
+}
+
+.calendar-today {
+    background: #1e90ff !important;
+    color: white !important;
+    font-weight: 700;
+}
+
+.calendar-has-appointment {
+    background: #e8f4ff;
+    font-weight: 700;
+    color: #1e90ff;
+}
+
+.calendar-today.calendar-has-appointment {
+    background: #1e90ff !important;
+    color: white !important;
+}
+
+.calendar-dot {
+    position: absolute;
+    bottom: 3px;
+    width: 4px;
+    height: 4px;
+    background: #1e90ff;
+    border-radius: 50%;
+}
+
+.calendar-today .calendar-dot {
+    background: white;
+}
+
+.calendar-legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #e0eaff;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    background: #1e90ff;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.legend-text {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+}

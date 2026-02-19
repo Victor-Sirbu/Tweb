@@ -1,6 +1,89 @@
 import "./ProfilePage.css";
 import { useState } from "react";
 
+const LUNI = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
+    "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
+const ZILE_SCURT = ["Lu", "Ma", "Mi", "Jo", "Vi", "Sa", "Du"];
+
+const parseDate = (dateStr: string) => {
+    const months: { [key: string]: number } = {
+        "Ianuarie": 0, "Februarie": 1, "Martie": 2, "Aprilie": 3,
+        "Mai": 4, "Iunie": 5, "Iulie": 6, "August": 7,
+        "Septembrie": 8, "Octombrie": 9, "Noiembrie": 10, "Decembrie": 11
+    };
+    const parts = dateStr.split(" ");
+    return new Date(parseInt(parts[2]), months[parts[1]], parseInt(parts[0]));
+};
+
+const MiniCalendar = ({ programari }: { programari: any[] }) => {
+    const azi = new Date();
+    const [luna, setLuna] = useState(azi.getMonth());
+    const [an, setAn] = useState(azi.getFullYear());
+
+    const primaZiLuna = new Date(an, luna, 1);
+    const ultimaZiLuna = new Date(an, luna + 1, 0);
+    const startOffset = (primaZiLuna.getDay() + 6) % 7;
+    const totalZile = ultimaZiLuna.getDate();
+
+    const programariZile = new Set(
+        programari.map((p) => {
+            const d = parseDate(p.date);
+            if (d.getMonth() === luna && d.getFullYear() === an) {
+                return d.getDate();
+            }
+            return null;
+        }).filter(Boolean)
+    );
+
+    const mergiInapoi = () => {
+        if (luna === 0) { setLuna(11); setAn(an - 1); }
+        else setLuna(luna - 1);
+    };
+
+    const mergiInainte = () => {
+        if (luna === 11) { setLuna(0); setAn(an + 1); }
+        else setLuna(luna + 1);
+    };
+
+    const celule = [];
+    for (let i = 0; i < startOffset; i++) celule.push(null);
+    for (let i = 1; i <= totalZile; i++) celule.push(i);
+
+    return (
+        <div className="mini-calendar">
+            <div className="calendar-header">
+                <button className="calendar-nav" onClick={mergiInapoi}>‹</button>
+                <span className="calendar-title">{LUNI[luna]} {an}</span>
+                <button className="calendar-nav" onClick={mergiInainte}>›</button>
+            </div>
+            <div className="calendar-grid-header">
+                {ZILE_SCURT.map((z) => (
+                    <span key={z} className="calendar-day-name">{z}</span>
+                ))}
+            </div>
+            <div className="calendar-grid">
+                {celule.map((zi, idx) => (
+                    <div
+                        key={idx}
+                        className={`calendar-cell
+                            ${zi === null ? "calendar-empty" : ""}
+                            ${zi === azi.getDate() && luna === azi.getMonth() && an === azi.getFullYear() ? "calendar-today" : ""}
+                            ${zi && programariZile.has(zi) ? "calendar-has-appointment" : ""}
+                        `}
+                    >
+                        {zi}
+                        {zi && programariZile.has(zi) && <span className="calendar-dot"></span>}
+                    </div>
+                ))}
+            </div>
+            <div className="calendar-legend">
+                <span className="legend-dot"></span>
+                <span className="legend-text">Programare</span>
+            </div>
+        </div>
+    );
+};
+
 const ProfilePage = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [activeTab, setActiveTab] = useState("programari");
@@ -122,13 +205,36 @@ const ProfilePage = () => {
 
             <section className="profile-hero">
                 <div className="profile-hero-container">
-                    <div className="profile-hero-badge">Contul Meu</div>
-                    <h1 className="profile-hero-title">
-                        Bine ai revenit, <span className="hero-highlight">{numeComplet}</span>
-                    </h1>
-                    <p className="profile-hero-subtitle">
-                        Gestioneaza programarile, analizele si datele tale medicale intr-un singur loc.
-                    </p>
+                    <div className="profile-hero-left">
+                        <div className="profile-hero-badge">Contul Meu</div>
+                        <h1 className="profile-hero-title">
+                            Bine ai revenit, <span className="hero-highlight">{numeComplet}</span>
+                        </h1>
+                        <p className="profile-hero-subtitle">
+                            Gestioneaza programarile, analizele si datele tale medicale intr-un singur loc.
+                        </p>
+
+                        <div className="hero-next-appointment">
+                            <div className="hero-appointment-label">Urmatoarea programare</div>
+                            <div className="hero-appointment-details">
+                                <div className="hero-appointment-doctor">
+                                    <div className="hero-doctor-avatar">TC</div>
+                                    <div>
+                                        <p className="hero-doctor-name">Dr. Tatiana Cobzac</p>
+                                        <p className="hero-doctor-specialty">Medicina Interna</p>
+                                    </div>
+                                </div>
+                                <div className="hero-appointment-time">
+                                    <p className="hero-appointment-date">25 Februarie 2026</p>
+                                    <p className="hero-appointment-hour">Ora 10:30</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="profile-hero-right">
+                        <MiniCalendar programari={programari} />
+                    </div>
                 </div>
             </section>
 
@@ -173,15 +279,17 @@ const ProfilePage = () => {
                             <h3 className="sidebar-card-title">Statistici</h3>
                             <div className="stats-grid">
                                 <div className="stat-box">
-                                    <span className="stat-number">7</span>
+                                    <span className="stat-number">{programari.length}</span>
                                     <span className="stat-label">Programari</span>
                                 </div>
                                 <div className="stat-box">
-                                    <span className="stat-number">12</span>
+                                    <span className="stat-number">{analize.length}</span>
                                     <span className="stat-label">Analize</span>
                                 </div>
                                 <div className="stat-box">
-                                    <span className="stat-number">3</span>
+            <span className="stat-number">
+                {[...new Set(programari.map((p) => p.doctor))].length}
+            </span>
                                     <span className="stat-label">Doctori</span>
                                 </div>
                                 <div className="stat-box">
@@ -245,9 +353,7 @@ const ProfilePage = () => {
                                                 {p.status !== "finalizat" && (
                                                     <button className="cancel-btn">Anuleaza</button>
                                                 )}
-                                                {p.status === "finalizat" && (
-                                                    <button className="service-btn">Reprogrameaza</button>
-                                                )}
+
                                             </div>
                                         </div>
                                     ))}
@@ -382,16 +488,6 @@ const ProfilePage = () => {
                 </div>
             </div>
 
-            <footer className="profile-footer">
-                <div className="footer-inner">
-                    <p>© 2026 MediCare Cabinet Medical. Toate drepturile rezervate.</p>
-                    <div className="footer-links">
-                        <a href="#">Politica Confidentialitate</a>
-                        <a href="#">Termeni si Conditii</a>
-                        <a href="#">GDPR</a>
-                    </div>
-                </div>
-            </footer>
 
         </div>
     );
