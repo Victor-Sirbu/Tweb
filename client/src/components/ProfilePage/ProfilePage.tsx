@@ -36,11 +36,36 @@ const ProfilePage = () => {
         }
     ];
 
+    const analize = [
+        {
+            id: 1,
+            name: "Hemoleucograma completa",
+            date: "10 Ianuarie 2026",
+            status: "disponibil",
+            doctor: "Dr. Tatiana Cobzac"
+        },
+        {
+            id: 2,
+            name: "Profil lipidic",
+            date: "10 Ianuarie 2026",
+            status: "disponibil",
+            doctor: "Dr. Vasile Munteanu"
+        },
+        {
+            id: 3,
+            name: "Glicemie a jeun",
+            date: "05 Decembrie 2025",
+            status: "disponibil",
+            doctor: "Dr. Tatiana Cobzac"
+        }
+    ];
+
     const getStatusClass = (status: string) => {
         switch (status) {
             case "confirmat": return "status-confirmed";
             case "in asteptare": return "status-pending";
             case "finalizat": return "status-done";
+            case "disponibil": return "status-available";
             default: return "";
         }
     };
@@ -208,6 +233,32 @@ const ProfilePage = () => {
                                 </div>
                             </div>
                         )}
+
+                        {activeTab === "analize" && (
+                            <div className="tab-content">
+                                <div className="content-header">
+                                    <h2 className="content-title">Analize & Rezultate</h2>
+                                </div>
+                                <div className="analize-list">
+                                    {analize.map((a) => (
+                                        <div key={a.id} className="analiza-card">
+                                            <div className="analiza-info">
+                                                <h3 className="analiza-name">{a.name}</h3>
+                                                <p className="analiza-doctor">{a.doctor}</p>
+                                                <p className="analiza-date">{a.date}</p>
+                                            </div>
+                                            <div className="analiza-right">
+                        <span className={`status-badge ${getStatusClass(a.status)}`}>
+                            {a.status}
+                        </span>
+                                                <button className="navbar-btn">Descarca PDF</button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                     </main>
 
                 </div>
