@@ -4,6 +4,47 @@ import { useState } from "react";
 const ProfilePage = () => {
     const [menuOpen, setMenuOpen] = useState(false);
 
+    const [activeTab, setActiveTab] = useState("programari");
+
+    const programari = [
+        {
+            id: 1,
+            doctor: "Dr. Tatiana Cobzac",
+            specialty: "Medicina Interna",
+            date: "25 Februarie 2026",
+            time: "10:30",
+            status: "confirmat",
+            initials: "TC"
+        },
+        {
+            id: 2,
+            doctor: "Dr. Vasile Munteanu",
+            specialty: "Cardiologie",
+            date: "10 Martie 2026",
+            time: "14:00",
+            status: "in asteptare",
+            initials: "VM"
+        },
+        {
+            id: 3,
+            doctor: "Dr. Andrei Leahu",
+            specialty: "Ortopedie",
+            date: "15 Ianuarie 2026",
+            time: "09:00",
+            status: "finalizat",
+            initials: "AL"
+        }
+    ];
+
+    const getStatusClass = (status: string) => {
+        switch (status) {
+            case "confirmat": return "status-confirmed";
+            case "in asteptare": return "status-pending";
+            case "finalizat": return "status-done";
+            default: return "";
+        }
+    };
+
     return (
         <div className="profile-page">
 
@@ -16,6 +57,8 @@ const ProfilePage = () => {
                         </div>
                     </div>
 
+
+
                     <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
                         ☰
                     </button>
@@ -23,7 +66,7 @@ const ProfilePage = () => {
                     <ul className={`navbar-menu ${menuOpen ? "active" : ""}`}>
                         <li><a href="/">Acasă</a></li>
                         <li><a href="/#servicii">Servicii</a></li>
-                        <li><a href="/#echipa">Echipa</a></li>
+                   np     <li><a href="/#echipa">Echipa</a></li>
                         <li><a href="/#testimoniale">Testimoniale</a></li>
                         <li><a href="/#contact">Contact</a></li>
                     </ul>
@@ -104,6 +147,67 @@ const ProfilePage = () => {
                     </aside>
 
                     <main className="profile-content">
+                        <div className="tabs-container">
+                            <button
+                                className={`tab-btn ${activeTab === "programari" ? "tab-active" : ""}`}
+                                onClick={() => setActiveTab("programari")}
+                            >
+                                Programarile Mele
+                            </button>
+                            <button
+                                className={`tab-btn ${activeTab === "analize" ? "tab-active" : ""}`}
+                                onClick={() => setActiveTab("analize")}
+                            >
+                                Analize & Rezultate
+                            </button>
+                            <button
+                                className={`tab-btn ${activeTab === "setari" ? "tab-active" : ""}`}
+                                onClick={() => setActiveTab("setari")}
+                            >
+                                Setari Cont
+                            </button>
+                        </div>
+
+                        {activeTab === "programari" && (
+                            <div className="tab-content">
+                                <div className="content-header">
+                                    <h2 className="content-title">Programarile Mele</h2>
+                                    <button className="navbar-btn">+ Programare Noua</button>
+                                </div>
+                                <div className="appointments-list">
+                                    {programari.map((p) => (
+                                        <div key={p.id} className="appointment-card">
+                                            <div className="appointment-left">
+                                                <div className="doctor-avatar-sm">{p.initials}</div>
+                                                <div className="appointment-info">
+                                                    <h3 className="appointment-doctor">{p.doctor}</h3>
+                                                    <p className="appointment-specialty">{p.specialty}</p>
+                                                </div>
+                                            </div>
+                                            <div className="appointment-center">
+                                                <div className="appointment-date">
+                                                    <span>Data: {p.date}</span>
+                                                </div>
+                                                <div className="appointment-time">
+                                                    <span>Ora: {p.time}</span>
+                                                </div>
+                                            </div>
+                                            <div className="appointment-right">
+                        <span className={`status-badge ${getStatusClass(p.status)}`}>
+                            {p.status}
+                        </span>
+                                                {p.status !== "finalizat" && (
+                                                    <button className="cancel-btn">Anuleaza</button>
+                                                )}
+                                                {p.status === "finalizat" && (
+                                                    <button className="service-btn">Reprogrameaza</button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </main>
 
                 </div>
