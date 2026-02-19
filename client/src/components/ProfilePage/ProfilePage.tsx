@@ -259,6 +259,75 @@ const ProfilePage = () => {
                             </div>
                         )}
 
+                        {activeTab === "setari" && (
+                            <div className="tab-content">
+                                <div className="content-header">
+                                    <h2 className="content-title">Setari Cont</h2>
+                                </div>
+                                <div className="settings-grid">
+                                    <div className="settings-card">
+                                        <h3 className="settings-card-title">Date Personale</h3>
+                                        <div className="form-group">
+                                            <label className="form-label">Nume complet</label>
+                                            <input className="form-input" type="text" defaultValue="Ion Popescu" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Email</label>
+                                            <input className="form-input" type="email" defaultValue="ion.popescu@email.com" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Telefon</label>
+                                            <input className="form-input" type="tel" defaultValue="+373 69 123 456" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Data nasterii</label>
+                                            <input className="form-input" type="date" defaultValue="1985-03-15" />
+                                        </div>
+                                        <button className="navbar-btn">Salveaza Modificarile</button>
+                                    </div>
+
+                                    <div className="settings-card">
+                                        <h3 className="settings-card-title">Securitate</h3>
+                                        <div className="form-group">
+                                            <label className="form-label">Parola curenta</label>
+                                            <input className="form-input" type="password" placeholder="••••••••" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Parola noua</label>
+                                            <input className="form-input" type="password" placeholder="••••••••" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Confirma parola noua</label>
+                                            <input className="form-input" type="password" placeholder="••••••••" />
+                                        </div>
+                                        <button className="navbar-btn">Schimba Parola</button>
+                                        <div className="danger-zone">
+                                            <h4 className="danger-title">Zona Periculoasa</h4>
+                                            <button className="danger-btn">Sterge Contul</button>
+                                        </div>
+                                    </div>
+
+                                    <div className="settings-card full-width">
+                                        <h3 className="settings-card-title">Notificari</h3>
+                                        <div className="notification-options">
+                                            {[
+                                                { label: "Reminder programari (SMS)", defaultChecked: true },
+                                                { label: "Reminder programari (Email)", defaultChecked: true },
+                                                { label: "Rezultate analize disponibile", defaultChecked: true },
+                                                { label: "Oferte si noutati MediCare", defaultChecked: false }
+                                            ].map((opt, i) => (
+                                                <label key={i} className="toggle-label">
+                                                    <span>{opt.label}</span>
+                                                    <input type="checkbox" defaultChecked={opt.defaultChecked} className="toggle-input" />
+                                                    <span className="toggle-slider"></span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                     </main>
 
                 </div>
