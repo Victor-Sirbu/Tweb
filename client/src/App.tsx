@@ -1,7 +1,8 @@
-import LoginPage from "./components/LoginPage/LoginPage";
+import AdminDashboard from "./components/AdminDashboard/AdminDashboard";
+
 
 function App() {
-    return <LoginPage />;
+    return <AdminDashboard />;
 }
 
 export default App;
