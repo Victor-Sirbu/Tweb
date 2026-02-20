@@ -154,7 +154,6 @@ const AdminDashboard: React.FC = () => {
             className={`nav-item ${activeSection === 'statistici' ? 'active' : ''}`}
             onClick={(e) => { e.preventDefault(); setActiveSection('statistici'); }}
           >
-            <span className="nav-icon">&#x1F4CA;</span>
             Statistici
           </a>
           <a
@@ -162,7 +161,6 @@ const AdminDashboard: React.FC = () => {
             className={`nav-item ${activeSection === 'programari' ? 'active' : ''}`}
             onClick={(e) => { e.preventDefault(); setActiveSection('programari'); }}
           >
-            <span className="nav-icon">&#x1F4C5;</span>
             Programari
           </a>
           <a
@@ -170,7 +168,6 @@ const AdminDashboard: React.FC = () => {
             className={`nav-item ${activeSection === 'pacienti' ? 'active' : ''}`}
             onClick={(e) => { e.preventDefault(); setActiveSection('pacienti'); }}
           >
-            <span className="nav-icon">&#x1F464;</span>
             Pacienti
           </a>
           <a
@@ -178,7 +175,6 @@ const AdminDashboard: React.FC = () => {
             className={`nav-item ${activeSection === 'medici' ? 'active' : ''}`}
             onClick={(e) => { e.preventDefault(); setActiveSection('medici'); }}
           >
-            <span className="nav-icon">&#x1F468;&#x200D;&#x2695;&#xFE0F;</span>
             Medici
           </a>
           <a
@@ -186,7 +182,6 @@ const AdminDashboard: React.FC = () => {
             className={`nav-item ${activeSection === 'setari' ? 'active' : ''}`}
             onClick={(e) => { e.preventDefault(); setActiveSection('setari'); }}
           >
-            <span className="nav-icon">&#x2699;&#xFE0F;</span>
             Setari
           </a>
         </nav>
@@ -453,42 +448,54 @@ const AdminDashboard: React.FC = () => {
             <div className="section-content">
               <div className="settings-container">
                 <div className="settings-section">
-                  <h3>Setari Generale</h3>
+                  <h3>🔧 Setări cont</h3>
                   <div className="setting-item">
-                    <label>Nume Cabinet</label>
-                    <input type="text" defaultValue="Cabinet Medical Dr. Ionescu" />
+                    <label>Schimbare parolă</label>
+                    <input type="password" placeholder="Parolă nouă" />
                   </div>
                   <div className="setting-item">
-                    <label>Adresa</label>
-                    <input type="text" defaultValue="Str. Medicilor nr. 123, Bucuresti" />
+                    <label>Email notificări</label>
+                    <input type="email" defaultValue="admin@cabinet.ro" />
                   </div>
                   <div className="setting-item">
-                    <label>Telefon</label>
-                    <input type="tel" defaultValue="0211234567" />
+                    <label>Limbă</label>
+                    <select>
+                      <option value="ro">Română</option>
+                      <option value="en">English</option>
+                      <option value="ru">Русский</option>
+                    </select>
                   </div>
                   <div className="setting-item">
-                    <label>Email</label>
-                    <input type="email" defaultValue="contact@cabinet.ro" />
+                    <label>Teme</label>
+                    <select>
+                      <option value="light">Light</option>
+                      <option value="dark">Dark</option>
+                      <option value="auto">Auto</option>
+                    </select>
+                  </div>
+                  <div className="setting-item">
+                    <label>2FA (mai târziu)</label>
+                    <input type="text" disabled placeholder="Funcție indisponibilă" />
                   </div>
                 </div>
                 <div className="settings-section">
-                  <h3>Notificari</h3>
+                  <h3>🔔 Setări notificări</h3>
                   <div className="setting-item">
                     <label>
                       <input type="checkbox" defaultChecked />
-                      Email pentru programari noi
+                      Email pentru programări noi
                     </label>
                   </div>
                   <div className="setting-item">
                     <label>
                       <input type="checkbox" defaultChecked />
-                      SMS pentru confirmari
+                      SMS reminder
                     </label>
                   </div>
                   <div className="setting-item">
                     <label>
                       <input type="checkbox" />
-                      Notificari push
+                      Notificări în aplicație
                     </label>
                   </div>
                 </div>

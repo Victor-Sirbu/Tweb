@@ -141,7 +141,7 @@
 .status-filter {
   padding: 10px 15px;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 800px;
   font-size: 0.95rem;
   cursor: pointer;
   background-color: white;
@@ -460,12 +460,35 @@ form {
 
 .setting-item input[type="text"],
 .setting-item input[type="tel"],
-.setting-item input[type="email"] {
+.setting-item input[type="email"],
+.setting-item input[type="password"] {
   width: 100%;
   padding: 10px;
   border: 1px solid #ced4da;
   border-radius: 5px;
   font-size: 0.95rem;
+}
+
+.setting-item input[type="text"]:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+  color: #6c757d;
+}
+
+.setting-item select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: white;
+  cursor: pointer;
+}
+
+.setting-item select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .setting-item input[type="checkbox"] {
