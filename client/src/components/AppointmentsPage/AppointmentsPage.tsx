@@ -179,7 +179,7 @@ const AppointmentsPage: React.FC = () => {
   return (
     <div className="appointments-page">
       <div className="appointments-container">
-        <h1 className="page-title">📅 Programare Online</h1>
+        <h1 className="page-title">Programare Online</h1>
 
         {showSuccess && (
           <div className="success-message">
@@ -336,31 +336,31 @@ const AppointmentsPage: React.FC = () => {
                   </div>
                   <div className="appointment-details">
                     <div className="detail-row">
-                      <span className="detail-label">📞 Telefon:</span>
+                      <span className="detail-label"> Telefon:</span>
                       <span className="detail-value">{appointment.phone}</span>
                     </div>
                     <div className="detail-row">
-                      <span className="detail-label">✉️ Email:</span>
+                      <span className="detail-label">✉ Email:</span>
                       <span className="detail-value">{appointment.email}</span>
                     </div>
                     <div className="detail-row">
-                      <span className="detail-label">👨‍⚕️ Medic:</span>
+                      <span className="detail-label">️Medic:</span>
                       <span className="detail-value">{appointment.doctor}</span>
                     </div>
                     <div className="detail-row">
-                      <span className="detail-label">🏥 Specializare:</span>
+                      <span className="detail-label"> Specializare:</span>
                       <span className="detail-value">{appointment.specialization}</span>
                     </div>
                     <div className="detail-row">
-                      <span className="detail-label">📅 Data:</span>
+                      <span className="detail-label"> Data:</span>
                       <span className="detail-value">{appointment.date}</span>
                     </div>
                     <div className="detail-row">
-                      <span className="detail-label">🕐 Ora:</span>
+                      <span className="detail-label"> Ora:</span>
                       <span className="detail-value">{appointment.time}</span>
                     </div>
                     <div className="detail-row">
-                      <span className="detail-label">📝 Motiv:</span>
+                      <span className="detail-label"> Motiv:</span>
                       <span className="detail-value">{appointment.reason}</span>
                     </div>
                   </div>
