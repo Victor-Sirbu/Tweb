@@ -1,7 +1,7 @@
 /* Doctor Profile Page Container */
 .doctor-profile-page {
     min-height: 100vh;
-    background: #f8f9fa;
+    background: #f5f7fa;
 }
 
 /* Modern Navbar */
@@ -91,11 +91,31 @@
     object-fit: cover;
 }
 
-/* Profile Container */
-.profile-container {
+/* Doctor Layout */
+.doctor-layout {
     padding: 40px 60px;
     display: flex;
+    gap: 32px;
+    align-items: flex-start;
     justify-content: flex-start;
+}
+
+.left-section {
+    width: 380px;
+    flex-shrink: 0;
+}
+
+.center-section {
+    flex: 1;
+    min-width: 200px;
+}
+
+.right-panel {
+    width: 380px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
 /* Doctor Profile Card */
@@ -103,8 +123,7 @@
     background: white;
     border-radius: 16px;
     padding: 40px;
-    width: 420px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
 }
 
 .profile-image-section {
@@ -256,7 +275,17 @@
     box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
 }
 
-/* Responsive Design */
+/* Responsive */
+@media (max-width: 1000px) {
+    .doctor-layout {
+        flex-direction: column;
+    }
+
+    .right-panel {
+        width: 100%;
+    }
+}
+
 @media (max-width: 768px) {
     .navbar {
         padding: 15px 20px;
@@ -279,7 +308,7 @@
         justify-content: space-between;
     }
 
-    .profile-container {
+    .doctor-layout {
         padding: 30px 20px;
     }
 
