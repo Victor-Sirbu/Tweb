@@ -3,7 +3,7 @@ import doctor from "../../assets/doctor.png";
 import { useState } from "react";
 
 const LoginPage = () => {
-    const [isExistingPatient, setIsExistingPatient] = useState(true);
+    const [activeTab, setActiveTab] = useState<"existing" | "new">("existing");
     const [birthDay, setBirthDay] = useState("");
     const [birthMonth, setBirthMonth] = useState("");
     const [birthYear, setBirthYear] = useState("");
@@ -13,6 +13,8 @@ const LoginPage = () => {
 
     const currentYear = new Date().getFullYear();
     const genderOptions = ["Bărbat", "Femeie"];
+
+    const isExistingPatient = activeTab === "existing";
 
     const validateDate = (day: string, month: string, year: string) => {
         const dayNum = parseInt(day);
@@ -76,16 +78,16 @@ const LoginPage = () => {
                         <h2>{isExistingPatient ? "Autentificare pentru a începe sesiunea" : "Înregistrare pacient nou"}</h2>
                     </div>
 
-                    <div className="tabs">
+                    <div className="patient-tabs">
                         <button
-                            className={`tab ${isExistingPatient ? "active" : ""}`}
-                            onClick={() => setIsExistingPatient(true)}
+                            className={`tab-btn ${activeTab === "existing" ? "active" : ""}`}
+                            onClick={() => setActiveTab("existing")}
                         >
                             Pacient existent
                         </button>
                         <button
-                            className={`tab ${!isExistingPatient ? "active" : ""}`}
-                            onClick={() => setIsExistingPatient(false)}
+                            className={`tab-btn ${activeTab === "new" ? "active" : ""}`}
+                            onClick={() => setActiveTab("new")}
                         >
                             Pacient nou
                         </button>

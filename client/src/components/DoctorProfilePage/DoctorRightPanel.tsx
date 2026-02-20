@@ -7,7 +7,7 @@ import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
-let DefaultIcon = L.icon({
+const DefaultIcon = L.icon({
     iconUrl: icon,
     shadowUrl: iconShadow,
     iconSize: [25, 41],
@@ -23,17 +23,6 @@ const DoctorRightPanel = () => {
         <div className="right-panel">
             {/* Appointment Card */}
             <div className="appointment-card">
-                <div className="rating-section">
-                    <div className="rating-item">
-                        <span className="rating-icon">⭐</span>
-                        <span className="rating-text">3.5 Rating</span>
-                    </div>
-                    <div className="rating-item">
-                        <span className="rating-icon">❤️</span>
-                        <span className="rating-text">212 persoane au apreciat</span>
-                    </div>
-                </div>
-
                 <div className="appointment-buttons">
                     <button className="btn-primary">Programează o consultație</button>
                     <button className="btn-secondary">Consultă instant</button>
@@ -46,7 +35,6 @@ const DoctorRightPanel = () => {
                 
                 <div className="clinic-info">
                     <p className="clinic-address">Apollo Hospital, Sector 32, Riyadh</p>
-                    <p className="clinic-distance">2.5 km distanță</p>
                 </div>
 
                 <div className="map-container">

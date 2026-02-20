@@ -115,43 +115,33 @@
 }
 
 
-.tabs {
+.patient-tabs {
     display: flex;
     gap: 20px;
     margin-bottom: 35px;
-
 }
 
-.tab {
+.tab-btn {
     flex: 1;
-    padding: 14px 0;
-    border-radius: 14px;
+    background-color: #ffffff;
     border: 2px solid #2F80ED;
+    color: #000000;
+    border-radius: 14px;
+    padding: 12px 28px;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-    background: #AFC4D6;
-    color: black;
-    box-shadow: none;
 }
 
-.tab:hover {
-    background: linear-gradient(135deg, #2F80ED, #1C60C5);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(47, 128, 237, 0.35);
+.tab-btn:hover {
+    background-color: #2F80ED;
+    color: #ffffff;
 }
 
-.tab.active {
-    background: #AFC4D6;
-    color: black;
-    transform: none;
-    box-shadow: none;
-}
-
-.tab:active {
-    transform: scale(0.97);
+.tab-btn.active {
+    background-color: #2F80ED;
+    color: #ffffff;
 }
 
 

@@ -7,7 +7,7 @@ const DoctorProfilePage = () => {
             {/* Modern Navbar */}
             <nav className="navbar">
                 <div className="navbar-left">
-                    <div className="logo">Rooh</div>
+                    <div className="logo">Medcare</div>
                     <div className="search-box">
                         <input
                             type="text"
@@ -58,12 +58,12 @@ const DoctorProfilePage = () => {
 
                         <div className="stats-row">
                             <div className="stat-item">
-                                <span className="stat-number">41k</span>
-                                <span className="stat-label">Urmăritori</span>
+                                <h3>10</h3>
+                                <p>Ani de experiență</p>
                             </div>
                             <div className="stat-item">
-                                <span className="stat-number">21k</span>
-                                <span className="stat-label">Urmăriți</span>
+                                <h3>1500+</h3>
+                                <p>Pacienți consultați</p>
                             </div>
                         </div>
 
