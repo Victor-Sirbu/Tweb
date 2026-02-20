@@ -4,6 +4,57 @@ import { useState } from "react";
 
 const LoginPage = () => {
     const [isExistingPatient, setIsExistingPatient] = useState(true);
+    const [birthDay, setBirthDay] = useState("");
+    const [birthMonth, setBirthMonth] = useState("");
+    const [birthYear, setBirthYear] = useState("");
+    const [dateError, setDateError] = useState("");
+    const [selectedGender, setSelectedGender] = useState("");
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    const currentYear = new Date().getFullYear();
+    const genderOptions = ["Bărbat", "Femeie"];
+
+    const validateDate = (day: string, month: string, year: string) => {
+        const dayNum = parseInt(day);
+        const monthNum = parseInt(month);
+        const yearNum = parseInt(year);
+
+        if (day && (dayNum < 1 || dayNum > 31)) {
+            setDateError("Ziua trebuie să fie între 1 și 31");
+            return false;
+        }
+
+        if (month && (monthNum < 1 || monthNum > 12)) {
+            setDateError("Luna trebuie să fie între 1 și 12");
+            return false;
+        }
+
+        if (year && (yearNum < 1900 || yearNum > currentYear)) {
+            setDateError(`Anul trebuie să fie între 1900 și ${currentYear}`);
+            return false;
+        }
+
+        setDateError("");
+        return true;
+    };
+
+    const handleDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setBirthDay(value);
+        validateDate(value, birthMonth, birthYear);
+    };
+
+    const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setBirthMonth(value);
+        validateDate(birthDay, value, birthYear);
+    };
+
+    const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setBirthYear(value);
+        validateDate(birthDay, birthMonth, value);
+    };
 
     return (
         <div className="page">
@@ -11,8 +62,8 @@ const LoginPage = () => {
 
                 <div className="left">
                     <h2>
-                        Protect Yourself and Your Family — <br />
-                        Easy Online Appointments.
+                        Protejează-te pe tine și familia ta — <br />
+                        Programări online ușoare.
                     </h2>
 
                     <div className="image-box">
@@ -22,8 +73,7 @@ const LoginPage = () => {
 
                 <div className={`right ${!isExistingPatient ? 'scroll-enabled' : ''}`}>
                     <div className="login-header">
-                        <h2>{isExistingPatient ? "Login to start your session" : "Register as New Patient"}</h2>
-                        <p>Secure, quick, and easy</p>
+                        <h2>{isExistingPatient ? "Autentificare pentru a începe sesiunea" : "Înregistrare pacient nou"}</h2>
                     </div>
 
                     <div className="tabs">
@@ -31,13 +81,13 @@ const LoginPage = () => {
                             className={`tab ${isExistingPatient ? "active" : ""}`}
                             onClick={() => setIsExistingPatient(true)}
                         >
-                            Existing Patient
+                            Pacient existent
                         </button>
                         <button
                             className={`tab ${!isExistingPatient ? "active" : ""}`}
                             onClick={() => setIsExistingPatient(false)}
                         >
-                            New Patient
+                            Pacient nou
                         </button>
                     </div>
 
@@ -45,64 +95,109 @@ const LoginPage = () => {
                         <>
                             <form className="form">
                                 <div className="field">
-                                    <label>Email ID / Phone</label>
+                                    <label>Email / Telefon</label>
                                     <input type="text" placeholder="+373 xx xxx xxx" />
                                 </div>
 
                                 <div className="field">
-                                    <label>Password</label>
+                                    <label>Parolă</label>
                                     <input type="password" placeholder="********" />
-                                    <a href="#" className="reset">Reset Password</a>
+                                    <a href="#" className="reset">Resetează parola</a>
                                 </div>
 
-                                <button type="submit" className="login-btn">Login</button>
+                                <button type="submit" className="login-btn">Autentificare</button>
                             </form>
 
-                            <a href="#" className="code-login">Login With Code</a>
+                            <a href="#" className="code-login">Autentificare cu cod</a>
                         </>
                     ) : (
                         <form className="form">
                             <div className="field">
-                                <label>First Name</label>
-                                <input type="text" placeholder="Enter your first name" />
+                                <label>Prenume</label>
+                                <input type="text" placeholder="Introdu prenumele" />
                             </div>
 
                             <div className="field">
-                                <label>Last Name</label>
-                                <input type="text" placeholder="Enter your last name" />
+                                <label>Nume</label>
+                                <input type="text" placeholder="Introdu numele" />
                             </div>
 
                             <div className="field">
                                 <label>Email</label>
-                                <input type="email" placeholder="example@email.com" />
+                                <input type="email" placeholder="exemplu@email.com" />
                             </div>
 
                             <div className="field">
-                                <label>Phone Number</label>
+                                <label>Număr de telefon</label>
                                 <input type="text" placeholder="+373 xx xxx xxx" />
                             </div>
 
                             <div className="field">
-                                <label>Age</label>
-                                <input
-                                    type="number"
-                                    placeholder="Enter your age"
-                                    min="0"
-                                    max="120"
-                                />
+                                <label>Data nașterii</label>
+                                <div className="date-inputs">
+                                    <input
+                                        type="number"
+                                        placeholder="Zi"
+                                        min="1"
+                                        max="31"
+                                        value={birthDay}
+                                        onChange={handleDayChange}
+                                        className="date-input"
+                                    />
+                                    <input
+                                        type="number"
+                                        placeholder="Lună"
+                                        min="1"
+                                        max="12"
+                                        value={birthMonth}
+                                        onChange={handleMonthChange}
+                                        className="date-input"
+                                    />
+                                    <input
+                                        type="number"
+                                        placeholder="An"
+                                        min="1900"
+                                        max={currentYear}
+                                        value={birthYear}
+                                        onChange={handleYearChange}
+                                        className="date-input"
+                                    />
+                                </div>
+                                {dateError && <span className="error-message">{dateError}</span>}
                             </div>
 
                             <div className="field">
-                                <label>Gender</label>
-                                <select>
-                                    <option value="">Select your gender</option>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    <option value="other">Other</option>
-                                </select>
+                                <label>Gen</label>
+                                <div className="custom-dropdown">
+                                    <div
+                                        className="dropdown-header"
+                                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                    >
+                                        <span>{selectedGender || "Selectează genul"}</span>
+                                        <span className={`dropdown-arrow ${isDropdownOpen ? "open" : ""}`}>
+                                            ▼
+                                        </span>
+                                    </div>
+                                    {isDropdownOpen && (
+                                        <div className="dropdown-list">
+                                            {genderOptions.map((option) => (
+                                                <div
+                                                    key={option}
+                                                    className="dropdown-option"
+                                                    onClick={() => {
+                                                        setSelectedGender(option);
+                                                        setIsDropdownOpen(false);
+                                                    }}
+                                                >
+                                                    {option}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            <button type="submit" className="login-btn">Register</button>
+                            <button type="submit" className="login-btn">Înregistrează-te</button>
                         </form>
                     )}
                 </div>

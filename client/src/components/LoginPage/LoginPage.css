@@ -126,28 +126,28 @@
     flex: 1;
     padding: 14px 0;
     border-radius: 14px;
-    border: none;
+    border: 2px solid #2F80ED;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    background: linear-gradient(135deg, #2F80ED, #1C60C5);
-    color: white;
-    box-shadow: 0 4px 12px rgba(47, 128, 237, 0.25);
+    background: #AFC4D6;
+    color: black;
+    box-shadow: none;
 }
 
 .tab:hover {
-    background: #AFC4D6;
-    color: #1f2d3d;
+    background: linear-gradient(135deg, #2F80ED, #1C60C5);
+    color: white;
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(175, 196, 214, 0.4);
+    box-shadow: 0 6px 18px rgba(47, 128, 237, 0.35);
 }
 
 .tab.active {
-    background: linear-gradient(135deg, #2F80ED, #1C60C5);
-    color: white;
+    background: #AFC4D6;
+    color: black;
     transform: none;
-    box-shadow: 0 4px 12px rgba(47, 128, 237, 0.25);
+    box-shadow: none;
 }
 
 .tab:active {
@@ -239,7 +239,7 @@
 }
 
 .login-header p {
-    color: white;
+    color: #666;
     font-size: 14px;
 }
 
@@ -249,4 +249,119 @@
     font-size: 14px;
     color: #1e90ff;
     text-decoration: none;
+}
+
+/* Date of Birth Inputs */
+.date-inputs {
+    display: flex;
+    gap: 10px;
+}
+
+.date-input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    font-family: inherit;
+    background-color: white;
+}
+
+.date-input:focus {
+    outline: none;
+    border-color: #1e90ff;
+    box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
+}
+
+/* Remove spinner arrows from number inputs */
+.date-input::-webkit-outer-spin-button,
+.date-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.date-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Error Message */
+.error-message {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
+
+/* Custom Dropdown */
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-header {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 14px;
+    background-color: white;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.dropdown-header:hover {
+    border-color: #2F80ED;
+}
+
+.dropdown-arrow {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+    color: #2F80ED;
+}
+
+.dropdown-arrow.open {
+    transform: rotate(180deg);
+}
+
+.dropdown-list {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #2F80ED;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(47, 128, 237, 0.15);
+    z-index: 10;
+    overflow: hidden;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-option {
+    padding: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.dropdown-option:hover {
+    background: #E3F2FD;
+    color: #2F80ED;
+}
+
+.dropdown-option:not(:last-child) {
+    border-bottom: 1px solid #f0f0f0;
 }
