@@ -1,6 +1,16 @@
 import "./ProfilePage.css";
 import { useState } from "react";
 
+interface Programare {
+    id: number;
+    doctor: string;
+    specialty: string;
+    date: string;
+    time: string;
+    status: string;
+    initials: string;
+}
+
 const LUNI = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
     "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
 const ZILE_SCURT = ["Lu", "Ma", "Mi", "Jo", "Vi", "Sa", "Du"];
@@ -15,7 +25,7 @@ const parseDate = (dateStr: string) => {
     return new Date(parseInt(parts[2]), months[parts[1]], parseInt(parts[0]));
 };
 
-const MiniCalendar = ({ programari }: { programari: any[] }) => {
+const MiniCalendar = ({ programari }: { programari: Programare[] }) => {
     const azi = new Date();
     const [luna, setLuna] = useState(azi.getMonth());
     const [an, setAn] = useState(azi.getFullYear());
@@ -94,6 +104,10 @@ const ProfilePage = () => {
     const [dataNasterii, setDataNasterii] = useState("15-03-1985");
     const [oras, setOras] = useState("Chisinau, Moldova");
 
+    const [showSuccessMsg, setShowSuccessMsg] = useState(false);
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [programareDeAnulat, setProgramareDeAnulat] = useState<number | null>(null)
+
     const [numeCompletTemp, setNumeCompletTemp] = useState("Ion Popescu");
     const [emailTemp, setEmailTemp] = useState("ion.popescu@email.com");
     const [telefonTemp, setTelefonTemp] = useState("+373 69 123 456");
@@ -106,9 +120,22 @@ const ProfilePage = () => {
         setTelefon(telefonTemp);
         setDataNasterii(dataNasteriiTemp);
         setOras(orasTemp);
+        setShowSuccessMsg(true);
+        setTimeout(() => setShowSuccessMsg(false), 3000);
     };
 
-    const programari = [
+    const confirmaAnulare = (id: number) => {
+        setProgramareDeAnulat(id);
+        setShowCancelModal(true);
+    };
+
+    const anuleazaProgramare = () => {
+        setProgramari(programari.filter((p) => p.id !== programareDeAnulat));
+        setShowCancelModal(false);
+        setProgramareDeAnulat(null);
+    };
+
+    const [programari, setProgramari] = useState([
         {
             id: 1,
             doctor: "Dr. Tatiana Cobzac",
@@ -136,7 +163,7 @@ const ProfilePage = () => {
             status: "finalizat",
             initials: "AL"
         }
-    ];
+    ]);
 
     const analize = [
         {
@@ -202,6 +229,23 @@ const ProfilePage = () => {
                     </div>
                 </div>
             </nav>
+
+            {showCancelModal && (
+                <div className="modal-overlay">
+                    <div className="modal-box">
+                        <h3 className="modal-title">Confirma Anularea</h3>
+                        <p className="modal-text">Esti sigur ca vrei sa anulezi aceasta programare? Actiunea nu poate fi anulata.</p>
+                        <div className="modal-buttons">
+                            <button className="modal-btn-cancel" onClick={() => setShowCancelModal(false)}>
+                                Nu, Pastreaza
+                            </button>
+                            <button className="modal-btn-confirm" onClick={anuleazaProgramare}>
+                                Da, Anuleaza
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <section className="profile-hero">
                 <div className="profile-hero-container">
@@ -351,7 +395,9 @@ const ProfilePage = () => {
                                                     {p.status}
                                                 </span>
                                                 {p.status !== "finalizat" && (
-                                                    <button className="cancel-btn">Anuleaza</button>
+                                                    <button className="cancel-btn" onClick={() => confirmaAnulare(p.id)}>
+                                                        Anuleaza
+                                                    </button>
                                                 )}
 
                                             </div>
@@ -443,6 +489,9 @@ const ProfilePage = () => {
                                         <button className="outline-btn" onClick={salveazaModificarile}>
                                             Salveaza Modificarile
                                         </button>
+                                        {showSuccessMsg && (
+                                            <div className="success-msg">✓ Date salvate cu succes!</div>
+                                        )}
                                     </div>
 
                                     <div className="settings-card security-card">
