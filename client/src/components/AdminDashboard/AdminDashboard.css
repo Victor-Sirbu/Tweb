@@ -140,11 +140,26 @@
 
 .status-filter {
   padding: 10px 15px;
-  border: 1px solid #ddd;
-  border-radius: 800px;
+  border: 2px solid #3498db;
+  border-radius: 8px;
   font-size: 0.95rem;
   cursor: pointer;
   background-color: white;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+}
+
+.status-filter:hover {
+  background-color: #3498db;
+  color: white;
+  border-color: #3498db;
+}
+
+.status-filter:focus {
+  outline: none;
+  background-color: #3498db;
+  color: white;
+  border-color: #2980b9;
 }
 
 .table-container {
