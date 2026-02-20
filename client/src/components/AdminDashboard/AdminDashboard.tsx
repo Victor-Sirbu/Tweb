@@ -67,6 +67,7 @@ const AdminDashboard: React.FC = () => {
     }
   ]);
 
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Inactive'>('All');
   const [showModal, setShowModal] = useState(false);
@@ -217,15 +218,28 @@ const AdminDashboard: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <select
-                  className="status-filter"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as 'All' | 'Active' | 'Inactive')}
-                >
-                  <option value="All">Toti pacientii</option>
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
+                <div className="custom-dropdown">
+                  <button
+                      className="dropdown-toggle"
+                      onClick={() => setDropdownOpen(!dropdownOpen)}
+                  >
+                    {statusFilter === 'All' ? 'Toti pacientii' : statusFilter}
+                    <span className="dropdown-arrow">▾</span>
+                  </button>
+                  {dropdownOpen && (
+                      <div className="dropdown-menu">
+                        {(['All', 'Active', 'Inactive'] as const).map((option) => (
+                            <div
+                                key={option}
+                                className={`dropdown-item ${statusFilter === option ? 'selected' : ''}`}
+                                onClick={() => { setStatusFilter(option); setDropdownOpen(false); }}
+                            >
+                              {option === 'All' ? 'Toti pacientii' : option}
+                            </div>
+                        ))}
+                      </div>
+                  )}
+                </div>
               </div>
 
               <div className="table-container">
