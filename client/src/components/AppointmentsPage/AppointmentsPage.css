@@ -6,7 +6,7 @@
 
 .appointments-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: white;
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -18,14 +18,13 @@
 
 .page-title {
   text-align: center;
-  color: white;
+  color: #1a202c;
   font-size: 2.5rem;
   margin-bottom: 2rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .success-message {
-  background: #48bb78;
+  background: #2563eb;
   color: white;
   padding: 1rem 1.5rem;
   border-radius: 10px;
@@ -49,17 +48,18 @@
 /* Form Card Styling */
 .form-card {
   background: white;
+  border: 2px solid #2563eb;
   border-radius: 16px;
   padding: 2.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
 }
 
 .section-title {
-  color: #2d3748;
+  color: #1a202c;
   font-size: 1.8rem;
   margin-bottom: 1.5rem;
-  border-bottom: 3px solid #667eea;
+  border-bottom: 3px solid #2563eb;
   padding-bottom: 0.5rem;
 }
 
@@ -82,7 +82,7 @@
 }
 
 .form-group label {
-  color: #2d3748;
+  color: #1a202c;
   font-weight: 600;
   margin-bottom: 0.5rem;
   font-size: 0.95rem;
@@ -92,24 +92,25 @@
 .form-group select,
 .form-group textarea {
   padding: 0.875rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid #2563eb;
   border-radius: 10px;
   font-size: 1rem;
   transition: all 0.3s;
   font-family: inherit;
+  background: white;
+  color: #1a202c;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .form-group select {
   cursor: pointer;
-  background-color: white;
 }
 
 .form-group textarea {
@@ -119,20 +120,21 @@
 
 .submit-btn {
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
+  background: white;
+  color: #1a202c;
+  border: 2px solid #2563eb;
   border-radius: 10px;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
 }
 
 .submit-btn:hover {
+  background: #2563eb;
+  color: white;
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .submit-btn:active {
@@ -142,9 +144,10 @@
 /* Appointments List Card */
 .appointments-list-card {
   background: white;
+  border: 2px solid #2563eb;
   border-radius: 16px;
   padding: 2.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .appointments-grid {
@@ -153,8 +156,8 @@
 }
 
 .appointment-item {
-  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-  border: 2px solid #e2e8f0;
+  background: white;
+  border: 2px solid #2563eb;
   border-radius: 12px;
   padding: 1.5rem;
   transition: all 0.3s;
@@ -162,8 +165,8 @@
 
 .appointment-item:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  border-color: #667eea;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+  border-color: #1d4ed8;
 }
 
 .appointment-header {
@@ -172,11 +175,11 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 .appointment-header h3 {
-  color: #2d3748;
+  color: #1a202c;
   font-size: 1.3rem;
 }
 
@@ -188,18 +191,21 @@
 }
 
 .status-badge.status-confirmată {
-  background: #c6f6d5;
-  color: #22543d;
+  background: #2563eb;
+  color: white;
+  border: 2px solid #1d4ed8;
 }
 
 .status-badge.status-în-așteptare {
-  background: #feebc8;
-  color: #7c2d12;
+  background: white;
+  color: #1a202c;
+  border: 2px solid #2563eb;
 }
 
 .status-badge.status-anulată {
-  background: #fed7d7;
-  color: #742a2a;
+  background: #ef4444;
+  color: white;
+  border: 2px solid #dc2626;
 }
 
 .appointment-details {
@@ -217,21 +223,21 @@
 
 .detail-label {
   font-weight: 600;
-  color: #4a5568;
+  color: #1a202c;
   font-size: 0.9rem;
 }
 
 .detail-value {
-  color: #2d3748;
+  color: #1a202c;
   font-size: 0.9rem;
 }
 
 .cancel-btn {
   width: 100%;
   padding: 0.75rem;
-  background: #fed7d7;
-  color: #742a2a;
-  border: none;
+  background: white;
+  color: #1a202c;
+  border: 2px solid #2563eb;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
@@ -240,9 +246,10 @@
 }
 
 .cancel-btn:hover {
-  background: #fc8181;
+  background: #2563eb;
   color: white;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 /* Responsive Design */
