@@ -16,7 +16,6 @@ const allServices = [
         details: "Evaluare medicala complexa, tratamente personalizate si monitorizare continua.",
         price: "250 MDL",
         duration: "45 min",
-        abbr: "MI"
     },
     {
         title: "Cardiologie",
@@ -25,7 +24,6 @@ const allServices = [
         details: "Preventie si tratament boli cardiovasculare, consult specializat.",
         price: "350 MDL",
         duration: "60 min",
-        abbr: "CR"
     },
     {
         title: "Analize Medicale",
@@ -34,7 +32,6 @@ const allServices = [
         details: "Analize sange, urina, teste hormonale, markeri tumorali si biochimie.",
         price: "150 MDL",
         duration: "30 min",
-        abbr: "AM"
     },
     {
         title: "Medicina de Familie",
@@ -43,7 +40,6 @@ const allServices = [
         details: "Medic de familie, vaccinari, consultatii pediatrice si geriatrice.",
         price: "200 MDL",
         duration: "40 min",
-        abbr: "MF"
     },
     {
         title: "Ortopedie",
@@ -52,7 +48,6 @@ const allServices = [
         details: "Traumatologie, recuperare medicala, infiltratii articulare.",
         price: "400 MDL",
         duration: "60 min",
-        abbr: "OR"
     },
     {
         title: "Oftalmologie",
@@ -61,7 +56,6 @@ const allServices = [
         details: "Control vedere, diagnostic glaucom, tratament cataracta si retinopatie.",
         price: "300 MDL",
         duration: "45 min",
-        abbr: "OF"
     },
     {
         title: "Neurologie",
@@ -70,7 +64,6 @@ const allServices = [
         details: "Migrene, vertij, neuropatii periferice, diagnostic AVC.",
         price: "380 MDL",
         duration: "60 min",
-        abbr: "NR"
     },
     {
         title: "Endocrinologie",
@@ -79,7 +72,6 @@ const allServices = [
         details: "Diabet, afectiuni tiroidiene, tulburari metabolice si suprarenale.",
         price: "350 MDL",
         duration: "50 min",
-        abbr: "EN"
     },
     {
         title: "Ecografie",
@@ -88,7 +80,6 @@ const allServices = [
         details: "Aparat ecograf performant, rezultate imediate cu raport detaliat.",
         price: "280 MDL",
         duration: "30 min",
-        abbr: "EC"
     }
 ];
 
