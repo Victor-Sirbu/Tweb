@@ -1,6 +1,12 @@
 import "./HomePage.css";
 import Footer from "../../shared/Footer/Footer";
 import Navbar from "../../shared/Navbar/Navbar";
+import { useState, useEffect } from "react";
+import heroBg1 from "../../assets/hero-bg1.jpg";
+import heroBg2 from "../../assets/hero-bg2.jpg";
+import heroBg3 from "../../assets/hero-bg3.jpg";
+import heroBg4 from "../../assets/hero-bg4.jpg";
+import heroBg5 from "../../assets/hero-bg5.jpg";
 
 
 const HomePage = () => {
@@ -68,12 +74,29 @@ const HomePage = () => {
         }
     ];
 
+    const images = [heroBg1, heroBg2, heroBg3, heroBg4, heroBg5];
+    const [currentImage, setCurrentImage] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentImage((prev) => (prev + 1) % images.length);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
+
     return (
         <div className="homepage">
 
             <Navbar />
 
             <section id="acasa" className="hero-section">
+                {images.map((img, index) => (
+                    <div key={index} className="hero-slide" style={{
+                        backgroundImage: `url(${img})`,
+                        opacity: index === currentImage ? 1 : 0
+                    } as React.CSSProperties}></div>
+                ))}
+                <div className="hero-overlay"></div>
                 <div className="hero-container">
                     <div className="hero-content">
                         <div className="hero-badge">Cabinet Medical Acreditat</div>
@@ -107,22 +130,25 @@ const HomePage = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="hero-image">
-                        <div className="image-card">
-                            <div className="image-badge">Rating 4.9/5</div>
-                            <div className="hero-img-placeholder">
-                                <p className="placeholder-text">Echipă Medicală Profesionistă</p>
-                            </div>
-                            <div className="image-info">
-                                <div className="info-item">
-                                    <span>✓ Echipamente Moderne</span>
-                                </div>
-                                <div className="info-item">
-                                    <span>✓ Rezultate Rapide</span>
-                                </div>
-                            </div>
+
+                    <div className="hero-schedule-card">
+                        <h3 className="schedule-title">Program</h3>
+                        <div className="schedule-item">
+                            <span className="schedule-day">Luni - Vineri</span>
+                            <span className="schedule-time">08:00 - 20:00</span>
+                        </div>
+                        <div className="schedule-divider"></div>
+                        <div className="schedule-item">
+                            <span className="schedule-day">Sâmbătă</span>
+                            <span className="schedule-time">09:00 - 14:00</span>
+                        </div>
+                        <div className="schedule-divider"></div>
+                        <div className="schedule-item">
+                            <span className="schedule-day">Duminică</span>
+                            <span className="schedule-time closed">Închis</span>
                         </div>
                     </div>
+
                 </div>
             </section>
 
@@ -282,6 +308,7 @@ const HomePage = () => {
                         </div>
                     </div>
                 </div>
+
             </section>
 
             <Footer />
