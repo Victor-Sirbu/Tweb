@@ -18,7 +18,7 @@ interface AuditEntry {
 const auditLog: AuditEntry[] = [
     {
         id: 1,
-        adminName: "Dr. Tatiana Cobzac",
+        adminName: "Alexandru Popa",
         adminRole: "Administrator",
         action: "Editare fișă pacient",
         actionType: "edit",
@@ -31,46 +31,46 @@ const auditLog: AuditEntry[] = [
     },
     {
         id: 2,
-        adminName: "Recepționer Maria Ionescu",
-        adminRole: "Recepționer",
-        action: "Modificare programare",
-        actionType: "modify",
-        target: "Vasile Rusu — 22 Feb 2026",
+        adminName: "Ion Popescu",
+        adminRole: "Pacient",
+        action: "Creare programare",
+        actionType: "create",
+        target: "Dr. Tatiana Cobzac — 25 Feb 2026",
         targetType: "appointment",
-        details: "A reprogramat consultația de la 22 Feb la 25 Feb 2026, ora 11:00.",
+        details: "Pacientul a creat o programare nouă la Medicină Internă.",
         date: "20 Feb 2026",
         time: "09:30",
-        ip: "192.168.1.14"
+        ip: "192.168.1.20"
     },
     {
         id: 3,
-        adminName: "Dr. Andrei Leahu",
-        adminRole: "Medic Specialist",
-        action: "Ștergere pacient",
+        adminName: "Admin Sistem",
+        adminRole: "Super Admin",
+        action: "Ștergere cont",
         actionType: "delete",
         target: "Elena Cojocaru",
         targetType: "patient",
-        details: "Contul și dosarul medical al pacientului au fost șterse definitiv la cererea pacientei.",
+        details: "Contul și dosarul medical au fost șterse definitiv la cererea pacientei.",
         date: "19 Feb 2026",
         time: "16:20",
-        ip: "192.168.1.11"
+        ip: "192.168.1.1"
     },
     {
         id: 4,
-        adminName: "Recepționer Maria Ionescu",
-        adminRole: "Recepționer",
-        action: "Creare programare",
-        actionType: "create",
-        target: "Dumitru Moraru — 28 Feb 2026",
+        adminName: "Vasile Rusu",
+        adminRole: "Pacient",
+        action: "Modificare programare",
+        actionType: "modify",
+        target: "Dr. Vasile Munteanu — 28 Feb 2026",
         targetType: "appointment",
-        details: "A creat o programare nouă pentru consultație cardiologică la Dr. Vasile Munteanu.",
+        details: "Pacientul a reprogramat consultația cardiologică de la 22 Feb la 28 Feb 2026.",
         date: "19 Feb 2026",
         time: "14:05",
-        ip: "192.168.1.14"
+        ip: "192.168.1.21"
     },
     {
         id: 5,
-        adminName: "Dr. Tatiana Cobzac",
+        adminName: "Alexandru Popa",
         adminRole: "Administrator",
         action: "Editare rezultate analize",
         actionType: "edit",
@@ -96,29 +96,29 @@ const auditLog: AuditEntry[] = [
     },
     {
         id: 7,
-        adminName: "Recepționer Maria Ionescu",
-        adminRole: "Recepționer",
-        action: "Ștergere programare",
+        adminName: "Elena Ciobanu",
+        adminRole: "Pacient",
+        action: "Anulare programare",
         actionType: "delete",
-        target: "Ana Lungu — 15 Feb 2026",
+        target: "Dr. Natalia Botnari — 15 Feb 2026",
         targetType: "appointment",
-        details: "Programarea a fost anulată la cererea pacientei cu 48h înainte de consultație.",
+        details: "Pacienta a anulat programarea la Pediatrie cu 48h înainte de consultație.",
         date: "13 Feb 2026",
         time: "11:50",
-        ip: "192.168.1.14"
+        ip: "192.168.1.22"
     },
     {
         id: 8,
-        adminName: "Dr. Vasile Munteanu",
-        adminRole: "Medic Specialist",
-        action: "Modificare fișă medicală",
-        actionType: "modify",
+        adminName: "Alexandru Popa",
+        adminRole: "Administrator",
+        action: "Creare cont utilizator",
+        actionType: "create",
         target: "Gheorghe Popa",
-        targetType: "patient",
-        details: "A actualizat istoricul de alergii și a modificat tratamentul cardiologic.",
+        targetType: "user",
+        details: "A creat un cont nou de pacient și a configurat preferințele de notificare.",
         date: "12 Feb 2026",
         time: "15:30",
-        ip: "192.168.1.12"
+        ip: "192.168.1.10"
     }
 ];
 
@@ -341,17 +341,19 @@ const ActivityLog = () => {
                         <div className="al-sidebar-card">
                             <h3 className="al-sidebar-title">Administratori Activi</h3>
                             <div className="al-admin-list">
-                                {[...new Map(auditLog.map(a => [a.adminName, a])).values()].map((a, i) => (
-                                    <div key={i} className="al-admin-item">
-                                        <div className="al-admin-avatar">
-                                            {a.adminName.split(" ").slice(-2).map(w => w[0]).join("").toUpperCase().slice(0, 2)}
+                                {[...new Map(auditLog.map(a => [a.adminName, a])).values()]
+                                    .filter(a => a.adminRole === "Administrator" || a.adminRole === "Super Admin")
+                                    .map((a, i) => (
+                                        <div key={i} className="al-admin-item">
+                                            <div className="al-admin-avatar">
+                                                {a.adminName.split(" ").slice(-2).map(w => w[0]).join("").toUpperCase().slice(0, 2)}
+                                            </div>
+                                            <div className="al-admin-info">
+                                                <span className="al-admin-name">{a.adminName}</span>
+                                                <span className="al-admin-role">{a.adminRole}</span>
+                                            </div>
                                         </div>
-                                        <div className="al-admin-info">
-                                            <span className="al-admin-name">{a.adminName}</span>
-                                            <span className="al-admin-role">{a.adminRole}</span>
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))}
                             </div>
                         </div>
                     </aside>
@@ -376,7 +378,7 @@ const ActivityLog = () => {
                                 <thead>
                                     <tr>
                                         <th>Data / Ora</th>
-                                        <th>Administrator</th>
+                                        <th>Utilizator</th>
                                         <th>Actiune</th>
                                         <th>Tinta</th>
                                         <th>Tip</th>
