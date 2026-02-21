@@ -4,6 +4,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
+    const [visible, setVisible] = useState<boolean>(true);
+    const [lastScroll, setLastScroll] = useState<number>(0);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -16,6 +18,21 @@ const Navbar = () => {
         }
     }, [location]);
 
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScroll = window.scrollY;
+            if (currentScroll < lastScroll || currentScroll < 10) {
+                setVisible(true);
+            } else {
+                setVisible(false);
+            }
+            setLastScroll(currentScroll);
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [lastScroll]);
+
     const scrollToSection = (id: string) => {
         if (location.pathname === "/") {
             document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -25,7 +42,10 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="navbar">
+        <nav className="navbar" style={{
+            transform: visible ? "translateY(0)" : "translateY(-100%)",
+            transition: "transform 0.4s ease"
+        }}>
             <div className="navbar-container">
                 <div className="navbar-logo" onClick={() => navigate("/")}>
                     <div className="logo-text">
