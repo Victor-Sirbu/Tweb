@@ -1,4 +1,7 @@
 import "./ProfilePage.css";
+import Navbar from "../../shared/Navbar/Navbar";
+import Footer from "../../shared/Footer/Footer";
+
 import { useState } from "react";
 
 interface Programare {
@@ -95,7 +98,6 @@ const MiniCalendar = ({ programari }: { programari: Programare[] }) => {
 };
 
 const ProfilePage = () => {
-    const [menuOpen, setMenuOpen] = useState(false);
     const [activeTab, setActiveTab] = useState("programari");
 
     const [numeComplet, setNumeComplet] = useState("Ion Popescu");
@@ -202,33 +204,8 @@ const ProfilePage = () => {
     return (
         <div className="profile-page">
 
-            <nav className="navbar">
-                <div className="navbar-container">
-                    <div className="navbar-logo">
-                        <div className="logo-text">
-                            <span className="logo-title">MediCare</span>
-                            <span className="logo-subtitle">Cabinet Medical</span>
-                        </div>
-                    </div>
+            <Navbar />
 
-                    <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
-                        ☰
-                    </button>
-
-                    <ul className={`navbar-menu ${menuOpen ? "active" : ""}`}>
-                        <li><a href="/">Acasa</a></li>
-                        <li><a href="/#servicii">Servicii</a></li>
-                        <li><a href="/#echipa">Echipa</a></li>
-                        <li><a href="/#testimoniale">Testimoniale</a></li>
-                        <li><a href="/#contact">Contact</a></li>
-                    </ul>
-
-                    <div className="navbar-actions">
-                        <a href="tel:+37322123456" className="navbar-phone">+373 22 123 456</a>
-                        <button className="navbar-btn">Programare</button>
-                    </div>
-                </div>
-            </nav>
 
             {showCancelModal && (
                 <div className="modal-overlay">
@@ -537,6 +514,7 @@ const ProfilePage = () => {
                 </div>
             </div>
 
+            <Footer />
 
         </div>
     );

@@ -1,10 +1,28 @@
 import "./Navbar.css";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.hash) {
+            const id = location.hash.replace("#", "");
+            setTimeout(() => {
+                document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+            }, 100);
+        }
+    }, [location]);
+
+    const scrollToSection = (id: string) => {
+        if (location.pathname === "/") {
+            document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+        } else {
+            navigate(`/#${id}`);
+        }
+    };
 
     return (
         <nav className="navbar">
@@ -23,9 +41,9 @@ const Navbar = () => {
                 <ul className={`navbar-menu ${menuOpen ? 'active' : ''}`}>
                     <li><a href="/">Acasă</a></li>
                     <li><a href="/services">Servicii</a></li>
-                    <li><a href="#echipa">Medici</a></li>
+                    <li><a onClick={() => scrollToSection("echipa")} style={{cursor:"pointer"}}>Medici</a></li>
                     <li><a href="/profile">Profilul Meu</a></li>
-                    <li><a href="#testimoniale">Recenzii</a></li>
+                    <li><a onClick={() => scrollToSection("testimoniale")} style={{cursor:"pointer"}}>Recenzii</a></li>
                     <li><a href="#contact">Contact</a></li>
                 </ul>
 

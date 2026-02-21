@@ -1,11 +1,9 @@
 import "./HomePage.css";
 import Footer from "../../shared/Footer/Footer";
 import Navbar from "../../shared/Navbar/Navbar";
-import { useState } from "react";
+
 
 const HomePage = () => {
-    const [menuOpen, setMenuOpen] = useState<boolean>(false);
-
 
 
     const doctors = [

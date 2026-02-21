@@ -1,4 +1,6 @@
 import "./MedicalServices.css";
+import Navbar from "../../shared/Navbar/Navbar";
+import Footer from "../../shared/Footer/Footer";
 import { useState } from "react";
 
 const allServices = [
@@ -87,14 +89,7 @@ const allServices = [
 
 const categories = ["Toate", "Generala", "Specialitate", "Laborator", "Imagistica"];
 
-const schedule = [
-    { day: "Luni - Vineri", hours: "08:00 - 20:00" },
-    { day: "Sâmbătă", hours: "09:00 - 14:00" },
-    { day: "Duminică", hours: "Închis" }
-];
-
 const MedicalServices = () => {
-    const [menuOpen, setMenuOpen] = useState(false);
     const [activeCategory, setActiveCategory] = useState("Toate");
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -108,31 +103,7 @@ const MedicalServices = () => {
     return (
         <div className="ms-page">
 
-            <nav className="ms-navbar">
-                <div className="ms-navbar-container">
-                    <div className="ms-navbar-logo">
-                        <div className="ms-logo-text">
-                            <span className="ms-logo-title">MediCare</span>
-                            <span className="ms-logo-subtitle">Cabinet Medical</span>
-                        </div>
-                    </div>
-
-                    <button className="ms-menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>&#9776;</button>
-
-                    <ul className={`ms-navbar-menu ${menuOpen ? "active" : ""}`}>
-                        <li><a href="/">Acasă</a></li>
-                        <li><a href="/services" className="ms-nav-active">Servicii</a></li>
-                        <li><a href="/#echipa">Echipa</a></li>
-                        <li><a href="/#testimoniale">Testimoniale</a></li>
-                        <li><a href="/#contact">Contact</a></li>
-                    </ul>
-
-                    <div className="ms-navbar-actions">
-                        <a href="tel:+37322123456" className="ms-navbar-phone">+373 22 123 456</a>
-                        <button className="ms-navbar-btn">Programare</button>
-                    </div>
-                </div>
-            </nav>
+            <Navbar />
 
             <section className="ms-hero">
                 <div className="ms-hero-container">
@@ -264,53 +235,8 @@ const MedicalServices = () => {
                 </div>
             </section>
 
-            <footer className="ms-footer">
-                <div className="ms-footer-container">
-                    <div className="ms-footer-section">
-                        <div className="ms-logo-text">
-                            <span className="ms-logo-title">MediCare</span>
-                            <span className="ms-logo-subtitle">Cabinet Medical</span>
-                        </div>
-                        <p className="ms-footer-description">
-                            Cabinet medical modern cu servicii complete de diagnostic și tratament.
-                        </p>
-                    </div>
+            <Footer />
 
-                    <div className="ms-footer-section">
-                        <h3 className="ms-footer-title">Link-uri Rapide</h3>
-                        <ul className="ms-footer-links">
-                            <li><a href="/">Acasă</a></li>
-                            <li><a href="/services">Servicii Medicale</a></li>
-                            <li><a href="/profile">Profilul Meu</a></li>
-                            <li><a href="/activity">Activitate</a></li>
-                        </ul>
-                    </div>
-
-                    <div className="ms-footer-section">
-                        <h3 className="ms-footer-title">Program</h3>
-                        <ul className="ms-footer-schedule">
-                            {schedule.map((item, index) => (
-                                <li key={index}>
-                                    <span>{item.day}</span>
-                                    <span className="ms-hours">{item.hours}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div className="ms-footer-section">
-                        <h3 className="ms-footer-title">Contact</h3>
-                        <ul className="ms-footer-contact">
-                            <li><span className="ms-contact-label">Adresă:</span><span>Bd. Ștefan cel Mare nr. 123, Chișinău</span></li>
-                            <li><span className="ms-contact-label">Telefon:</span><span>+373 22 123 456</span></li>
-                            <li><span className="ms-contact-label">Email:</span><span>contact@medicare.md</span></li>
-                        </ul>
-                    </div>
-                </div>
-                <div className="ms-footer-bottom">
-                    <p>© 2026 MediCare Cabinet Medical. Toate drepturile rezervate.</p>
-                </div>
-            </footer>
         </div>
     );
 };
