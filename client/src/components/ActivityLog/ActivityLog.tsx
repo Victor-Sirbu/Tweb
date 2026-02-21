@@ -1,5 +1,7 @@
 import "./ActivityLog.css";
 import { useState } from "react";
+import AdminNavbar from "../../shared/AdminNavbar/AdminNavbar";
+import Footer from "../../shared/Footer/Footer";
 
 interface AuditEntry {
     id: number;
@@ -124,14 +126,7 @@ const auditLog: AuditEntry[] = [
 
 const actionFilters = ["Toate", "Editare", "Ștergere", "Modificare", "Creare", "Autentificare"];
 
-const schedule = [
-    { day: "Luni - Vineri", hours: "08:00 - 20:00" },
-    { day: "Sâmbătă", hours: "09:00 - 14:00" },
-    { day: "Duminică", hours: "Închis" }
-];
-
 const ActivityLog = () => {
-    const [menuOpen, setMenuOpen] = useState(false);
     const [activeFilter, setActiveFilter] = useState("Toate");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedEntry, setSelectedEntry] = useState<AuditEntry | null>(null);
@@ -197,31 +192,7 @@ const ActivityLog = () => {
     return (
         <div className="al-page">
 
-            <nav className="al-navbar">
-                <div className="al-navbar-container">
-                    <div className="al-navbar-logo">
-                        <div className="al-logo-text">
-                            <span className="al-logo-title">MediCare</span>
-                            <span className="al-logo-subtitle">Cabinet Medical</span>
-                        </div>
-                    </div>
-
-                    <button className="al-menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>&#9776;</button>
-
-                    <ul className={`al-navbar-menu ${menuOpen ? "active" : ""}`}>
-                        <li><a href="/">Acasa</a></li>
-                        <li><a href="/services">Servicii</a></li>
-                        <li><a href="/profile">Profilul Meu</a></li>
-                        <li><a href="/activity" className="al-nav-active">Audit & Activitate</a></li>
-                        <li><a href="/#contact">Contact</a></li>
-                    </ul>
-
-                    <div className="al-navbar-actions">
-                        <a href="tel:+37322123456" className="al-navbar-phone">+373 22 123 456</a>
-                        <button className="al-navbar-btn">Programare</button>
-                    </div>
-                </div>
-            </nav>
+            <AdminNavbar />
 
             <section className="al-hero">
                 <div className="al-hero-container">
@@ -444,53 +415,8 @@ const ActivityLog = () => {
                 </div>
             </div>
 
-            <footer className="al-footer">
-                <div className="al-footer-container">
-                    <div className="al-footer-section">
-                        <div className="al-logo-text">
-                            <span className="al-logo-title-footer">MediCare</span>
-                            <span className="al-logo-subtitle-footer">Cabinet Medical</span>
-                        </div>
-                        <p className="al-footer-description">
-                            Cabinet medical modern cu servicii complete de diagnostic si tratament.
-                        </p>
-                    </div>
+            <Footer />
 
-                    <div className="al-footer-section">
-                        <h3 className="al-footer-title">Link-uri Rapide</h3>
-                        <ul className="al-footer-links">
-                            <li><a href="/">Acasa</a></li>
-                            <li><a href="/services">Servicii Medicale</a></li>
-                            <li><a href="/profile">Profilul Meu</a></li>
-                            <li><a href="/activity">Audit & Activitate</a></li>
-                        </ul>
-                    </div>
-
-                    <div className="al-footer-section">
-                        <h3 className="al-footer-title">Program</h3>
-                        <ul className="al-footer-schedule">
-                            {schedule.map((item, index) => (
-                                <li key={index}>
-                                    <span>{item.day}</span>
-                                    <span className="al-hours">{item.hours}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div className="al-footer-section">
-                        <h3 className="al-footer-title">Contact</h3>
-                        <ul className="al-footer-contact">
-                            <li><span className="al-contact-label">Adresa:</span><span>Bd. Stefan cel Mare nr. 123, Chisinau</span></li>
-                            <li><span className="al-contact-label">Telefon:</span><span>+373 22 123 456</span></li>
-                            <li><span className="al-contact-label">Email:</span><span>contact@medicare.md</span></li>
-                        </ul>
-                    </div>
-                </div>
-                <div className="al-footer-bottom">
-                    <p>© 2026 MediCare Cabinet Medical. Toate drepturile rezervate.</p>
-                </div>
-            </footer>
         </div>
     );
 };
