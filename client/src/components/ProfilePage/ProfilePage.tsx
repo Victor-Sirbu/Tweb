@@ -103,7 +103,11 @@ const ProfilePage = () => {
     const [numeComplet, setNumeComplet] = useState("Ion Popescu");
     const [email, setEmail] = useState("ion.popescu@email.com");
     const [telefon, setTelefon] = useState("+373 69 123 456");
-    const [dataNasterii, setDataNasterii] = useState("15-03-1985");
+    const [dataNasterii, setDataNasterii] = useState("1985-03-15");
+    const formatData = (data: string) => {
+        const [an, luna, zi] = data.split("-");
+        return `${zi}-${luna}-${an}`;
+    };
     const [oras, setOras] = useState("Chisinau, Moldova");
 
     const [showSuccessMsg, setShowSuccessMsg] = useState(false);
@@ -287,7 +291,7 @@ const ProfilePage = () => {
                                 </li>
                                 <li className="info-item">
                                     <span className="info-label">Nascut:</span>
-                                    <span>{dataNasterii.split("-").reverse().join("-")}</span>
+                                    <span>{formatData(dataNasterii)}</span>
                                 </li>
                                 <li className="info-item">
                                     <span className="info-label">Oras:</span>
