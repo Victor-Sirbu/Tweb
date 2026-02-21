@@ -231,30 +231,7 @@ const MedicalServices = () => {
                 </div>
             </section>
 
-            <section className="ms-cta-section">
-                <div className="ms-cta-container">
-                    <div className="ms-cta-content">
-                        <h2 className="ms-cta-title">Nu găsești ce cauți?</h2>
-                        <p className="ms-cta-description">
-                            Contactează-ne și îți vom recomanda cel mai potrivit medic specialist pentru nevoile tale.
-                        </p>
-                        <div className="ms-cta-buttons">
-                            <button className="ms-cta-btn-primary">Sună Acum</button>
-                            <button className="ms-cta-btn-secondary">Trimite Mesaj</button>
-                        </div>
-                    </div>
-                    <div className="ms-cta-stats">
-                        <div className="ms-cta-stat">
-                            <span className="ms-cta-stat-number">98%</span>
-                            <span className="ms-cta-stat-label">Satisfacție Pacienți</span>
-                        </div>
-                        <div className="ms-cta-stat">
-                            <span className="ms-cta-stat-number">&lt;2h</span>
-                            <span className="ms-cta-stat-label">Timp Răspuns</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
+
 
             <Footer />
 
