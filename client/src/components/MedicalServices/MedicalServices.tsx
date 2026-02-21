@@ -1,7 +1,12 @@
 import "./MedicalServices.css";
 import Navbar from "../../shared/Navbar/Navbar";
 import Footer from "../../shared/Footer/Footer";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import heroBg1 from "../../assets/hero-bg1.jpg";
+import heroBg2 from "../../assets/hero-bg2.jpg";
+import heroBg3 from "../../assets/hero-bg3.jpg";
+import heroBg4 from "../../assets/hero-bg4.jpg";
+import heroBg5 from "../../assets/hero-bg5.jpg";
 
 const allServices = [
     {
@@ -92,6 +97,15 @@ const categories = ["Toate", "Generala", "Specialitate", "Laborator", "Imagistic
 const MedicalServices = () => {
     const [activeCategory, setActiveCategory] = useState("Toate");
     const [searchQuery, setSearchQuery] = useState("");
+    const images = [heroBg1, heroBg2, heroBg3, heroBg4, heroBg5];
+    const [currentImage, setCurrentImage] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentImage((prev) => (prev + 1) % images.length);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
 
     const filtered = allServices.filter((s) => {
         const matchCat = activeCategory === "Toate" || s.category === activeCategory;
@@ -106,6 +120,13 @@ const MedicalServices = () => {
             <Navbar />
 
             <section className="ms-hero">
+                {images.map((img, index) => (
+                    <div key={index} className="hero-slide" style={{
+                        backgroundImage: `url(${img})`,
+                        opacity: index === currentImage ? 1 : 0
+                    } as React.CSSProperties}></div>
+                ))}
+                <div className="hero-overlay"></div>
                 <div className="ms-hero-container">
                     <div className="ms-hero-content">
                         <div className="ms-hero-badge">Servicii Medicale</div>
