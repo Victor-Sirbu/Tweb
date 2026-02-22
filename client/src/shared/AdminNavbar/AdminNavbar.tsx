@@ -1,16 +1,36 @@
 import "./AdminNavbar.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const AdminNavbar = () => {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
+    const [visible, setVisible] = useState<boolean>(true);
+    const [lastScroll, setLastScroll] = useState<number>(0);
     const navigate = useNavigate();
     const location = useLocation();
 
     const isActive = (path: string) => location.pathname === path;
 
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScroll = window.scrollY;
+            if (currentScroll < lastScroll || currentScroll < 10) {
+                setVisible(true);
+            } else {
+                setVisible(false);
+            }
+            setLastScroll(currentScroll);
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [lastScroll]);
+
     return (
-        <nav className="admin-navbar">
+        <nav className="admin-navbar" style={{
+            transform: visible ? "translateY(0)" : "translateY(-100%)",
+            transition: "transform 0.4s ease"
+        }}>
             <div className="admin-navbar-container">
                 <div className="admin-navbar-logo" onClick={() => navigate("/")}>
                     <div className="logo-text">

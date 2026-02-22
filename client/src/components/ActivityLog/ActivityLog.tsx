@@ -1,7 +1,12 @@
 import "./ActivityLog.css";
-import { useState } from "react";
 import AdminNavbar from "../../shared/AdminNavbar/AdminNavbar";
 import Footer from "../../shared/Footer/Footer";
+import { useState, useEffect } from "react";
+import heroBg6 from "../../assets/hero-bg6.jpg";
+import heroBg7 from "../../assets/hero-bg7.jpg";
+import heroBg8 from "../../assets/hero-bg8.jpg";
+import heroBg9 from "../../assets/hero-bg9.jpg";
+import heroBg10 from "../../assets/hero-bg10.jpg";
 
 interface AuditEntry {
     id: number;
@@ -131,6 +136,16 @@ const ActivityLog = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedEntry, setSelectedEntry] = useState<AuditEntry | null>(null);
 
+    const images = [heroBg6, heroBg7, heroBg8, heroBg9, heroBg10];
+    const [currentImage, setCurrentImage] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentImage((prev) => (prev + 1) % images.length);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
+
     const filtered = auditLog.filter((entry) => {
         const typeMap: Record<string, string[]> = {
             "Editare": ["edit"],
@@ -195,6 +210,13 @@ const ActivityLog = () => {
             <AdminNavbar />
 
             <section className="al-hero">
+                {images.map((img, index) => (
+                    <div key={index} className="hero-slide" style={{
+                        backgroundImage: `url(${img})`,
+                        opacity: index === currentImage ? 1 : 0
+                    } as React.CSSProperties}></div>
+                ))}
+                <div className="hero-overlay"></div>
                 <div className="al-hero-container">
                     <div className="al-hero-content">
                         <div className="al-hero-badge">Panou Administrator</div>
