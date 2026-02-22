@@ -199,7 +199,6 @@ const MedicalServices = () => {
                         <div className="ms-services-grid">
                             {filtered.map((service, index) => (
                                 <div key={index} className="ms-service-card">
-                                    <div className="ms-service-abbr">{service.abbr}</div>
                                     <div className="ms-service-cat-badge">{service.category}</div>
                                     <h3 className="ms-service-title">{service.title}</h3>
                                     <p className="ms-service-description">{service.description}</p>

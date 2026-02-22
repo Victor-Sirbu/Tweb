@@ -1,8 +1,12 @@
 import "./ProfilePage.css";
 import Navbar from "../../shared/Navbar/Navbar";
 import Footer from "../../shared/Footer/Footer";
-
-import { useState } from "react";
+import heroBg1 from "../../assets/hero-bg1.jpg";
+import heroBg2 from "../../assets/hero-bg2.jpg";
+import heroBg3 from "../../assets/hero-bg3.jpg";
+import heroBg4 from "../../assets/hero-bg4.jpg";
+import heroBg5 from "../../assets/hero-bg5.jpg";
+import { useState, useEffect } from "react";
 
 interface Programare {
     id: number;
@@ -99,6 +103,16 @@ const MiniCalendar = ({ programari }: { programari: Programare[] }) => {
 
 const ProfilePage = () => {
     const [activeTab, setActiveTab] = useState("programari");
+
+    const images = [heroBg1, heroBg2, heroBg3, heroBg4, heroBg5];
+    const [currentImage, setCurrentImage] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentImage((prev) => (prev + 1) % images.length);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
 
     const [numeComplet, setNumeComplet] = useState("Ion Popescu");
     const [email, setEmail] = useState("ion.popescu@email.com");
@@ -229,6 +243,13 @@ const ProfilePage = () => {
             )}
 
             <section className="profile-hero">
+                {images.map((img, index) => (
+                    <div key={index} className="hero-slide" style={{
+                        backgroundImage: `url(${img})`,
+                        opacity: index === currentImage ? 1 : 0
+                    } as React.CSSProperties}></div>
+                ))}
+            <div className="hero-overlay"></div>
                 <div className="profile-hero-container">
                     <div className="profile-hero-left">
                         <div className="profile-hero-badge">Contul Meu</div>
@@ -236,7 +257,10 @@ const ProfilePage = () => {
                             Bine ai revenit, <span className="hero-highlight">{numeComplet}</span>
                         </h1>
                         <p className="profile-hero-subtitle">
-                            Gestioneaza programarile, analizele si datele tale medicale intr-un singur loc.
+                            Gestioneaza programarile, analizele si datele tale.
+                            Aici poti vizualiza istoricul consultațiilor, descarca rezultatele analizelor
+                            si actualiza datele tale personale in timp real. Tot ce ai nevoie pentru
+                            sanatatea ta, intr-un singur loc.
                         </p>
 
                         <div className="hero-next-appointment">
