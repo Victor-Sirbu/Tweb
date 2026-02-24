@@ -42,8 +42,7 @@ const DoctorRightPanel = () => {
                         center={clinicPosition}
                         zoom={13}
                         scrollWheelZoom={false}
-                        style={{ height: "220px", borderRadius: "16px" }}
-                    >
+                        style={{ height: "220px", borderRadius: "16px" }}>
                         <TileLayer
                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
