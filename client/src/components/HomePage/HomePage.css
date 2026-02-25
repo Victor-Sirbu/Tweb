@@ -937,12 +937,17 @@
 
 .schedule-time {
     font-size: 15px;
-    font-weight: 600;
-    color: #1e90ff;
+    font-weight: 700;
+    color: white;
 }
 
 .closed {
-    color: #ff6b6b;
+    background: rgba(255, 80, 80, 0.3);
+    border: 1px solid rgba(255, 80, 80, 0.5);
+    padding: 4px 12px;
+    border-radius: 20px;
+    color: white;
+    font-weight: 700;
 }
 
 .schedule-divider {
