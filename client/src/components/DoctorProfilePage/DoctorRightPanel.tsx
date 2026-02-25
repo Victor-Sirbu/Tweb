@@ -17,7 +17,7 @@ const DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 const DoctorRightPanel = () => {
-    const clinicPosition: [number, number] = [24.7136, 46.6753];
+    const clinicPosition: [number, number] = [47.0262, 28.8406];
 
     return (
         <div className="right-panel">
@@ -32,15 +32,15 @@ const DoctorRightPanel = () => {
             {/* Clinic Section Card */}
             <div className="clinic-card">
                 <h3 className="clinic-title">Clinică / Spital</h3>
-                
+
                 <div className="clinic-info">
-                    <p className="clinic-address">Apollo Hospital, Sector 32, Riyadh</p>
+                    <p className="clinic-address">Bd. Ștefan cel Mare nr. 123, Chișinău</p>
                 </div>
 
                 <div className="map-container">
                     <MapContainer
                         center={clinicPosition}
-                        zoom={13}
+                        zoom={15}
                         scrollWheelZoom={false}
                         style={{ height: "220px", borderRadius: "16px" }}>
                         <TileLayer
@@ -48,7 +48,10 @@ const DoctorRightPanel = () => {
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         />
                         <Marker position={clinicPosition}>
-                            <Popup>Apollo Hospital</Popup>
+                            <Popup>
+                                Bd. Ștefan cel Mare nr. 123<br />
+                                Chișinău, Moldova
+                            </Popup>
                         </Marker>
                     </MapContainer>
                 </div>
