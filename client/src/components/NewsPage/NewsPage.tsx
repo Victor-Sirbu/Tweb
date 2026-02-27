@@ -2,7 +2,8 @@ import "./NewsPage.css";
 import { useState } from "react";
 import Navbar from "../../shared/Navbar/Navbar";
 import Footer from "../../shared/Footer/Footer";
-import { newsData, NewsItem, NewsCategory } from "./mockNewsData";
+import { newsData } from "./mockNewsData";
+import type { NewsItem, NewsCategory } from "./mockNewsData";
 
 const NewsPage = () => {
     const [selectedCategory, setSelectedCategory] = useState<NewsCategory | "Toate">("Toate");
