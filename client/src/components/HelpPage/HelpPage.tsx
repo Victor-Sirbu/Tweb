@@ -183,11 +183,11 @@ export default function HelpPage() {
             <div className="help-contact">
                 <p className="contact-text">Nu ati gasit raspunsul? Contactati echipa de suport:</p>
                 <div className="contact-actions">
-                    <a href="mailto:suport@cabinetmedical.ro" className="contact-btn contact-btn--email">
-                        suport@cabinetmedical.ro
+                    <a href="mailto:suport@cabinetmedical.md" className="contact-btn contact-btn--email">
+                        suport@cabinetmedical.md
                     </a>
-                    <a href="tel:+40721000000" className="contact-btn contact-btn--phone">
-                        +40 721 000 000
+                    <a href="tel:+37369000000" className="contact-btn contact-btn--phone">
+                        +373 69 000 000
                     </a>
                 </div>
             </div>

@@ -27,18 +27,9 @@
     margin-bottom: 20px;
 }
 
-.search-icon {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 16px;
-    pointer-events: none;
-}
-
 .help-search {
     width: 100%;
-    padding: 13px 18px 13px 46px;
+    padding: 13px 18px;
     border: 1.5px solid #d8dee6;
     border-radius: 12px;
     font-size: 14px;
@@ -290,13 +281,6 @@
     text-align: center;
     padding: 60px 20px;
     color: #9ca3af;
-}
-
-.empty-icon {
-    font-size: 44px;
-    display: block;
-    margin-bottom: 12px;
-    opacity: 0.35;
 }
 
 .empty-text {
