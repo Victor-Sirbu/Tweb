@@ -1,6 +1,5 @@
 import Navbar from "../../shared/Navbar/Navbar";
 import Footer from "../../shared/Footer/Footer";
-import DoctorRightPanel from "./DoctorRightPanel";
 import "./DoctorProfilePage.css";
 
 const DoctorProfilePage = () => {
@@ -162,10 +161,6 @@ const DoctorProfilePage = () => {
                                 </div>
                             </section>
                         </div>
-                    </div>
-
-                    <div className="right-panel">
-                        <DoctorRightPanel />
                     </div>
                 </div>
             </div>

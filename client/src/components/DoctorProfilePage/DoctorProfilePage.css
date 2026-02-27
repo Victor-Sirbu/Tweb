@@ -9,38 +9,30 @@
 /* Doctor Content Wrapper */
 .doctor-content {
     flex: 1;
+    width: 100%;
 }
 
 /* Doctor Layout */
 .doctor-layout {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 24px;
-    display: flex;
-    gap: 24px;
-    align-items: flex-start;
+    width: 100%;
+    padding: 0;
 }
 
 .doctor-main-section {
-    flex: 1;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 24px;
-}
-
-.right-panel {
-    width: 380px;
-    flex-shrink: 0;
-    margin-top: 100px;
+    gap: 32px;
+    padding: 0 40px 80px;
 }
 
 /* Banner Section */
 .doctor-banner {
     width: 100%;
-    height: 280px;
-    border-radius: 16px;
+    height: 340px;
+    border-radius: 0;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 12px 30px rgba(16, 24, 40, 0.12);
 }
 
 .banner-image {
@@ -52,13 +44,13 @@
 /* Profile Header */
 .doctor-profile-header {
     background: white;
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 18px 50px rgba(16, 24, 40, 0.18);
     display: flex;
-    gap: 32px;
+    gap: 36px;
     align-items: flex-start;
-    margin-top: -80px;
+    margin-top: -110px;
     position: relative;
     z-index: 10;
 }
@@ -96,7 +88,7 @@
 /* Stats Inline */
 .doctor-stats-inline {
     display: flex;
-    gap: 40px;
+    gap: 48px;
     margin-bottom: 24px;
 }
 
@@ -120,7 +112,7 @@
 /* Action Buttons */
 .doctor-action-buttons {
     display: flex;
-    gap: 12px;
+    gap: 16px;
     flex-wrap: wrap;
 }
 
@@ -180,7 +172,7 @@
 .doctor-content-sections {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 32px;
 }
 
 .section-title {
@@ -193,9 +185,9 @@
 /* Services Section */
 .services-section {
     background: white;
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 12px 36px rgba(16, 24, 40, 0.12);
 }
 
 .services-grid {
@@ -206,8 +198,8 @@
 
 .service-card {
     background: #f8f9fa;
-    border-radius: 12px;
-    padding: 24px;
+    border-radius: 16px;
+    padding: 26px;
     transition: all 0.3s ease;
     border: 2px solid transparent;
 }
@@ -242,9 +234,9 @@
 /* Reviews Section */
 .reviews-section {
     background: white;
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 12px 36px rgba(16, 24, 40, 0.12);
 }
 
 .reviews-summary {
@@ -333,14 +325,6 @@
 
 /* Responsive */
 @media (max-width: 1200px) {
-    .doctor-layout {
-        flex-direction: column;
-    }
-
-    .right-panel {
-        width: 100%;
-    }
-
     .services-grid {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     }
@@ -348,19 +332,23 @@
 
 @media (max-width: 768px) {
     .doctor-layout {
-        padding: 16px;
+        padding: 0;
+    }
+
+    .doctor-main-section {
+        padding: 0 20px 64px;
     }
 
     .doctor-banner {
-        height: 200px;
+        height: 220px;
     }
 
     .doctor-profile-header {
         flex-direction: column;
         align-items: center;
         text-align: center;
-        margin-top: -60px;
-        padding: 24px;
+        margin-top: -70px;
+        padding: 28px;
     }
 
     .doctor-avatar-large {
@@ -374,7 +362,7 @@
 
     .doctor-stats-inline {
         justify-content: center;
-        gap: 24px;
+        gap: 20px;
     }
 
     .doctor-action-buttons {
@@ -393,7 +381,7 @@
 
     .services-section,
     .reviews-section {
-        padding: 20px;
+        padding: 24px;
     }
 
     .section-title {
