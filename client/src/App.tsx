@@ -5,6 +5,7 @@ import MedicalServices from "./components/MedicalServices/MedicalServices";
 import ActivityLog from "./components/ActivityLog/ActivityLog";
 import DoctorProfilePage from "./components/DoctorProfilePage/DoctorProfilePage";
 import LoginPage from "./components/LoginPage/LoginPage";
+import NewsPage from "./components/NewsPage/NewsPage";
 function App() {
     return (
         <Router>
@@ -15,7 +16,7 @@ function App() {
                 <Route path="/activity" element={<ActivityLog />} />
                 <Route path="/DoctorProfilePage" element={<DoctorProfilePage />} />
                 <Route path="/login" element={<LoginPage />} />
-
+                <Route path="/news" element={<NewsPage />} />
             </Routes>
         </Router>
     );

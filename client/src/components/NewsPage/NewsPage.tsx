@@ -2,11 +2,13 @@ import "./NewsPage.css";
 import { useState } from "react";
 import Navbar from "../../shared/Navbar/Navbar";
 import Footer from "../../shared/Footer/Footer";
+import NewsModal from "./NewsModal";
 import { newsData } from "./mockNewsData";
 import type { NewsItem, NewsCategory } from "./mockNewsData";
 
 const NewsPage = () => {
     const [selectedCategory, setSelectedCategory] = useState<NewsCategory | "Toate">("Toate");
+    const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
 
     const filteredNews = selectedCategory === "Toate"
         ? newsData
@@ -77,7 +79,9 @@ const NewsPage = () => {
 
                             <p className="news-description">{item.description}</p>
 
-                            <button className="news-btn">Vezi detalii</button>
+                            <button className="news-btn" onClick={() => setSelectedNews(item)}>
+                                Vezi detalii
+                            </button>
                         </div>
                     ))}
                 </div>
@@ -88,6 +92,8 @@ const NewsPage = () => {
                     </div>
                 )}
             </div>
+
+            <NewsModal news={selectedNews} onClose={() => setSelectedNews(null)} />
 
             <Footer />
         </div>
