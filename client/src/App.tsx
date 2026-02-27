@@ -15,6 +15,7 @@ function App() {
                 <Route path="/activity" element={<ActivityLog />} />
                 <Route path="/DoctorProfilePage" element={<DoctorProfilePage />} />
                 <Route path="/login" element={<LoginPage />} />
+
             </Routes>
         </Router>
     );
