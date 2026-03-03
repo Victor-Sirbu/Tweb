@@ -6,6 +6,7 @@ import ActivityLog from "./components/ActivityLog/ActivityLog";
 import DoctorProfilePage from "./components/DoctorProfilePage/DoctorProfilePage";
 import LoginPage from "./components/LoginPage/LoginPage";
 import NewsPage from "./components/NewsPage/NewsPage";
+import ContactPage from "./components/ContactPage/ContactPage";
 function App() {
     return (
         <Router>
@@ -17,6 +18,7 @@ function App() {
                 <Route path="/DoctorProfilePage" element={<DoctorProfilePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/news" element={<NewsPage />} />
+                <Route path="/contact" element={<ContactPage />} />
             </Routes>
         </Router>
     );
