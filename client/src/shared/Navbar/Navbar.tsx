@@ -1,6 +1,6 @@
 import "./Navbar.css";
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 
 const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
@@ -64,7 +64,7 @@ const Navbar = () => {
                     <li><a onClick={() => scrollToSection("echipa")} style={{cursor:"pointer"}}>Medici</a></li>
                     <li><a href="/profile">Profilul Meu</a></li>
                     <li><a onClick={() => scrollToSection("testimoniale")} style={{cursor:"pointer"}}>Recenzii</a></li>
-                    <li><a href="#contact">Contact</a></li>
+                    <li><Link to="/contact">Contact</Link></li>
                 </ul>
 
                 <div className="navbar-actions">
