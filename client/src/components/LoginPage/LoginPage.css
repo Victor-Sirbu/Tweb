@@ -1,0 +1,357 @@
+.page {
+    height: 100vh;
+    background: linear-gradient(135deg, #a9c9e7, #7fb6d6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    overflow: hidden;
+}
+
+.card {
+    width: 100%;
+    max-width: 1200px;
+    max-height: calc(100vh - 80px);
+    background: white;
+    border-radius: 30px;
+    padding: 60px;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.1);
+    display: flex;
+    overflow: hidden;
+}
+
+.left {
+    width: 50%;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.left h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: #1a1a1a;
+}
+
+.image-box {
+    background: #1e90ff;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.image-box img {
+    width: 240px;
+    position: relative;
+}
+
+.stats {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    gap: 15px;
+}
+
+
+.stats span {
+    background: white;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+
+.right {
+    width: 50%;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: hidden;
+    max-height: 100%;
+}
+
+/* Enable scroll for New Patient form */
+.right.scroll-enabled {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+/* Show scrollbar only when scrolling - WebKit */
+.right.scroll-enabled::-webkit-scrollbar {
+    width: 8px;
+}
+
+.right.scroll-enabled::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.right.scroll-enabled::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 20px;
+    transition: background 0.3s ease;
+}
+
+.right.scroll-enabled:hover::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #AFC4D6, #8FAEC7);
+}
+
+.right.scroll-enabled::-webkit-scrollbar-thumb:hover {
+    background: #6E97B5;
+}
+
+/* Firefox scrollbar */
+.right.scroll-enabled:hover {
+    scrollbar-color: #AFC4D6 transparent;
+}
+
+
+.brand {
+    margin-bottom: 20px;
+}
+
+
+.patient-tabs {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 35px;
+}
+
+.tab-btn {
+    flex: 1;
+    background-color: #ffffff;
+    border: 2px solid #2F80ED;
+    color: #000000;
+    border-radius: 14px;
+    padding: 12px 28px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    background-color: #2F80ED;
+    color: #ffffff;
+}
+
+.tab-btn.active {
+    background-color: #2F80ED;
+    color: #ffffff;
+}
+
+
+
+.login-text {
+    margin-bottom: 25px;
+}
+
+.login-text p {
+    color: #666;
+    font-size: 14px;
+}
+
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field input,
+.field select {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    font-family: inherit;
+    background-color: white;
+    cursor: pointer;
+}
+
+.field select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e90ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.field input:focus,
+.field select:focus {
+    outline: none;
+    border-color: #1e90ff;
+    box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
+}
+
+.reset {
+    font-size: 13px;
+    color: #1e90ff;
+    text-align: right;
+    margin-top: 5px;
+    text-decoration: none;
+}
+
+.login-btn {
+    margin-top: 15px;
+    padding: 16px;
+    font-weight: 600;
+    background: #1e90ff;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+.login-btn:hover {
+    background-color: #2f80ed;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(47, 128, 237, 0.3);
+}
+
+.login-header {
+    margin-bottom: 35px;
+}
+.login-header {
+    font-size: 24px;
+    margin-bottom: 6px;
+}
+
+.login-header p {
+    color: #666;
+    font-size: 14px;
+}
+
+.code-login {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #1e90ff;
+    text-decoration: none;
+}
+
+/* Date of Birth Inputs */
+.date-inputs {
+    display: flex;
+    gap: 10px;
+}
+
+.date-input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    font-family: inherit;
+    background-color: white;
+}
+
+.date-input:focus {
+    outline: none;
+    border-color: #1e90ff;
+    box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
+}
+
+/* Remove spinner arrows from number inputs */
+.date-input::-webkit-outer-spin-button,
+.date-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.date-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Error Message */
+.error-message {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
+
+/* Custom Dropdown */
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-header {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 14px;
+    background-color: white;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.dropdown-header:hover {
+    border-color: #2F80ED;
+}
+
+.dropdown-arrow {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+    color: #2F80ED;
+}
+
+.dropdown-arrow.open {
+    transform: rotate(180deg);
+}
+
+.dropdown-list {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #2F80ED;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(47, 128, 237, 0.15);
+    z-index: 10;
+    overflow: hidden;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-option {
+    padding: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.dropdown-option:hover {
+    background: #E3F2FD;
+    color: #2F80ED;
+}
+
+.dropdown-option:not(:last-child) {
+    border-bottom: 1px solid #f0f0f0;
+}
