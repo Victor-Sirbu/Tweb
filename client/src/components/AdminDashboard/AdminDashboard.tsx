@@ -46,17 +46,17 @@ const AdminDashboard: React.FC = () => {
       avatar: 'AV'
     },
     {
-      id: 3,
+      id: 4,
       name: 'Victor Gudima',
       age: 21,
       phone: '067759305',
       email: 'victor.gudima@isa.utm.md',
       lastVisit: '2026-02-18',
       status: 'Active',
-      avatar: 'AV'
+      avatar: 'VG'
     },
     {
-      id: 4,
+      id: 5,
       name: 'George Mihai',
       age: 52,
       phone: '0754567890',
@@ -79,6 +79,9 @@ const AdminDashboard: React.FC = () => {
     email: '',
     status: 'Active' as 'Active' | 'Inactive'
   });
+
+  const getAvatar = (name: string) =>
+      name.split(' ').map(n => n[0]).join('').toUpperCase();
 
   const filteredPatients = patients.filter(patient => {
     const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -115,16 +118,17 @@ const AdminDashboard: React.FC = () => {
 
     if (editingPatient) {
       setPatients(patients.map(p =>
-        p.id === editingPatient.id
-          ? {
-              ...p,
-              name: formData.name,
-              age: parseInt(formData.age),
-              phone: formData.phone,
-              email: formData.email,
-              status: formData.status
-            }
-          : p
+          p.id === editingPatient.id
+              ? {
+                ...p,
+                name: formData.name,
+                age: parseInt(formData.age),
+                phone: formData.phone,
+                email: formData.email,
+                status: formData.status,
+                avatar: getAvatar(formData.name)
+              }
+              : p
       ));
     } else {
       const newPatient: Patient = {
@@ -135,7 +139,7 @@ const AdminDashboard: React.FC = () => {
         email: formData.email,
         lastVisit: new Date().toISOString().split('T')[0],
         status: formData.status,
-        avatar: formData.name.split(' ').map(n => n[0]).join('').toUpperCase()
+        avatar: getAvatar(formData.name)
       };
       setPatients([...patients, newPatient]);
     }
@@ -144,449 +148,391 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="admin-dashboard">
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <h2>Cabinet Medical</h2>
-        </div>
-        <nav className="sidebar-nav">
-          <a
-            href="#"
-            className={`nav-item ${activeSection === 'statistici' ? 'active' : ''}`}
-            onClick={(e) => { e.preventDefault(); setActiveSection('statistici'); }}
-          >
-            Statistici
-          </a>
-          <a
-            href="#"
-            className={`nav-item ${activeSection === 'programari' ? 'active' : ''}`}
-            onClick={(e) => { e.preventDefault(); setActiveSection('programari'); }}
-          >
-            Programari
-          </a>
-          <a
-            href="#"
-            className={`nav-item ${activeSection === 'pacienti' ? 'active' : ''}`}
-            onClick={(e) => { e.preventDefault(); setActiveSection('pacienti'); }}
-          >
-            Pacienti
-          </a>
-          <a
-            href="#"
-            className={`nav-item ${activeSection === 'medici' ? 'active' : ''}`}
-            onClick={(e) => { e.preventDefault(); setActiveSection('medici'); }}
-          >
-            Medici
-          </a>
-          <a
-            href="#"
-            className={`nav-item ${activeSection === 'setari' ? 'active' : ''}`}
-            onClick={(e) => { e.preventDefault(); setActiveSection('setari'); }}
-          >
-            Setari
-          </a>
-        </nav>
-      </aside>
-
-      <main className="main-content">
-        <header className="header">
-          <h1>
-            {activeSection === 'statistici' && 'Statistici'}
-            {activeSection === 'programari' && 'Programari'}
-            {activeSection === 'pacienti' && 'Pacienti'}
-            {activeSection === 'medici' && 'Medici'}
-            {activeSection === 'setari' && 'Setari'}
-          </h1>
-          <div className="header-actions">
-            {activeSection === 'pacienti' && (
-              <button className="btn-primary" onClick={handleAddPatient}>
-                Add Patient
-              </button>
-            )}
-            <div className="admin-avatar">A</div>
+      <div className="admin-dashboard">
+        <aside className="sidebar">
+          <div className="sidebar-header">
+            <h2>Cabinet Medical</h2>
           </div>
-        </header>
+          <nav className="sidebar-nav">
+            <a href="#" className={`nav-item ${activeSection === 'statistici' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('statistici'); }}>
+              Statistici
+            </a>
+            <a href="#" className={`nav-item ${activeSection === 'programari' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('programari'); }}>
+              Programari
+            </a>
+            <a href="#" className={`nav-item ${activeSection === 'pacienti' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('pacienti'); }}>
+              Pacienti
+            </a>
+            <a href="#" className={`nav-item ${activeSection === 'medici' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('medici'); }}>
+              Medici
+            </a>
+            <a href="#" className={`nav-item ${activeSection === 'setari' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('setari'); }}>
+              Setari
+            </a>
+          </nav>
+        </aside>
 
-        <div className="content-wrapper">
-          {activeSection === 'pacienti' && (
-            <>
-              <div className="filters">
-                <input
-                  type="text"
-                  className="search-input"
-                  placeholder="Cauta pacient..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <div className="custom-dropdown">
-                  <button
-                      className="dropdown-toggle"
-                      onClick={() => setDropdownOpen(!dropdownOpen)}
-                  >
-                    {statusFilter === 'All' ? 'Toti pacientii' : statusFilter}
-                    <span className="dropdown-arrow">▾</span>
-                  </button>
-                  {dropdownOpen && (
-                      <div className="dropdown-menu">
-                        {(['All', 'Active', 'Inactive'] as const).map((option) => (
-                            <div
-                                key={option}
-                                className={`dropdown-item ${statusFilter === option ? 'selected' : ''}`}
-                                onClick={() => { setStatusFilter(option); setDropdownOpen(false); }}
-                            >
-                              {option === 'All' ? 'Toti pacientii' : option}
-                            </div>
-                        ))}
-                      </div>
-                  )}
-                </div>
-              </div>
+        <main className="main-content">
+          <header className="header">
+            <h1>
+              {activeSection === 'statistici' && 'Statistici'}
+              {activeSection === 'programari' && 'Programari'}
+              {activeSection === 'pacienti' && 'Pacienti'}
+              {activeSection === 'medici' && 'Medici'}
+              {activeSection === 'setari' && 'Setari'}
+            </h1>
+            <div className="header-actions">
+              {activeSection === 'pacienti' && (
+                  <button className="btn-primary" onClick={handleAddPatient}>Add Patient</button>
+              )}
+              <div className="admin-avatar">A</div>
+            </div>
+          </header>
 
-              <div className="table-container">
-                <table className="patients-table">
-                  <thead>
-                    <tr>
-                      <th>Pacient</th>
-                      <th>Varsta</th>
-                      <th>Telefon</th>
-                      <th>Email</th>
-                      <th>Ultima Vizita</th>
-                      <th>Status</th>
-                      <th>Actiuni</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredPatients.map(patient => (
-                      <tr key={patient.id}>
-                        <td>
-                          <div className="patient-info">
-                            <div className="patient-avatar">{patient.avatar}</div>
-                            <span>{patient.name}</span>
+          <div className="content-wrapper">
+            {activeSection === 'pacienti' && (
+                <>
+                  <div className="filters">
+                    <input
+                        type="text"
+                        className="search-input"
+                        placeholder="Cauta pacient..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <div className="custom-dropdown">
+                      <button className="dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                        {statusFilter === 'All' ? 'Toti pacientii' : statusFilter}
+                        <span className="dropdown-arrow">▾</span>
+                      </button>
+                      {dropdownOpen && (
+                          <div className="dropdown-menu">
+                            {(['All', 'Active', 'Inactive'] as const).map((option) => (
+                                <div
+                                    key={option}
+                                    className={`dropdown-item ${statusFilter === option ? 'selected' : ''}`}
+                                    onClick={() => { setStatusFilter(option); setDropdownOpen(false); }}
+                                >
+                                  {option === 'All' ? 'Toti pacientii' : option}
+                                </div>
+                            ))}
                           </div>
-                        </td>
-                        <td>{patient.age}</td>
-                        <td>{patient.phone}</td>
-                        <td>{patient.email}</td>
-                        <td>{patient.lastVisit}</td>
-                        <td>
-                          <span className={`status-badge ${patient.status.toLowerCase()}`}>
-                            {patient.status}
-                          </span>
-                        </td>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="table-container">
+                    <table className="patients-table">
+                      <thead>
+                      <tr>
+                        <th>Pacient</th>
+                        <th>Varsta</th>
+                        <th>Telefon</th>
+                        <th>Email</th>
+                        <th>Ultima Vizita</th>
+                        <th>Status</th>
+                        <th>Actiuni</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      {filteredPatients.map(patient => (
+                          <tr key={patient.id}>
+                            <td>
+                              <div className="patient-info">
+                                <div className="patient-avatar">{getAvatar(patient.name)}</div>
+                                <span>{patient.name}</span>
+                              </div>
+                            </td>
+                            <td>{patient.age}</td>
+                            <td>{patient.phone}</td>
+                            <td>{patient.email}</td>
+                            <td>{patient.lastVisit}</td>
+                            <td>
+                              <span className={`status-badge ${patient.status.toLowerCase()}`}>{patient.status}</span>
+                            </td>
+                            <td>
+                              <div className="action-buttons">
+                                <button className="btn-action btn-view" title="View">View</button>
+                                <button className="btn-action btn-edit" onClick={() => handleEditPatient(patient)} title="Edit">Edit</button>
+                                <button className="btn-action btn-delete" onClick={() => handleDeletePatient(patient.id)} title="Delete">Delete</button>
+                              </div>
+                            </td>
+                          </tr>
+                      ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+            )}
+
+            {activeSection === 'statistici' && (
+                <div className="section-content">
+                  <div className="stats-grid">
+                    <div className="stat-card">
+                      <div className="stat-details">
+                        <h3>Total Pacienti</h3>
+                        <p className="stat-number">{patients.length}</p>
+                      </div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-details">
+                        <h3>Pacienti Activi</h3>
+                        <p className="stat-number">{patients.filter(p => p.status === 'Active').length}</p>
+                      </div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-details">
+                        <h3>Programari Astazi</h3>
+                        <p className="stat-number">3</p>
+                      </div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-details">
+                        <h3>Medici Activi</h3>
+                        <p className="stat-number">3</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            )}
+
+            {activeSection === 'programari' && (
+                <div className="section-content">
+                  <div className="table-container">
+                    <table className="patients-table">
+                      <thead>
+                      <tr>
+                        <th>Data</th>
+                        <th>Ora</th>
+                        <th>Pacient</th>
+                        <th>Medic</th>
+                        <th>Status</th>
+                        <th>Actiuni</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr>
+                        <td>2026-02-19</td>
+                        <td>10:00</td>
+                        <td>Maria Popescu</td>
+                        <td>Dr. Ionescu</td>
+                        <td><span className="status-badge active">Confirmat</span></td>
                         <td>
                           <div className="action-buttons">
-                            <button className="btn-action btn-view" title="View">View</button>
-                            <button className="btn-action btn-edit" onClick={() => handleEditPatient(patient)} title="Edit">Edit</button>
-                            <button className="btn-action btn-delete" onClick={() => handleDeletePatient(patient.id)} title="Delete">Delete</button>
+                            <button className="btn-action btn-view">View</button>
+                            <button className="btn-action btn-edit">Edit</button>
                           </div>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          )}
+                      <tr>
+                        <td>2026-02-19</td>
+                        <td>11:30</td>
+                        <td>Ion Ionescu</td>
+                        <td>Dr. Vasilescu</td>
+                        <td><span className="status-badge active">Confirmat</span></td>
+                        <td>
+                          <div className="action-buttons">
+                            <button className="btn-action btn-view">View</button>
+                            <button className="btn-action btn-edit">Edit</button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>2026-02-19</td>
+                        <td>14:00</td>
+                        <td>Ana Vasilescu</td>
+                        <td>Dr. Popescu</td>
+                        <td><span className="status-badge inactive">In Asteptare</span></td>
+                        <td>
+                          <div className="action-buttons">
+                            <button className="btn-action btn-view">View</button>
+                            <button className="btn-action btn-edit">Edit</button>
+                          </div>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+            )}
 
-          {activeSection === 'statistici' && (
-            <div className="section-content">
-              <div className="stats-grid">
-                <div className="stat-card">
-                  <div className="stat-icon">👥</div>
-                  <div className="stat-details">
-                    <h3>Total Pacienti</h3>
-                    <p className="stat-number">{patients.length}</p>
+            {activeSection === 'medici' && (
+                <div className="section-content">
+                  <div className="table-container">
+                    <table className="patients-table">
+                      <thead>
+                      <tr>
+                        <th>Medic</th>
+                        <th>Specializare</th>
+                        <th>Telefon</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Actiuni</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr>
+                        <td>
+                          <div className="patient-info">
+                            <div className="patient-avatar">II</div>
+                            <span>Dr. Ion Ionescu</span>
+                          </div>
+                        </td>
+                        <td>Cardiologie</td>
+                        <td>0721111111</td>
+                        <td>dr.ionescu@cabinet.ro</td>
+                        <td><span className="status-badge active">Activ</span></td>
+                        <td>
+                          <div className="action-buttons">
+                            <button className="btn-action btn-view">View</button>
+                            <button className="btn-action btn-edit">Edit</button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className="patient-info">
+                            <div className="patient-avatar">AV</div>
+                            <span>Dr. Ana Vasilescu</span>
+                          </div>
+                        </td>
+                        <td>Pediatrie</td>
+                        <td>0722222222</td>
+                        <td>dr.vasilescu@cabinet.ro</td>
+                        <td><span className="status-badge active">Activ</span></td>
+                        <td>
+                          <div className="action-buttons">
+                            <button className="btn-action btn-view">View</button>
+                            <button className="btn-action btn-edit">Edit</button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className="patient-info">
+                            <div className="patient-avatar">GP</div>
+                            <span>Dr. George Popescu</span>
+                          </div>
+                        </td>
+                        <td>Medicina Generala</td>
+                        <td>0723333333</td>
+                        <td>dr.popescu@cabinet.ro</td>
+                        <td><span className="status-badge active">Activ</span></td>
+                        <td>
+                          <div className="action-buttons">
+                            <button className="btn-action btn-view">View</button>
+                            <button className="btn-action btn-edit">Edit</button>
+                          </div>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
-                <div className="stat-card">
-                  <div className="stat-icon">✅</div>
-                  <div className="stat-details">
-                    <h3>Pacienti Activi</h3>
-                    <p className="stat-number">{patients.filter(p => p.status === 'Active').length}</p>
-                  </div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-icon">📅</div>
-                  <div className="stat-details">
-                    <h3>Programari Astazi</h3>
-                    <p className="stat-number">3</p>
-                  </div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-icon">👨‍⚕️</div>
-                  <div className="stat-details">
-                    <h3>Medici Activi</h3>
-                    <p className="stat-number">3</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+            )}
 
-          {activeSection === 'programari' && (
-            <div className="section-content">
-              <div className="table-container">
-                <table className="patients-table">
-                  <thead>
-                    <tr>
-                      <th>Data</th>
-                      <th>Ora</th>
-                      <th>Pacient</th>
-                      <th>Medic</th>
-                      <th>Status</th>
-                      <th>Actiuni</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>2026-02-19</td>
-                      <td>10:00</td>
-                      <td>Maria Popescu</td>
-                      <td>Dr. Ionescu</td>
-                      <td><span className="status-badge active">Confirmat</span></td>
-                      <td>
-                        <div className="action-buttons">
-                          <button className="btn-action btn-view">View</button>
-                          <button className="btn-action btn-edit">Edit</button>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>2026-02-19</td>
-                      <td>11:30</td>
-                      <td>Ion Ionescu</td>
-                      <td>Dr. Vasilescu</td>
-                      <td><span className="status-badge active">Confirmat</span></td>
-                      <td>
-                        <div className="action-buttons">
-                          <button className="btn-action btn-view">View</button>
-                          <button className="btn-action btn-edit">Edit</button>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>2026-02-19</td>
-                      <td>14:00</td>
-                      <td>Ana Vasilescu</td>
-                      <td>Dr. Popescu</td>
-                      <td><span className="status-badge inactive">In Asteptare</span></td>
-                      <td>
-                        <div className="action-buttons">
-                          <button className="btn-action btn-view">View</button>
-                          <button className="btn-action btn-edit">Edit</button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {activeSection === 'medici' && (
-            <div className="section-content">
-              <div className="table-container">
-                <table className="patients-table">
-                  <thead>
-                    <tr>
-                      <th>Medic</th>
-                      <th>Specializare</th>
-                      <th>Telefon</th>
-                      <th>Email</th>
-                      <th>Status</th>
-                      <th>Actiuni</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <div className="patient-info">
-                          <div className="patient-avatar">DI</div>
-                          <span>Dr. Ion Ionescu</span>
-                        </div>
-                      </td>
-                      <td>Cardiologie</td>
-                      <td>0721111111</td>
-                      <td>dr.ionescu@cabinet.ro</td>
-                      <td><span className="status-badge active">Activ</span></td>
-                      <td>
-                        <div className="action-buttons">
-                          <button className="btn-action btn-view">View</button>
-                          <button className="btn-action btn-edit">Edit</button>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="patient-info">
-                          <div className="patient-avatar">DV</div>
-                          <span>Dr. Ana Vasilescu</span>
-                        </div>
-                      </td>
-                      <td>Pediatrie</td>
-                      <td>0722222222</td>
-                      <td>dr.vasilescu@cabinet.ro</td>
-                      <td><span className="status-badge active">Activ</span></td>
-                      <td>
-                        <div className="action-buttons">
-                          <button className="btn-action btn-view">View</button>
-                          <button className="btn-action btn-edit">Edit</button>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="patient-info">
-                          <div className="patient-avatar">DP</div>
-                          <span>Dr. George Popescu</span>
-                        </div>
-                      </td>
-                      <td>Medicina Generala</td>
-                      <td>0723333333</td>
-                      <td>dr.popescu@cabinet.ro</td>
-                      <td><span className="status-badge active">Activ</span></td>
-                      <td>
-                        <div className="action-buttons">
-                          <button className="btn-action btn-view">View</button>
-                          <button className="btn-action btn-edit">Edit</button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {activeSection === 'setari' && (
-            <div className="section-content">
-              <div className="settings-container">
-                <div className="settings-section">
-                  <h3>🔧 Setări cont</h3>
-                  <div className="setting-item">
-                    <label>Schimbare parolă</label>
-                    <input type="password" placeholder="Parolă nouă" />
-                  </div>
-                  <div className="setting-item">
-                    <label>Email notificări</label>
-                    <input type="email" defaultValue="admin@cabinet.ro" />
-                  </div>
-                  <div className="setting-item">
-                    <label>Limbă</label>
-                    <select>
-                      <option value="ro">Română</option>
-                      <option value="en">English</option>
-                      <option value="ru">Русский</option>
-                    </select>
-                  </div>
-                  <div className="setting-item">
-                    <label>Teme</label>
-                    <select>
-                      <option value="light">Light</option>
-                      <option value="dark">Dark</option>
-                      <option value="auto">Auto</option>
-                    </select>
-                  </div>
-                  <div className="setting-item">
-                    <label>2FA (mai târziu)</label>
-                    <input type="text" disabled placeholder="Funcție indisponibilă" />
+            {activeSection === 'setari' && (
+                <div className="section-content">
+                  <div className="settings-container">
+                    <div className="settings-section">
+                      <h3>Setari cont</h3>
+                      <div className="setting-item">
+                        <label>Schimbare parola</label>
+                        <input type="password" placeholder="Parola noua" />
+                      </div>
+                      <div className="setting-item">
+                        <label>Email notificari</label>
+                        <input type="email" defaultValue="admin@cabinet.ro" />
+                      </div>
+                      <div className="setting-item">
+                        <label>Limba</label>
+                        <select>
+                          <option value="ro">Romana</option>
+                          <option value="en">English</option>
+                          <option value="ru">Русский</option>
+                        </select>
+                      </div>
+                      <div className="setting-item">
+                        <label>Tema</label>
+                        <select>
+                          <option value="light">Light</option>
+                          <option value="dark">Dark</option>
+                          <option value="auto">Auto</option>
+                        </select>
+                      </div>
+                      <div className="setting-item">
+                        <label>2FA (mai tarziu)</label>
+                        <input type="text" disabled placeholder="Functie indisponibila" />
+                      </div>
+                    </div>
+                    <div className="settings-section">
+                      <h3>Setari notificari</h3>
+                      <div className="setting-item">
+                        <label>
+                          <input type="checkbox" defaultChecked />
+                          Email pentru programari noi
+                        </label>
+                      </div>
+                      <div className="setting-item">
+                        <label>
+                          <input type="checkbox" defaultChecked />
+                          SMS reminder
+                        </label>
+                      </div>
+                      <div className="setting-item">
+                        <label>
+                          <input type="checkbox" />
+                          Notificari in aplicatie
+                        </label>
+                      </div>
+                    </div>
+                    <button className="btn-primary">Salveaza Modificari</button>
                   </div>
                 </div>
-                <div className="settings-section">
-                  <h3>🔔 Setări notificări</h3>
-                  <div className="setting-item">
-                    <label>
-                      <input type="checkbox" defaultChecked />
-                      Email pentru programări noi
-                    </label>
-                  </div>
-                  <div className="setting-item">
-                    <label>
-                      <input type="checkbox" defaultChecked />
-                      SMS reminder
-                    </label>
-                  </div>
-                  <div className="setting-item">
-                    <label>
-                      <input type="checkbox" />
-                      Notificări în aplicație
-                    </label>
-                  </div>
-                </div>
-                <button className="btn-primary">Salveaza Modificari</button>
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{editingPatient ? 'Edit Patient' : 'Add Patient'}</h2>
-              <button className="modal-close" onClick={() => setShowModal(false)}>&times;</button>
-            </div>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Nume</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
-              </div>
-              <div className="form-group">
-                <label>Varsta</label>
-                <input
-                  type="number"
-                  required
-                  value={formData.age}
-                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                />
-              </div>
-              <div className="form-group">
-                <label>Telefon</label>
-                <input
-                  type="tel"
-                  required
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                />
-              </div>
-              <div className="form-group">
-                <label>Email</label>
-                <input
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
-              </div>
-              <div className="form-group">
-                <label>Status</label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as 'Active' | 'Inactive' })}
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </div>
-              <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn-submit">
-                  {editingPatient ? 'Update' : 'Add'}
-                </button>
-              </div>
-            </form>
+            )}
           </div>
-        </div>
-      )}
-    </div>
+        </main>
+
+        {showModal && (
+            <div className="modal-overlay" onClick={() => setShowModal(false)}>
+              <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h2>{editingPatient ? 'Edit Patient' : 'Add Patient'}</h2>
+                  <button className="modal-close" onClick={() => setShowModal(false)}>&times;</button>
+                </div>
+                <form onSubmit={handleSubmit}>
+                  <div className="form-group">
+                    <label>Nume</label>
+                    <input type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label>Varsta</label>
+                    <input type="number" required value={formData.age} onChange={(e) => setFormData({ ...formData, age: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label>Telefon</label>
+                    <input type="tel" required value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label>Email</label>
+                    <input type="email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label>Status</label>
+                    <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value as 'Active' | 'Inactive' })}>
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
+                  </div>
+                  <div className="modal-actions">
+                    <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
+                    <button type="submit" className="btn-submit">{editingPatient ? 'Update' : 'Add'}</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+        )}
+      </div>
   );
 };
 
