@@ -183,7 +183,7 @@ const AdminDashboard: React.FC = () => {
             </h1>
             <div className="header-actions">
               {activeSection === 'pacienti' && (
-                  <button className="btn-primary" onClick={handleAddPatient}>Add Patient</button>
+                  <button className="admin-btn-primary" onClick={handleAddPatient}>Add Patient</button>
               )}
               <div className="admin-avatar">A</div>
             </div>

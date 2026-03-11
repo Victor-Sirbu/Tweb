@@ -7,7 +7,6 @@ import AdminDashboard from "./components/AdminDashboard/AdminDashboard.tsx";
 import AppointmentsPage from "./components/AppointmentsPage/AppointmentsPage.tsx";
 import NotificationsPage from "./components/NotificationsPage/NotificationsPage.tsx";
 import HelpPage from "./components/HelpPage/HelpPage.tsx";
-import DoctorProfilePage from "./components/DoctorProfilePage/DoctorProfilePage";
 import LoginPage from "./components/LoginPage/LoginPage";
 import NewsPage from "./components/NewsPage/NewsPage";
 import ContactPage from "./components/ContactPage/ContactPage";
@@ -23,7 +22,6 @@ function App() {
                 <Route path="/appointments" element={<AppointmentsPage />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/help" element={<HelpPage />} />
-                <Route path="/DoctorProfilePage" element={<DoctorProfilePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/news" element={<NewsPage />} />
                 <Route path="/contact" element={<ContactPage />} />
