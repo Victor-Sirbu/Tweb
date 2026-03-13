@@ -25,17 +25,6 @@
     cursor: pointer;
 }
 
-.logo-icon {
-    font-size: 36px;
-    background: linear-gradient(135deg, #1e90ff, #2f80ed);
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-}
-
 .logo-text {
     display: flex;
     flex-direction: column;
@@ -84,7 +73,7 @@
 .navbar-actions {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
 }
 
 .navbar-phone {
@@ -100,7 +89,7 @@
 }
 
 .navbar-btn {
-    padding: 12px 28px;
+    padding: 10px 24px;
     background: #1e90ff;
     color: white;
     border: none;
@@ -117,7 +106,190 @@
     box-shadow: 0 6px 15px rgba(47, 128, 237, 0.3);
 }
 
-/* Media queries pentru navbar */
+/* ── Language Selector ── */
+.lang-selector {
+    position: relative;
+}
+
+.lang-btn {
+    background: none;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a1a;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
+.lang-btn:hover {
+    border-color: #1e90ff;
+    color: #1e90ff;
+}
+
+.lang-arrow {
+    font-size: 10px;
+}
+
+.lang-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: white;
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    animation: fadeInDown 0.2s ease;
+    min-width: 70px;
+}
+
+.lang-option {
+    display: block;
+    width: 100%;
+    padding: 9px 16px;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: #1a1a1a;
+    transition: background 0.15s ease;
+}
+
+.lang-option:hover {
+    background: #f0f7ff;
+    color: #1e90ff;
+}
+
+.lang-option.active {
+    color: #1e90ff;
+    font-weight: 700;
+    background: #f0f7ff;
+}
+
+/* ── Profile Avatar ── */
+.profile-wrapper {
+    position: relative;
+}
+
+.profile-avatar-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2.5px solid #1e90ff;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-avatar-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.2);
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-initials {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1e90ff, #2f80ed);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* ── Profile Dropdown ── */
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: white;
+    border: 1px solid #e8e8e8;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    min-width: 200px;
+    overflow: hidden;
+    animation: fadeInDown 0.2s ease;
+    z-index: 100;
+}
+
+.profile-dropdown-header {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: #f8fbff;
+}
+
+.profile-dropdown-header strong {
+    font-size: 14px;
+    color: #1a1a1a;
+}
+
+.profile-dropdown-header span {
+    font-size: 12px;
+    color: #888;
+}
+
+.profile-dropdown-divider {
+    height: 1px;
+    background: #f0f0f0;
+}
+
+.profile-dropdown button {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+    color: #1a1a1a;
+    transition: background 0.15s ease;
+}
+
+.profile-dropdown button:hover {
+    background: #f0f7ff;
+    color: #1e90ff;
+}
+
+.signout-btn {
+    color: #e74c3c !important;
+}
+
+.signout-btn:hover {
+    background: #fff5f5 !important;
+    color: #e74c3c !important;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Media Queries ── */
 @media (max-width: 1024px) {
     .navbar-container {
         padding: 0 30px;

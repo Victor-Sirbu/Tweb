@@ -7,6 +7,7 @@ import heroBg3 from "../../assets/hero-bg3.jpg";
 import heroBg4 from "../../assets/hero-bg4.jpg";
 import heroBg5 from "../../assets/hero-bg5.jpg";
 import { useState, useEffect } from "react";
+import { useLanguage } from "../../context/LanguageContext";
 
 interface Programare {
     id: number;
@@ -18,24 +19,31 @@ interface Programare {
     initials: string;
 }
 
-const LUNI = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
-    "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
-const ZILE_SCURT = ["Lu", "Ma", "Mi", "Jo", "Vi", "Sa", "Du"];
+const LUNI_RO = ["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
+const LUNI_RU = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+const LUNI_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const ZILE_RO = ["Lu","Ma","Mi","Jo","Vi","Sa","Du"];
+const ZILE_RU = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+const ZILE_EN = ["Mo","Tu","We","Th","Fr","Sa","Su"];
 
 const parseDate = (dateStr: string) => {
-    const months: { [key: string]: number } = {
+    const months: Record<string, number> = {
         "Ianuarie": 0, "Februarie": 1, "Martie": 2, "Aprilie": 3,
         "Mai": 4, "Iunie": 5, "Iulie": 6, "August": 7,
         "Septembrie": 8, "Octombrie": 9, "Noiembrie": 10, "Decembrie": 11
     };
     const parts = dateStr.split(" ");
-    return new Date(parseInt(parts[2]), months[parts[1]], parseInt(parts[0]));
+    return new Date(parseInt(parts[2]), months[parts[1]] ?? 0, parseInt(parts[0]));
 };
 
-const MiniCalendar = ({ programari }: { programari: Programare[] }) => {
+const MiniCalendar = ({ programari, language }: { programari: Programare[], language: string }) => {
     const azi = new Date();
     const [luna, setLuna] = useState(azi.getMonth());
     const [an, setAn] = useState(azi.getFullYear());
+
+    const LUNI = language === "ru" ? LUNI_RU : language === "en" ? LUNI_EN : LUNI_RO;
+    const ZILE = language === "ru" ? ZILE_RU : language === "en" ? ZILE_EN : ZILE_RO;
+    const legend = language === "ru" ? "Запись" : language === "en" ? "Appointment" : "Programare";
 
     const primaZiLuna = new Date(an, luna, 1);
     const ultimaZiLuna = new Date(an, luna + 1, 0);
@@ -45,24 +53,15 @@ const MiniCalendar = ({ programari }: { programari: Programare[] }) => {
     const programariZile = new Set(
         programari.map((p) => {
             const d = parseDate(p.date);
-            if (d.getMonth() === luna && d.getFullYear() === an) {
-                return d.getDate();
-            }
+            if (d.getMonth() === luna && d.getFullYear() === an) return d.getDate();
             return null;
         }).filter(Boolean)
     );
 
-    const mergiInapoi = () => {
-        if (luna === 0) { setLuna(11); setAn(an - 1); }
-        else setLuna(luna - 1);
-    };
+    const mergiInapoi = () => { if (luna === 0) { setLuna(11); setAn(an - 1); } else setLuna(luna - 1); };
+    const mergiInainte = () => { if (luna === 11) { setLuna(0); setAn(an + 1); } else setLuna(luna + 1); };
 
-    const mergiInainte = () => {
-        if (luna === 11) { setLuna(0); setAn(an + 1); }
-        else setLuna(luna + 1);
-    };
-
-    const celule = [];
+    const celule: (number | null)[] = [];
     for (let i = 0; i < startOffset; i++) celule.push(null);
     for (let i = 1; i <= totalZile; i++) celule.push(i);
 
@@ -74,20 +73,11 @@ const MiniCalendar = ({ programari }: { programari: Programare[] }) => {
                 <button className="calendar-nav" onClick={mergiInainte}>›</button>
             </div>
             <div className="calendar-grid-header">
-                {ZILE_SCURT.map((z) => (
-                    <span key={z} className="calendar-day-name">{z}</span>
-                ))}
+                {ZILE.map((z) => <span key={z} className="calendar-day-name">{z}</span>)}
             </div>
             <div className="calendar-grid">
                 {celule.map((zi, idx) => (
-                    <div
-                        key={idx}
-                        className={`calendar-cell
-                            ${zi === null ? "calendar-empty" : ""}
-                            ${zi === azi.getDate() && luna === azi.getMonth() && an === azi.getFullYear() ? "calendar-today" : ""}
-                            ${zi && programariZile.has(zi) ? "calendar-has-appointment" : ""}
-                        `}
-                    >
+                    <div key={idx} className={`calendar-cell ${zi === null ? "calendar-empty" : ""} ${zi === azi.getDate() && luna === azi.getMonth() && an === azi.getFullYear() ? "calendar-today" : ""} ${zi && programariZile.has(zi) ? "calendar-has-appointment" : ""}`}>
                         {zi}
                         {zi && programariZile.has(zi) && <span className="calendar-dot"></span>}
                     </div>
@@ -95,22 +85,20 @@ const MiniCalendar = ({ programari }: { programari: Programare[] }) => {
             </div>
             <div className="calendar-legend">
                 <span className="legend-dot"></span>
-                <span className="legend-text">Programare</span>
+                <span className="legend-text">{legend}</span>
             </div>
         </div>
     );
 };
 
 const ProfilePage = () => {
+    const { t, language } = useLanguage();
     const [activeTab, setActiveTab] = useState("programari");
-
     const images = [heroBg1, heroBg2, heroBg3, heroBg4, heroBg5];
     const [currentImage, setCurrentImage] = useState(0);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentImage((prev) => (prev + 1) % images.length);
-        }, 3000);
+        const interval = setInterval(() => setCurrentImage((prev) => (prev + 1) % images.length), 3000);
         return () => clearInterval(interval);
     }, []);
 
@@ -118,15 +106,12 @@ const ProfilePage = () => {
     const [email, setEmail] = useState("ion.popescu@email.com");
     const [telefon, setTelefon] = useState("+373 69 123 456");
     const [dataNasterii, setDataNasterii] = useState("1985-03-15");
-    const formatData = (data: string) => {
-        const [an, luna, zi] = data.split("-");
-        return `${zi}-${luna}-${an}`;
-    };
     const [oras, setOras] = useState("Chisinau, Moldova");
+    const formatData = (data: string) => { const [an, luna, zi] = data.split("-"); return `${zi}-${luna}-${an}`; };
 
     const [showSuccessMsg, setShowSuccessMsg] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
-    const [programareDeAnulat, setProgramareDeAnulat] = useState<number | null>(null)
+    const [programareDeAnulat, setProgramareDeAnulat] = useState<number | null>(null);
 
     const [numeCompletTemp, setNumeCompletTemp] = useState("Ion Popescu");
     const [emailTemp, setEmailTemp] = useState("ion.popescu@email.com");
@@ -135,108 +120,73 @@ const ProfilePage = () => {
     const [orasTemp, setOrasTemp] = useState("Chisinau, Moldova");
 
     const salveazaModificarile = () => {
-        setNumeComplet(numeCompletTemp);
-        setEmail(emailTemp);
-        setTelefon(telefonTemp);
-        setDataNasterii(dataNasteriiTemp);
-        setOras(orasTemp);
-        setShowSuccessMsg(true);
-        setTimeout(() => setShowSuccessMsg(false), 3000);
-    };
-
-    const confirmaAnulare = (id: number) => {
-        setProgramareDeAnulat(id);
-        setShowCancelModal(true);
-    };
-
-    const anuleazaProgramare = () => {
-        setProgramari(programari.filter((p) => p.id !== programareDeAnulat));
-        setShowCancelModal(false);
-        setProgramareDeAnulat(null);
+        setNumeComplet(numeCompletTemp); setEmail(emailTemp); setTelefon(telefonTemp);
+        setDataNasterii(dataNasteriiTemp); setOras(orasTemp);
+        setShowSuccessMsg(true); setTimeout(() => setShowSuccessMsg(false), 3000);
     };
 
     const [programari, setProgramari] = useState([
-        {
-            id: 1,
-            doctor: "Dr. Tatiana Cobzac",
-            specialty: "Medicina Interna",
-            date: "25 Februarie 2026",
-            time: "10:30",
-            status: "confirmat",
-            initials: "TC"
-        },
-        {
-            id: 2,
-            doctor: "Dr. Vasile Munteanu",
-            specialty: "Cardiologie",
-            date: "10 Martie 2026",
-            time: "14:00",
-            status: "in asteptare",
-            initials: "VM"
-        },
-        {
-            id: 3,
-            doctor: "Dr. Andrei Leahu",
-            specialty: "Ortopedie",
-            date: "15 Ianuarie 2026",
-            time: "09:00",
-            status: "finalizat",
-            initials: "AL"
-        }
+        { id: 1, doctor: "Dr. Tatiana Cobzac",  specialty: "Medicina Interna", date: "25 Februarie 2026", time: "10:30", status: "confirmat",   initials: "TC" },
+        { id: 2, doctor: "Dr. Vasile Munteanu",  specialty: "Cardiologie",      date: "10 Martie 2026",   time: "14:00", status: "in asteptare", initials: "VM" },
+        { id: 3, doctor: "Dr. Andrei Leahu",     specialty: "Ortopedie",        date: "15 Ianuarie 2026", time: "09:00", status: "finalizat",    initials: "AL" },
     ]);
 
     const analize = [
-        {
-            id: 1,
-            name: "Hemoleucograma completa",
-            date: "10 Ianuarie 2026",
-            status: "disponibil",
-            doctor: "Dr. Tatiana Cobzac"
-        },
-        {
-            id: 2,
-            name: "Profil lipidic",
-            date: "10 Ianuarie 2026",
-            status: "disponibil",
-            doctor: "Dr. Vasile Munteanu"
-        },
-        {
-            id: 3,
-            name: "Glicemie a jeun",
-            date: "05 Decembrie 2025",
-            status: "disponibil",
-            doctor: "Dr. Tatiana Cobzac"
-        }
+        { id: 1, name: "Hemoleucograma completa", date: "10 Ianuarie 2026", status: "disponibil", doctor: "Dr. Tatiana Cobzac" },
+        { id: 2, name: "Profil lipidic",          date: "10 Ianuarie 2026", status: "disponibil", doctor: "Dr. Vasile Munteanu" },
+        { id: 3, name: "Glicemie a jeun",         date: "05 Decembrie 2025", status: "disponibil", doctor: "Dr. Tatiana Cobzac" },
     ];
 
     const getStatusClass = (status: string) => {
         switch (status) {
-            case "confirmat": return "status-confirmed";
+            case "confirmat":    return "status-confirmed";
             case "in asteptare": return "status-pending";
-            case "finalizat": return "status-done";
-            case "disponibil": return "status-available";
-            default: return "";
+            case "finalizat":    return "status-done";
+            case "disponibil":   return "status-available";
+            default:             return "";
         }
     };
 
+    const getStatusLabel = (status: string) => {
+        if (language === "ru") {
+            switch (status) {
+                case "confirmat":    return "Подтверждено";
+                case "in asteptare": return "Ожидание";
+                case "finalizat":    return "Завершено";
+                case "disponibil":   return "Доступно";
+                default:             return status;
+            }
+        }
+        if (language === "en") {
+            switch (status) {
+                case "confirmat":    return "Confirmed";
+                case "in asteptare": return "Pending";
+                case "finalizat":    return "Completed";
+                case "disponibil":   return "Available";
+                default:             return status;
+            }
+        }
+        return status;
+    };
+
+    const notifOptions = language === "ru"
+        ? ["Напоминание о записи (SMS)", "Напоминание о записи (Email)", "Результаты анализов доступны", "Акции и новости MediCare"]
+        : language === "en"
+            ? ["Appointment reminder (SMS)", "Appointment reminder (Email)", "Lab results available", "MediCare offers & news"]
+            : ["Reminder programări (SMS)", "Reminder programări (Email)", "Rezultate analize disponibile", "Oferte și noutăți MediCare"];
+
     return (
         <div className="profile-page">
-
             <Navbar />
-
 
             {showCancelModal && (
                 <div className="modal-overlay">
                     <div className="modal-box">
-                        <h3 className="modal-title">Confirma Anularea</h3>
-                        <p className="modal-text">Esti sigur ca vrei sa anulezi aceasta programare? Actiunea nu poate fi anulata.</p>
+                        <h3 className="modal-title">{t.profCancelModal}</h3>
+                        <p className="modal-text">{t.profCancelConfirm}</p>
                         <div className="modal-buttons">
-                            <button className="modal-btn-cancel" onClick={() => setShowCancelModal(false)}>
-                                Nu, Pastreaza
-                            </button>
-                            <button className="modal-btn-confirm" onClick={anuleazaProgramare}>
-                                Da, Anuleaza
-                            </button>
+                            <button className="modal-btn-cancel" onClick={() => setShowCancelModal(false)}>{t.profCancelNo}</button>
+                            <button className="modal-btn-confirm" onClick={() => { setProgramari(programari.filter(p => p.id !== programareDeAnulat)); setShowCancelModal(false); setProgramareDeAnulat(null); }}>{t.profCancelYes}</button>
                         </div>
                     </div>
                 </div>
@@ -244,27 +194,18 @@ const ProfilePage = () => {
 
             <section className="profile-hero">
                 {images.map((img, index) => (
-                    <div key={index} className="hero-slide" style={{
-                        backgroundImage: `url(${img})`,
-                        opacity: index === currentImage ? 1 : 0
-                    } as React.CSSProperties}></div>
+                    <div key={index} className="hero-slide" style={{ backgroundImage: `url(${img})`, opacity: index === currentImage ? 1 : 0 } as React.CSSProperties}></div>
                 ))}
-            <div className="hero-overlay"></div>
+                <div className="hero-overlay"></div>
                 <div className="profile-hero-container">
                     <div className="profile-hero-left">
-                        <div className="profile-hero-badge">Contul Meu</div>
+                        <div className="profile-hero-badge">{t.profMyAccount}</div>
                         <h1 className="profile-hero-title">
-                            Bine ai revenit, <span className="hero-highlight">{numeComplet}</span>
+                            {t.profWelcome}, <span className="hero-highlight">{numeComplet}</span>
                         </h1>
-                        <p className="profile-hero-subtitle">
-                            Gestioneaza programarile, analizele si datele tale.
-                            Aici poti vizualiza istoricul consultațiilor, descarca rezultatele analizelor
-                            si actualiza datele tale personale in timp real. Tot ce ai nevoie pentru
-                            sanatatea ta, intr-un singur loc.
-                        </p>
-
+                        <p className="profile-hero-subtitle">{t.profSubtitle}</p>
                         <div className="hero-next-appointment">
-                            <div className="hero-appointment-label">Urmatoarea programare</div>
+                            <div className="hero-appointment-label">{t.profNextAppt}</div>
                             <div className="hero-appointment-details">
                                 <div className="hero-appointment-doctor">
                                     <div className="hero-doctor-avatar">TC</div>
@@ -275,107 +216,61 @@ const ProfilePage = () => {
                                 </div>
                                 <div className="hero-appointment-time">
                                     <p className="hero-appointment-date">25 Februarie 2026</p>
-                                    <p className="hero-appointment-hour">Ora 10:30</p>
+                                    <p className="hero-appointment-hour">{t.profHour} 10:30</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                     <div className="profile-hero-right">
-                        <MiniCalendar programari={programari} />
+                        <MiniCalendar programari={programari} language={language} />
                     </div>
                 </div>
             </section>
 
             <div className="profile-main">
                 <div className="profile-layout">
-
                     <aside className="profile-sidebar">
                         <div className="sidebar-card avatar-card">
                             <div className="profile-avatar">IP</div>
                             <h2 className="profile-name">{numeComplet}</h2>
-                            <p className="profile-role">Pacient</p>
-                            <div className="profile-badge-verified">✓ Cont Verificat</div>
+                            <p className="profile-role">{t.profPatient}</p>
+                            <div className="profile-badge-verified">{t.profVerified}</div>
                         </div>
 
                         <div className="sidebar-card info-card">
-                            <h3 className="sidebar-card-title">Date Personale</h3>
+                            <h3 className="sidebar-card-title">{t.profPersonalData}</h3>
                             <ul className="info-list">
-                                <li className="info-item">
-                                    <span className="info-label">Nume:</span>
-                                    <span>{numeComplet}</span>
-                                </li>
-                                <li className="info-item">
-                                    <span className="info-label">Email:</span>
-                                    <span>{email}</span>
-                                </li>
-                                <li className="info-item">
-                                    <span className="info-label">Telefon:</span>
-                                    <span>{telefon}</span>
-                                </li>
-                                <li className="info-item">
-                                    <span className="info-label">Nascut:</span>
-                                    <span>{formatData(dataNasterii)}</span>
-                                </li>
-                                <li className="info-item">
-                                    <span className="info-label">Oras:</span>
-                                    <span>{oras}</span>
-                                </li>
+                                <li className="info-item"><span className="info-label">{t.profNameLabel}</span><span>{numeComplet}</span></li>
+                                <li className="info-item"><span className="info-label">{t.profEmailLabel}</span><span>{email}</span></li>
+                                <li className="info-item"><span className="info-label">{t.profPhoneLabel}</span><span>{telefon}</span></li>
+                                <li className="info-item"><span className="info-label">{t.profBornLabel}</span><span>{formatData(dataNasterii)}</span></li>
+                                <li className="info-item"><span className="info-label">{t.profCityLabel}</span><span>{oras}</span></li>
                             </ul>
                         </div>
 
                         <div className="sidebar-card stats-card">
-                            <h3 className="sidebar-card-title">Statistici</h3>
+                            <h3 className="sidebar-card-title">{t.profStats}</h3>
                             <div className="stats-grid">
-                                <div className="stat-box">
-                                    <span className="stat-number">{programari.length}</span>
-                                    <span className="stat-label">Programari</span>
-                                </div>
-                                <div className="stat-box">
-                                    <span className="stat-number">{analize.length}</span>
-                                    <span className="stat-label">Analize</span>
-                                </div>
-                                <div className="stat-box">
-            <span className="stat-number">
-                {[...new Set(programari.map((p) => p.doctor))].length}
-            </span>
-                                    <span className="stat-label">Doctori</span>
-                                </div>
-                                <div className="stat-box">
-                                    <span className="stat-number">2</span>
-                                    <span className="stat-label">Ani Pacient</span>
-                                </div>
+                                <div className="stat-box"><span className="stat-number">{programari.length}</span><span className="stat-label">{t.profApptsLabel}</span></div>
+                                <div className="stat-box"><span className="stat-number">{analize.length}</span><span className="stat-label">{t.profResultsLabel}</span></div>
+                                <div className="stat-box"><span className="stat-number">{[...new Set(programari.map(p => p.doctor))].length}</span><span className="stat-label">{t.profDoctorsLabel}</span></div>
+                                <div className="stat-box"><span className="stat-number">2</span><span className="stat-label">{t.profYearsLabel}</span></div>
                             </div>
                         </div>
                     </aside>
 
                     <main className="profile-content">
                         <div className="tabs-container">
-                            <button
-                                className={`tab-btn ${activeTab === "programari" ? "tab-active" : ""}`}
-                                onClick={() => setActiveTab("programari")}
-                            >
-                                Programarile Mele
-                            </button>
-                            <button
-                                className={`tab-btn ${activeTab === "analize" ? "tab-active" : ""}`}
-                                onClick={() => setActiveTab("analize")}
-                            >
-                                Analize & Rezultate
-                            </button>
-                            <button
-                                className={`tab-btn ${activeTab === "setari" ? "tab-active" : ""}`}
-                                onClick={() => setActiveTab("setari")}
-                            >
-                                Setari Cont
-                            </button>
+                            <button className={`tab-btn ${activeTab === "programari" ? "tab-active" : ""}`} onClick={() => setActiveTab("programari")}>{t.profTabAppts}</button>
+                            <button className={`tab-btn ${activeTab === "analize" ? "tab-active" : ""}`} onClick={() => setActiveTab("analize")}>{t.profTabResults}</button>
+                            <button className={`tab-btn ${activeTab === "setari" ? "tab-active" : ""}`} onClick={() => setActiveTab("setari")}>{t.profTabSettings}</button>
                         </div>
 
                         {activeTab === "programari" && (
                             <div className="tab-content">
                                 <div className="content-header">
-                                    <h2 className="content-title">Programarile Mele</h2>
-                                    <button className="navbar-btn">+ Programare Noua</button>
+                                    <h2 className="content-title">{t.profTabAppts}</h2>
+                                    <button className="navbar-btn">{t.profNewAppt}</button>
                                 </div>
                                 <div className="appointments-list">
                                     {programari.map((p) => (
@@ -388,23 +283,14 @@ const ProfilePage = () => {
                                                 </div>
                                             </div>
                                             <div className="appointment-center">
-                                                <div className="appointment-date">
-                                                    <span>Data: {p.date}</span>
-                                                </div>
-                                                <div className="appointment-time">
-                                                    <span>Ora: {p.time}</span>
-                                                </div>
+                                                <div className="appointment-date"><span>{t.profDateLabel} {p.date}</span></div>
+                                                <div className="appointment-time"><span>{t.profHour}: {p.time}</span></div>
                                             </div>
                                             <div className="appointment-right">
-                                                <span className={`status-badge ${getStatusClass(p.status)}`}>
-                                                    {p.status}
-                                                </span>
+                                                <span className={`status-badge ${getStatusClass(p.status)}`}>{getStatusLabel(p.status)}</span>
                                                 {p.status !== "finalizat" && (
-                                                    <button className="cancel-btn" onClick={() => confirmaAnulare(p.id)}>
-                                                        Anuleaza
-                                                    </button>
+                                                    <button className="cancel-btn" onClick={() => { setProgramareDeAnulat(p.id); setShowCancelModal(true); }}>{t.profCancelBtn}</button>
                                                 )}
-
                                             </div>
                                         </div>
                                     ))}
@@ -414,9 +300,7 @@ const ProfilePage = () => {
 
                         {activeTab === "analize" && (
                             <div className="tab-content">
-                                <div className="content-header">
-                                    <h2 className="content-title">Analize & Rezultate</h2>
-                                </div>
+                                <div className="content-header"><h2 className="content-title">{t.profTabResults}</h2></div>
                                 <div className="analize-list">
                                     {analize.map((a) => (
                                         <div key={a.id} className="analiza-card">
@@ -426,10 +310,8 @@ const ProfilePage = () => {
                                                 <p className="analiza-date">{a.date}</p>
                                             </div>
                                             <div className="analiza-right">
-                                                <span className={`status-badge ${getStatusClass(a.status)}`}>
-                                                    {a.status}
-                                                </span>
-                                                <button className="navbar-btn">Descarca PDF</button>
+                                                <span className={`status-badge ${getStatusClass(a.status)}`}>{getStatusLabel(a.status)}</span>
+                                                <button className="navbar-btn">{t.profDownloadPdf}</button>
                                             </div>
                                         </div>
                                     ))}
@@ -439,111 +321,47 @@ const ProfilePage = () => {
 
                         {activeTab === "setari" && (
                             <div className="tab-content">
-                                <div className="content-header">
-                                    <h2 className="content-title">Setari Cont</h2>
-                                </div>
+                                <div className="content-header"><h2 className="content-title">{t.profSettingsTitle}</h2></div>
                                 <div className="settings-grid">
-
                                     <div className="settings-card">
-                                        <h3 className="settings-card-title">Date Personale</h3>
-                                        <div className="form-group">
-                                            <label className="form-label">Nume complet</label>
-                                            <input
-                                                className="form-input"
-                                                type="text"
-                                                value={numeCompletTemp}
-                                                onChange={(e) => setNumeCompletTemp(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="form-group">
-                                            <label className="form-label">Email</label>
-                                            <input
-                                                className="form-input"
-                                                type="email"
-                                                value={emailTemp}
-                                                onChange={(e) => setEmailTemp(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="form-group">
-                                            <label className="form-label">Telefon</label>
-                                            <input
-                                                className="form-input"
-                                                type="tel"
-                                                value={telefonTemp}
-                                                onChange={(e) => setTelefonTemp(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="form-group">
-                                            <label className="form-label">Data nasterii</label>
-                                            <input
-                                                className="form-input"
-                                                type="date"
-                                                value={dataNasteriiTemp}
-                                                onChange={(e) => setDataNasteriiTemp(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="form-group">
-                                            <label className="form-label">Oras</label>
-                                            <input
-                                                className="form-input"
-                                                type="text"
-                                                value={orasTemp}
-                                                onChange={(e) => setOrasTemp(e.target.value)}
-                                            />
-                                        </div>
-                                        <button className="outline-btn" onClick={salveazaModificarile}>
-                                            Salveaza Modificarile
-                                        </button>
-                                        {showSuccessMsg && (
-                                            <div className="success-msg">✓ Date salvate cu succes!</div>
-                                        )}
+                                        <h3 className="settings-card-title">{t.profPersonalData}</h3>
+                                        <div className="form-group"><label className="form-label">{t.profFullName}</label><input className="form-input" type="text" value={numeCompletTemp} onChange={(e) => setNumeCompletTemp(e.target.value)} /></div>
+                                        <div className="form-group"><label className="form-label">{t.profEmail}</label><input className="form-input" type="email" value={emailTemp} onChange={(e) => setEmailTemp(e.target.value)} /></div>
+                                        <div className="form-group"><label className="form-label">{t.profPhone}</label><input className="form-input" type="tel" value={telefonTemp} onChange={(e) => setTelefonTemp(e.target.value)} /></div>
+                                        <div className="form-group"><label className="form-label">{t.profBirthdate}</label><input className="form-input" type="date" value={dataNasteriiTemp} onChange={(e) => setDataNasteriiTemp(e.target.value)} /></div>
+                                        <div className="form-group"><label className="form-label">{t.profCity}</label><input className="form-input" type="text" value={orasTemp} onChange={(e) => setOrasTemp(e.target.value)} /></div>
+                                        <button className="outline-btn" onClick={salveazaModificarile}>{t.profSave}</button>
+                                        {showSuccessMsg && <div className="success-msg">{t.profSaved}</div>}
                                     </div>
 
                                     <div className="settings-card security-card">
-                                        <h3 className="settings-card-title">Securitate</h3>
-                                        <div className="form-group">
-                                            <label className="form-label">Parola curenta</label>
-                                            <input className="form-input" type="password" placeholder="••••••••" />
-                                        </div>
-                                        <div className="form-group">
-                                            <label className="form-label">Parola noua</label>
-                                            <input className="form-input" type="password" placeholder="••••••••" />
-                                        </div>
-                                        <div className="form-group">
-                                            <label className="form-label">Confirma parola noua</label>
-                                            <input className="form-input" type="password" placeholder="••••••••" />
-                                        </div>
-                                        <button className="outline-btn">Schimba Parola</button>
+                                        <h3 className="settings-card-title">{t.profSecurity}</h3>
+                                        <div className="form-group"><label className="form-label">{t.profCurrentPass}</label><input className="form-input" type="password" placeholder="••••••••" /></div>
+                                        <div className="form-group"><label className="form-label">{t.profNewPass}</label><input className="form-input" type="password" placeholder="••••••••" /></div>
+                                        <div className="form-group"><label className="form-label">{t.profConfirmPass}</label><input className="form-input" type="password" placeholder="••••••••" /></div>
+                                        <button className="outline-btn">{t.profChangePass}</button>
                                     </div>
 
                                     <div className="settings-card full-width">
-                                        <h3 className="settings-card-title">Notificari</h3>
+                                        <h3 className="settings-card-title">{t.profNotifications}</h3>
                                         <div className="notification-options">
-                                            {[
-                                                { label: "Reminder programari (SMS)", defaultChecked: true },
-                                                { label: "Reminder programari (Email)", defaultChecked: true },
-                                                { label: "Rezultate analize disponibile", defaultChecked: true },
-                                                { label: "Oferte si noutati MediCare", defaultChecked: false }
-                                            ].map((opt, i) => (
+                                            {notifOptions.map((opt, i) => (
                                                 <label key={i} className="toggle-label">
-                                                    <span>{opt.label}</span>
-                                                    <input type="checkbox" defaultChecked={opt.defaultChecked} className="toggle-input" />
+                                                    <span>{opt}</span>
+                                                    <input type="checkbox" defaultChecked={i < 3} className="toggle-input" />
                                                     <span className="toggle-slider"></span>
                                                 </label>
                                             ))}
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         )}
-
                     </main>
                 </div>
             </div>
 
             <Footer />
-
         </div>
     );
 };

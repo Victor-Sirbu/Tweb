@@ -1,10 +1,13 @@
 import "./Footer.css";
+import { useLanguage } from "../../context/LanguageContext";
 
 const Footer = () => {
+    const { t } = useLanguage();
+
     const schedule = [
-        { day: "Luni - Vineri", hours: "08:00 - 20:00" },
-        { day: "Sâmbătă", hours: "09:00 - 14:00" },
-        { day: "Duminică", hours: "Închis" }
+        { day: t.schedMonFri, hours: "08:00 - 20:00" },
+        { day: t.schedSat,    hours: "09:00 - 14:00" },
+        { day: t.schedSun,    hours: t.closed }
     ];
 
     return (
@@ -17,10 +20,7 @@ const Footer = () => {
                             <span className="logo-subtitle">Cabinet Medical</span>
                         </div>
                     </div>
-                    <p className="footer-description">
-                        Cabinet medical modern cu servicii complete de diagnostic și tratament.
-                        Echipă de medici specialiști dedicați sănătății tale.
-                    </p>
+                    <p className="footer-description">{t.footerDescription}</p>
                     <div className="footer-social">
                         <a href="https://facebook.com/medicare.md" target="_blank" rel="noopener noreferrer" className="social-link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -36,17 +36,17 @@ const Footer = () => {
                 </div>
 
                 <div className="footer-section">
-                    <h3 className="footer-title">Link-uri Rapide</h3>
+                    <h3 className="footer-title">{t.footerQuickLinks}</h3>
                     <ul className="footer-links">
-                        <li><a href="/services">Servicii Medicale</a></li>
-                        <li><a href="#echipa">Echipa Noastră</a></li>
-                        <li><a href="#testimoniale">Testimoniale</a></li>
-                        <li><a href="#">Blog Medical</a></li>
+                        <li><a href="/services">{t.footerMedicalServices}</a></li>
+                        <li><a href="#echipa">{t.footerOurTeam}</a></li>
+                        <li><a href="#testimoniale">{t.footerTestimonials}</a></li>
+                        <li><a href="#">{t.footerMedicalBlog}</a></li>
                     </ul>
                 </div>
 
                 <div className="footer-section">
-                    <h3 className="footer-title">Program</h3>
+                    <h3 className="footer-title">{t.footerSchedule}</h3>
                     <ul className="footer-schedule">
                         {schedule.map((item, index) => (
                             <li key={index}>
@@ -58,23 +58,23 @@ const Footer = () => {
                 </div>
 
                 <div className="footer-section">
-                    <h3 className="footer-title">Contact</h3>
+                    <h3 className="footer-title">{t.footerContact}</h3>
                     <ul className="footer-contact">
                         <li>
-                            <span className="contact-label">Adresă:</span>
-                            <span>Bd. Ștefan cel Mare nr. 123, Chișinău, Moldova</span>
+                            <span className="contact-label">{t.footerAddress}</span>
+                            <span>{t.footerAddressVal}</span>
                         </li>
                         <li>
-                            <span className="contact-label">Telefon:</span>
+                            <span className="contact-label">{t.footerPhone}</span>
                             <span>+373 22 123 456</span>
                         </li>
                         <li>
-                            <span className="contact-label">Email:</span>
+                            <span className="contact-label">{t.footerEmail}</span>
                             <span>contact@medicare.md</span>
                         </li>
                         <li>
-                            <span className="contact-label">Program:</span>
-                            <span>Luni-Vineri: 08:00-20:00</span>
+                            <span className="contact-label">{t.footerProgram}</span>
+                            <span>{t.footerProgramVal}</span>
                         </li>
                     </ul>
                 </div>

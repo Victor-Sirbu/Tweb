@@ -2,76 +2,30 @@ import "./HomePage.css";
 import Footer from "../../shared/Footer/Footer";
 import Navbar from "../../shared/Navbar/Navbar";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import heroBg1 from "../../assets/hero-bg1.jpg";
 import heroBg2 from "../../assets/hero-bg2.jpg";
 import heroBg3 from "../../assets/hero-bg3.jpg";
 import heroBg4 from "../../assets/hero-bg4.jpg";
 import heroBg5 from "../../assets/hero-bg5.jpg";
-
+import { useLanguage } from "../../context/LanguageContext";
 
 const HomePage = () => {
-
+    const { t } = useLanguage();
+    const navigate = useNavigate();
 
     const doctors = [
-        {
-            name: "Dr. Tatiana Cobzac",
-            specialty: "Medicină Internă",
-            experience: "15 ani experiență",
-            education: "USMF Nicolae Testemițanu, Chișinău",
-            initials: "TC"
-        },
-        {
-            name: "Dr. Vasile Munteanu",
-            specialty: "Cardiologie",
-            experience: "12 ani experiență",
-            education: "USMF Nicolae Testemițanu, Chișinău",
-            initials: "VM"
-        },
-        {
-            name: "Dr. Natalia Botnari",
-            specialty: "Pediatrie",
-            experience: "10 ani experiență",
-            education: "USMF Nicolae Testemițanu, Chișinău",
-            initials: "NB"
-        },
-        {
-            name: "Dr. Andrei Leahu",
-            specialty: "Ortopedie",
-            experience: "18 ani experiență",
-            education: "UMF Carol Davila București",
-            initials: "AL"
-        }
+        { name: "Dr. Tatiana Cobzac",  specialty: t.specInterna,   experience: t.exp15, education: "USMF Nicolae Testemițanu, Chișinău", initials: "TC" },
+        { name: "Dr. Vasile Munteanu", specialty: t.specCardio,     experience: t.exp12, education: "USMF Nicolae Testemițanu, Chișinău", initials: "VM" },
+        { name: "Dr. Natalia Botnari", specialty: t.specPediatrie,  experience: t.exp10, education: "USMF Nicolae Testemițanu, Chișinău", initials: "NB" },
+        { name: "Dr. Andrei Leahu",    specialty: t.specOrtoped,    experience: t.exp18, education: "UMF Carol Davila București",         initials: "AL" },
     ];
 
     const testimonials = [
-        {
-            name: "Tatiana Cojocaru",
-            rating: 5,
-            text: "Cel mai profesionist cabinet medical din oraș. Dr. Tatiana mi-a salvat viața diagnosticând la timp o afecțiune serioasă. Personalul este extrem de amabil și empatic.",
-            initials: "TC",
-            date: "Ianuarie 2026"
-        },
-        {
-            name: "Vasile Rusu",
-            rating: 5,
-            text: "Am făcut analize medicale complete aici. Rezultatele au venit foarte rapid, totul a fost foarte bine organizat. Recomand cu încredere!",
-            initials: "VR",
-            date: "Decembrie 2025"
-        },
-        {
-            name: "Elena Ciobanu",
-            rating: 5,
-            text: "Copiii mei sunt îngrijiți aici de Dr. Natalia. Este o doctoriță extraordinară, foarte răbdătoare și competentă. Ne simțim în siguranță!",
-            initials: "EC",
-            date: "Februarie 2026"
-        },
-        {
-            name: "Dumitru Moraru",
-            rating: 5,
-            text: "Programările online sunt foarte convenabile. Nu mai stai la cozi! Serviciile medicale sunt de top, medicii sunt foarte pregătiți.",
-            initials: "DM",
-            date: "Ianuarie 2026"
-        }
+        { name: "Tatiana Cojocaru", rating: 5, text: t.testi1, initials: "TC", date: "Ianuarie 2026" },
+        { name: "Vasile Rusu",      rating: 5, text: t.testi2, initials: "VR", date: "Decembrie 2025" },
+        { name: "Elena Ciobanu",    rating: 5, text: t.testi3, initials: "EC", date: "Februarie 2026" },
+        { name: "Dumitru Moraru",   rating: 5, text: t.testi4, initials: "DM", date: "Ianuarie 2026" },
     ];
 
     const images = [heroBg1, heroBg2, heroBg3, heroBg4, heroBg5];
@@ -99,53 +53,49 @@ const HomePage = () => {
                 <div className="hero-overlay"></div>
                 <div className="hero-container">
                     <div className="hero-content">
-                        <div className="hero-badge">Cabinet Medical Acreditat</div>
+                        <div className="hero-badge">{t.heroBadge}</div>
                         <h1 className="hero-title">
-                            Sănătatea Ta Este<br />
-                            <span className="hero-highlight">Prioritatea Noastră</span>
+                            {t.heroTitle1}<br />
+                            <span className="hero-highlight">{t.heroTitle2}</span>
                         </h1>
-                        <p className="hero-description">
-                            Cabinet medical modern cu echipamente de ultimă generație și o echipă de medici specialiști
-                            cu experiență vastă. Oferim servicii medicale complete, de la consultații de specialitate
-                            până la analize de laborator complexe.
-                        </p>
+                        <p className="hero-description">{t.heroDesc}</p>
                         <div className="hero-buttons">
-                            <button className="btn-primary">Programează Consultație</button>
-                            <button className="btn-secondary">Contactează-ne</button>
+                            <button className="btn-primary" onClick={() => navigate("/login")}>{t.heroBook}</button>
+                            <button className="btn-secondary" onClick={() => navigate("/contact")}>{t.heroContact}</button>
                         </div>
                         <div className="hero-stats">
                             <div className="stat-item">
                                 <span className="stat-number">25,000+</span>
-                                <span className="stat-label">Pacienți Tratați</span>
+                                <span className="stat-label">{t.statPatients}</span>
                             </div>
                             <div className="stat-divider"></div>
                             <div className="stat-item">
                                 <span className="stat-number">30+</span>
-                                <span className="stat-label">Medici Specialiști</span>
+                                <span className="stat-label">{t.statDoctors}</span>
                             </div>
                             <div className="stat-divider"></div>
                             <div className="stat-item">
                                 <span className="stat-number">15</span>
-                                <span className="stat-label">Ani Experiență</span>
+                                <span className="stat-label">{t.statYears}</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="hero-schedule-card">
-                        <h3 className="schedule-title">Program</h3>
+                        <h3 className="schedule-title">{t.scheduleTitle}</h3>
                         <div className="schedule-item">
-                            <span className="schedule-day">Luni - Vineri</span>
+                            <span className="schedule-day">{t.schedMonFri}</span>
                             <span className="schedule-time">08:00 - 20:00</span>
                         </div>
                         <div className="schedule-divider"></div>
                         <div className="schedule-item">
-                            <span className="schedule-day">Sâmbătă</span>
+                            <span className="schedule-day">{t.schedSat}</span>
                             <span className="schedule-time">09:00 - 14:00</span>
                         </div>
                         <div className="schedule-divider"></div>
                         <div className="schedule-item">
-                            <span className="schedule-day">Duminică</span>
-                            <span className="schedule-time closed">Închis</span>
+                            <span className="schedule-day">{t.schedSun}</span>
+                            <span className="schedule-time closed">{t.closed}</span>
                         </div>
                     </div>
 
@@ -155,45 +105,25 @@ const HomePage = () => {
 
             <section className="features-section">
                 <div className="features-header">
-                    <span className="features-label">Avantajele Noastre</span>
-                    <h2 className="features-title">Ce Oferă Cabinetul Nostru Medical</h2>
-                    <p className="features-subtitle">
-                        Servicii de calitate, accesibile și rapide — pentru sănătatea ta și a familiei tale
-                    </p>
+                    <span className="features-label">{t.featuresLabel}</span>
+                    <h2 className="features-title">{t.featuresTitle}</h2>
+                    <p className="features-subtitle">{t.featuresSubtitle}</p>
                 </div>
                 <div className="features-container">
-                    <div className="feature-box">
-                        <h3>Program Flexibil</h3>
-                        <p>Luni-Vineri 08:00-20:00</p>
-                    </div>
-                    <div className="feature-box">
-                        <h3>Prețuri Accesibile</h3>
-                        <p>Convenții cu case de asigurări</p>
-                    </div>
-                    <div className="feature-box">
-                        <h3>Rezultate Rapide</h3>
-                        <p>Analize în aceeași zi</p>
-                    </div>
-                    <div className="feature-box">
-                        <h3>Programare Online</h3>
-                        <p>24/7 disponibil</p>
-                    </div>
+                    <div className="feature-box"><h3>{t.feat1Title}</h3><p>{t.feat1Desc}</p></div>
+                    <div className="feature-box"><h3>{t.feat2Title}</h3><p>{t.feat2Desc}</p></div>
+                    <div className="feature-box"><h3>{t.feat3Title}</h3><p>{t.feat3Desc}</p></div>
+                    <div className="feature-box"><h3>{t.feat4Title}</h3><p>{t.feat4Desc}</p></div>
                 </div>
             </section>
-
-
-
 
 
             <section id="echipa" className="team-section">
                 <div className="section-container">
                     <div className="section-header">
-                        <span className="section-badge">Echipa Noastră</span>
-                        <h2 className="section-title">Medici Specialiști Experimentați</h2>
-                        <p className="section-subtitle">
-                            Echipa noastră este formată din medici cu pregătire superioară și experiență vastă,
-                            dedicați să vă ofere cele mai bune servicii medicale
-                        </p>
+                        <span className="section-badge">{t.teamBadge}</span>
+                        <h2 className="section-title">{t.teamTitle}</h2>
+                        <p className="section-subtitle">{t.teamSubtitle}</p>
                     </div>
                     <div className="team-grid">
                         {doctors.map((doctor, index) => (
@@ -205,7 +135,7 @@ const HomePage = () => {
                                     <p className="doctor-experience">{doctor.experience}</p>
                                     <p className="doctor-education">{doctor.education}</p>
                                 </div>
-                                <button className="doctor-btn">Programează Consultație</button>
+                                <button className="doctor-btn">{t.bookConsultation}</button>
                             </div>
                         ))}
                     </div>
@@ -216,35 +146,27 @@ const HomePage = () => {
             <section className="how-it-works-section">
                 <div className="section-container">
                     <div className="section-header">
-                        <span className="section-badge">Procesul Nostru</span>
-                        <h2 className="section-title">Cum Funcționează Programarea</h2>
-                        <p className="section-subtitle">
-                            Simplu, rapid și sigur - programează-te online în doar 3 pași
-                        </p>
+                        <span className="section-badge">{t.howBadge}</span>
+                        <h2 className="section-title">{t.howTitle}</h2>
+                        <p className="section-subtitle">{t.howSubtitle}</p>
                     </div>
                     <div className="steps-container">
                         <div className="step-card">
                             <div className="step-number">1</div>
-                            <h3 className="step-title">Creează Cont</h3>
-                            <p className="step-description">
-                                Înregistrare rapidă cu email sau telefon. Date personale în siguranță.
-                            </p>
+                            <h3 className="step-title">{t.step1Title}</h3>
+                            <p className="step-description">{t.step1Desc}</p>
                         </div>
                         <div className="step-arrow">→</div>
                         <div className="step-card">
                             <div className="step-number">2</div>
-                            <h3 className="step-title">Alege Medicul</h3>
-                            <p className="step-description">
-                                Selectează specialitatea și medicul dorit. Vezi disponibilitatea în timp real.
-                            </p>
+                            <h3 className="step-title">{t.step2Title}</h3>
+                            <p className="step-description">{t.step2Desc}</p>
                         </div>
                         <div className="step-arrow">→</div>
                         <div className="step-card">
                             <div className="step-number">3</div>
-                            <h3 className="step-title">Confirmă</h3>
-                            <p className="step-description">
-                                Confirmare instantanee prin SMS și email. Reminder 24h înainte.
-                            </p>
+                            <h3 className="step-title">{t.step3Title}</h3>
+                            <p className="step-description">{t.step3Desc}</p>
                         </div>
                     </div>
                 </div>
@@ -254,11 +176,9 @@ const HomePage = () => {
             <section id="testimoniale" className="testimonials-section">
                 <div className="section-container">
                     <div className="section-header">
-                        <span className="section-badge">Recenzii Pacienți</span>
-                        <h2 className="section-title">Ce Spun Pacienții Noștri</h2>
-                        <p className="section-subtitle">
-                            Feedback real de la pacienți care au beneficiat de serviciile noastre medicale
-                        </p>
+                        <span className="section-badge">{t.testiBadge}</span>
+                        <h2 className="section-title">{t.testiTitle}</h2>
+                        <p className="section-subtitle">{t.testiSubtitle}</p>
                     </div>
                     <div className="testimonials-grid">
                         {testimonials.map((testimonial, index) => (
@@ -276,7 +196,7 @@ const HomePage = () => {
                                     ))}
                                 </div>
                                 <p className="testimonial-text">"{testimonial.text}"</p>
-                                <div className="testimonial-verified">✓ Pacient Verificat</div>
+                                <div className="testimonial-verified">✓ {t.verifiedPatient}</div>
                             </div>
                         ))}
                     </div>
@@ -287,28 +207,24 @@ const HomePage = () => {
             <section className="cta-section">
                 <div className="cta-container">
                     <div className="cta-content">
-                        <h2 className="cta-title">Pregătit să Îți Îmbunătățești Sănătatea?</h2>
-                        <p className="cta-description">
-                            Nu amâna! Programează-te astăzi pentru o consultație cu unul din medicii noștri specialiști.
-                            Echipa noastră este gata să te ajute.
-                        </p>
+                        <h2 className="cta-title">{t.ctaTitle}</h2>
+                        <p className="cta-description">{t.ctaDesc}</p>
                         <div className="cta-buttons">
-                            <button className="cta-button-primary">Programează Acum</button>
-                            <button className="cta-button-secondary">Vezi Prețuri</button>
+                            <button className="cta-button-primary">{t.ctaBook}</button>
+                            <button className="cta-button-secondary">{t.ctaPrices}</button>
                         </div>
                     </div>
                     <div className="cta-stats">
                         <div className="cta-stat">
                             <span className="cta-stat-number">98%</span>
-                            <span className="cta-stat-label">Satisfacție Pacienți</span>
+                            <span className="cta-stat-label">{t.ctaSatisfaction}</span>
                         </div>
                         <div className="cta-stat">
                             <span className="cta-stat-number">24/7</span>
-                            <span className="cta-stat-label">Programare Online</span>
+                            <span className="cta-stat-label">{t.ctaOnline}</span>
                         </div>
                     </div>
                 </div>
-
             </section>
 
             <Footer />

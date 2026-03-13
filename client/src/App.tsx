@@ -10,23 +10,30 @@ import HelpPage from "./components/HelpPage/HelpPage.tsx";
 import LoginPage from "./components/LoginPage/LoginPage";
 import NewsPage from "./components/NewsPage/NewsPage";
 import ContactPage from "./components/ContactPage/ContactPage";
+import { AuthProvider } from "./context/AuthContext";
+import { LanguageProvider } from "./context/LanguageContext";
+
 function App() {
     return (
-        <Router>
-            <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/services" element={<MedicalServices />} />
-                <Route path="/activity" element={<ActivityLog />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/appointments" element={<AppointmentsPage />} />
-                <Route path="/notifications" element={<NotificationsPage />} />
-                <Route path="/help" element={<HelpPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/news" element={<NewsPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-            </Routes>
-        </Router>
+        <LanguageProvider>
+            <AuthProvider>
+                <Router>
+                    <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/profile" element={<ProfilePage />} />
+                        <Route path="/services" element={<MedicalServices />} />
+                        <Route path="/activity" element={<ActivityLog />} />
+                        <Route path="/admin" element={<AdminDashboard />} />
+                        <Route path="/appointments" element={<AppointmentsPage />} />
+                        <Route path="/notifications" element={<NotificationsPage />} />
+                        <Route path="/help" element={<HelpPage />} />
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/news" element={<NewsPage />} />
+                        <Route path="/contact" element={<ContactPage />} />
+                    </Routes>
+                </Router>
+            </AuthProvider>
+        </LanguageProvider>
     );
 }
 

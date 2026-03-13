@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./NotificationsPage.css";
+import { useLanguage } from "../../context/LanguageContext";
 
 type Notification = {
     id: number;
@@ -21,23 +22,17 @@ const initialNotifications: Notification[] = [
     { id: 8, type: "programare", title: "Programare confirmată", message: "Programarea lui George Mihai pentru 26 Feb 2026 la ora 15:30 a fost confirmată cu succes.", time: "26 Feb, 10:00", read: true },
 ];
 
-const typeConfig = {
-    programare: { label: "Programare", color: "#3a7bd5", bg: "#dbeafe" },
-    rezultat:   { label: "Rezultat",   color: "#0d9488", bg: "#ccfbf1" },
-    reamintire: { label: "Reamintire", color: "#d97706", bg: "#fef3c7" },
-    sistem:     { label: "Sistem",     color: "#6b7280", bg: "#f3f4f6" },
-};
-
 export default function NotificationsPage() {
+    const { t, language } = useLanguage();
     const [notifications, setNotifications] = useState(initialNotifications);
-    const [filtru, setFiltru] = useState("Toate");
+    const [filtru, setFiltru] = useState("all");
     const [selected, setSelected] = useState<Notification | null>(null);
 
     const unreadCount = notifications.filter((n) => !n.read).length;
 
     const filtered = notifications.filter((n) => {
-        if (filtru === "Necitite") return !n.read;
-        if (filtru === "Citite") return n.read;
+        if (filtru === "unread") return !n.read;
+        if (filtru === "read") return n.read;
         return true;
     });
 
@@ -53,45 +48,78 @@ export default function NotificationsPage() {
         if (selected?.id === id) setSelected(null);
     };
 
+    const getTypeConfig = (type: string) => {
+        if (language === "ru") {
+            const ru: Record<string, { label: string; color: string; bg: string }> = {
+                programare: { label: "Запись",       color: "#3a7bd5", bg: "#dbeafe" },
+                rezultat:   { label: "Результат",    color: "#0d9488", bg: "#ccfbf1" },
+                reamintire: { label: "Напоминание",  color: "#d97706", bg: "#fef3c7" },
+                sistem:     { label: "Система",      color: "#6b7280", bg: "#f3f4f6" },
+            };
+            return ru[type] ?? { label: type, color: "#6b7280", bg: "#f3f4f6" };
+        }
+        if (language === "en") {
+            const en: Record<string, { label: string; color: string; bg: string }> = {
+                programare: { label: "Appointment", color: "#3a7bd5", bg: "#dbeafe" },
+                rezultat:   { label: "Result",      color: "#0d9488", bg: "#ccfbf1" },
+                reamintire: { label: "Reminder",    color: "#d97706", bg: "#fef3c7" },
+                sistem:     { label: "System",      color: "#6b7280", bg: "#f3f4f6" },
+            };
+            return en[type] ?? { label: type, color: "#6b7280", bg: "#f3f4f6" };
+        }
+        const ro: Record<string, { label: string; color: string; bg: string }> = {
+            programare: { label: "Programare", color: "#3a7bd5", bg: "#dbeafe" },
+            rezultat:   { label: "Rezultat",   color: "#0d9488", bg: "#ccfbf1" },
+            reamintire: { label: "Reamintire", color: "#d97706", bg: "#fef3c7" },
+            sistem:     { label: "Sistem",     color: "#6b7280", bg: "#f3f4f6" },
+        };
+        return ro[type] ?? { label: type, color: "#6b7280", bg: "#f3f4f6" };
+    };
+
+    const tabs = [
+        { key: "all",    label: t.notifAll },
+        { key: "unread", label: t.notifUnreadTab },
+        { key: "read",   label: t.notifReadTab },
+    ];
+
     return (
         <div className="notif-page">
-
             <div className="notif-header">
-                <h1 className="notif-title">Notificări</h1>
+                <h1 className="notif-title">{t.notifTitle}</h1>
             </div>
 
             <div className="notif-summary-bar">
                 <div className="summary-item">
                     <span className="summary-number">{notifications.length}</span>
-                    <span className="summary-label">Total</span>
+                    <span className="summary-label">{t.notifTotal}</span>
                 </div>
                 <div className="summary-divider" />
                 <div className="summary-item">
                     <span className="summary-number unread">{unreadCount}</span>
-                    <span className="summary-label">Necitite</span>
+                    <span className="summary-label">{t.notifUnread}</span>
                 </div>
                 <div className="summary-divider" />
                 <div className="summary-item">
                     <span className="summary-number">{notifications.length - unreadCount}</span>
-                    <span className="summary-label">Citite</span>
+                    <span className="summary-label">{t.notifRead}</span>
                 </div>
                 <div className="summary-spacer" />
                 {unreadCount > 0 && (
                     <button className="btn-mark-all" onClick={markAllRead}>
-                        ✓ Marchează toate ca citite
+                        {t.notifMarkAll}
                     </button>
                 )}
             </div>
 
             <div className="filter-tabs">
-                {["Toate", "Necitite", "Citite"].map((tab) => (
+                {tabs.map((tab) => (
                     <button
-                        key={tab}
-                        className={`filter-tab ${filtru === tab ? "filter-tab--active" : ""}`}
-                        onClick={() => setFiltru(tab)}
+                        key={tab.key}
+                        className={`filter-tab ${filtru === tab.key ? "filter-tab--active" : ""}`}
+                        onClick={() => setFiltru(tab.key)}
                     >
-                        {tab}
-                        {tab === "Necitite" && unreadCount > 0 && (
+                        {tab.label}
+                        {tab.key === "unread" && unreadCount > 0 && (
                             <span className="tab-count">{unreadCount}</span>
                         )}
                     </button>
@@ -102,11 +130,11 @@ export default function NotificationsPage() {
                 {filtered.length === 0 && (
                     <div className="empty-state">
                         <div className="empty-icon">🔔</div>
-                        <p className="empty-text">Nu există notificări în această categorie.</p>
+                        <p className="empty-text">{t.notifEmpty}</p>
                     </div>
                 )}
                 {filtered.map((n) => {
-                    const cfg = typeConfig[n.type];
+                    const cfg = getTypeConfig(n.type);
                     return (
                         <div
                             key={n.id}
@@ -117,7 +145,7 @@ export default function NotificationsPage() {
                             <div className="notif-body">
                                 <div className="notif-top">
                                     <span className="notif-name">{n.title}</span>
-                                    {!n.read && <span className="new-pill">Nou</span>}
+                                    {!n.read && <span className="new-pill">{t.notifNew}</span>}
                                 </div>
                                 <p className="notif-message">{n.message}</p>
                                 <div className="notif-footer">
@@ -130,7 +158,7 @@ export default function NotificationsPage() {
                             <button
                                 className="btn-delete"
                                 onClick={(e) => { e.stopPropagation(); deleteNotif(n.id); }}
-                                title="Șterge"
+                                title={t.notifDelete}
                             >
                                 ✕
                             </button>
@@ -142,10 +170,10 @@ export default function NotificationsPage() {
             {selected && (
                 <div className="modal-overlay" onClick={() => setSelected(null)}>
                     <div className="modal" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header" style={{ borderLeft: `5px solid ${typeConfig[selected.type].color}` }}>
+                        <div className="modal-header" style={{ borderLeft: `5px solid ${getTypeConfig(selected.type).color}` }}>
                             <div>
-                                <span className="modal-badge" style={{ background: typeConfig[selected.type].bg, color: typeConfig[selected.type].color }}>
-                                    {typeConfig[selected.type].label}
+                                <span className="modal-badge" style={{ background: getTypeConfig(selected.type).bg, color: getTypeConfig(selected.type).color }}>
+                                    {getTypeConfig(selected.type).label}
                                 </span>
                                 <h2 className="modal-title">{selected.title}</h2>
                                 <span className="modal-time">{selected.time}</span>
@@ -157,10 +185,10 @@ export default function NotificationsPage() {
                         </div>
                         <div className="modal-footer">
                             <button className="modal-btn-delete" onClick={() => deleteNotif(selected.id)}>
-                                Șterge notificarea
+                                {t.notifDelete}
                             </button>
                             <button className="modal-btn-close" onClick={() => setSelected(null)}>
-                                Închide
+                                {t.notifClose}
                             </button>
                         </div>
                     </div>

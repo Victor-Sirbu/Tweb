@@ -1,61 +1,50 @@
 import "./LoginPage.css";
 import doctor from "../../assets/doctor.png";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useLanguage } from "../../context/LanguageContext";
+
+const TEST_EMAIL = "admin@gmail.com";
+const TEST_PASSWORD = "admin";
 
 const LoginPage = () => {
     const [activeTab, setActiveTab] = useState<"existing" | "new">("existing");
+    const [loginEmail, setLoginEmail] = useState("");
+    const [loginPassword, setLoginPassword] = useState("");
+    const [loginError, setLoginError] = useState("");
     const [birthDay, setBirthDay] = useState("");
     const [birthMonth, setBirthMonth] = useState("");
     const [birthYear, setBirthYear] = useState("");
     const [dateError, setDateError] = useState("");
     const [selectedGender, setSelectedGender] = useState("");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const { login } = useAuth();
+    const { t } = useLanguage();
+    const navigate = useNavigate();
 
     const currentYear = new Date().getFullYear();
-    const genderOptions = ["Bărbat", "Femeie"];
-
+    const genderOptions = [t.male, t.female];
     const isExistingPatient = activeTab === "existing";
+
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (loginEmail === TEST_EMAIL && loginPassword === TEST_PASSWORD) {
+            login({ name: "Admin", email: TEST_EMAIL });
+            navigate("/");
+        } else {
+            setLoginError("Email sau parolă incorectă.");
+        }
+    };
 
     const validateDate = (day: string, month: string, year: string) => {
         const dayNum = parseInt(day);
         const monthNum = parseInt(month);
         const yearNum = parseInt(year);
-
-        if (day && (dayNum < 1 || dayNum > 31)) {
-            setDateError("Ziua trebuie să fie între 1 și 31");
-            return false;
-        }
-
-        if (month && (monthNum < 1 || monthNum > 12)) {
-            setDateError("Luna trebuie să fie între 1 și 12");
-            return false;
-        }
-
-        if (year && (yearNum < 1900 || yearNum > currentYear)) {
-            setDateError(`Anul trebuie să fie între 1900 și ${currentYear}`);
-            return false;
-        }
-
-        setDateError("");
-        return true;
-    };
-
-    const handleDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setBirthDay(value);
-        validateDate(value, birthMonth, birthYear);
-    };
-
-    const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setBirthMonth(value);
-        validateDate(birthDay, value, birthYear);
-    };
-
-    const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setBirthYear(value);
-        validateDate(birthDay, birthMonth, value);
+        if (day && (dayNum < 1 || dayNum > 31)) { setDateError("Ziua trebuie să fie între 1 și 31"); return false; }
+        if (month && (monthNum < 1 || monthNum > 12)) { setDateError("Luna trebuie să fie între 1 și 12"); return false; }
+        if (year && (yearNum < 1900 || yearNum > currentYear)) { setDateError(`Anul trebuie să fie între 1900 și ${currentYear}`); return false; }
+        setDateError(""); return true;
     };
 
     return (
@@ -67,7 +56,6 @@ const LoginPage = () => {
                         Protejează-te pe tine și familia ta — <br />
                         Programări online ușoare.
                     </h2>
-
                     <div className="image-box">
                         <img src={doctor} alt="doctor" />
                     </div>
@@ -75,7 +63,7 @@ const LoginPage = () => {
 
                 <div className={`right ${!isExistingPatient ? 'scroll-enabled' : ''}`}>
                     <div className="login-header">
-                        <h2>{isExistingPatient ? "Autentificare pentru a începe sesiunea" : "Înregistrare pacient nou"}</h2>
+                        <h2>{isExistingPatient ? t.loginTitle : t.registerTitle}</h2>
                     </div>
 
                     <div className="patient-tabs">
@@ -83,114 +71,96 @@ const LoginPage = () => {
                             className={`tab-btn ${activeTab === "existing" ? "active" : ""}`}
                             onClick={() => setActiveTab("existing")}
                         >
-                            Pacient existent
+                            {t.existingPatient}
                         </button>
                         <button
                             className={`tab-btn ${activeTab === "new" ? "active" : ""}`}
                             onClick={() => setActiveTab("new")}
                         >
-                            Pacient nou
+                            {t.newPatient}
                         </button>
                     </div>
 
                     {isExistingPatient ? (
                         <>
-                            <form className="form">
+                            <form className="form" onSubmit={handleLogin}>
                                 <div className="field">
-                                    <label>Email / Telefon</label>
-                                    <input type="text" placeholder="+373 xx xxx xxx" />
+                                    <label>{t.emailLabel}</label>
+                                    <input
+                                        type="email"
+                                        placeholder="exemplu@email.com"
+                                        value={loginEmail}
+                                        onChange={(e) => { setLoginEmail(e.target.value); setLoginError(""); }}
+                                        required
+                                    />
                                 </div>
 
                                 <div className="field">
-                                    <label>Parolă</label>
-                                    <input type="password" placeholder="********" />
-                                    <a href="#" className="reset">Resetează parola</a>
+                                    <label>{t.password}</label>
+                                    <input
+                                        type="password"
+                                        placeholder="********"
+                                        value={loginPassword}
+                                        onChange={(e) => { setLoginPassword(e.target.value); setLoginError(""); }}
+                                        required
+                                    />
+                                    <a href="#" className="reset">{t.resetPassword}</a>
                                 </div>
 
-                                <button type="submit" className="login-btn">Autentificare</button>
+                                {loginError && <span className="error-message">{loginError}</span>}
+
+                                <button type="submit" className="login-btn">{t.loginBtn}</button>
                             </form>
 
-                            <a href="#" className="code-login">Autentificare cu cod</a>
+                            <a href="#" className="code-login">{t.loginWithCode}</a>
                         </>
                     ) : (
                         <form className="form">
                             <div className="field">
-                                <label>Prenume</label>
+                                <label>{t.firstName}</label>
                                 <input type="text" placeholder="Introdu prenumele" />
                             </div>
 
                             <div className="field">
-                                <label>Nume</label>
+                                <label>{t.lastName}</label>
                                 <input type="text" placeholder="Introdu numele" />
                             </div>
 
                             <div className="field">
-                                <label>Email</label>
+                                <label>{t.emailLabel}</label>
                                 <input type="email" placeholder="exemplu@email.com" />
                             </div>
 
                             <div className="field">
-                                <label>Număr de telefon</label>
+                                <label>{t.phone}</label>
                                 <input type="text" placeholder="+373 xx xxx xxx" />
                             </div>
 
                             <div className="field">
-                                <label>Data nașterii</label>
+                                <label>{t.birthDate}</label>
                                 <div className="date-inputs">
-                                    <input
-                                        type="number"
-                                        placeholder="Zi"
-                                        min="1"
-                                        max="31"
-                                        value={birthDay}
-                                        onChange={handleDayChange}
-                                        className="date-input"
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Lună"
-                                        min="1"
-                                        max="12"
-                                        value={birthMonth}
-                                        onChange={handleMonthChange}
-                                        className="date-input"
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="An"
-                                        min="1900"
-                                        max={currentYear}
-                                        value={birthYear}
-                                        onChange={handleYearChange}
-                                        className="date-input"
-                                    />
+                                    <input type="number" placeholder={t.day} min="1" max="31" value={birthDay}
+                                        onChange={(e) => { setBirthDay(e.target.value); validateDate(e.target.value, birthMonth, birthYear); }} className="date-input" />
+                                    <input type="number" placeholder={t.month} min="1" max="12" value={birthMonth}
+                                        onChange={(e) => { setBirthMonth(e.target.value); validateDate(birthDay, e.target.value, birthYear); }} className="date-input" />
+                                    <input type="number" placeholder={t.year} min="1900" max={currentYear} value={birthYear}
+                                        onChange={(e) => { setBirthYear(e.target.value); validateDate(birthDay, birthMonth, e.target.value); }} className="date-input" />
                                 </div>
                                 {dateError && <span className="error-message">{dateError}</span>}
                             </div>
 
                             <div className="field">
-                                <label>Gen</label>
+                                <label>{t.gender}</label>
                                 <div className="custom-dropdown">
-                                    <div
-                                        className="dropdown-header"
-                                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                    >
-                                        <span>{selectedGender || "Selectează genul"}</span>
-                                        <span className={`dropdown-arrow ${isDropdownOpen ? "open" : ""}`}>
-                                            ▼
-                                        </span>
+                                    <div className="dropdown-header" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                                        <span>{selectedGender || t.selectGender}</span>
+                                        <span className={`dropdown-arrow ${isDropdownOpen ? "open" : ""}`}>▼</span>
                                     </div>
                                     {isDropdownOpen && (
                                         <div className="dropdown-list">
                                             {genderOptions.map((option) => (
-                                                <div
-                                                    key={option}
-                                                    className="dropdown-option"
-                                                    onClick={() => {
-                                                        setSelectedGender(option);
-                                                        setIsDropdownOpen(false);
-                                                    }}
-                                                >
+                                                <div key={option} className="dropdown-option"
+                                                    onClick={() => { setSelectedGender(option); setIsDropdownOpen(false); }}>
                                                     {option}
                                                 </div>
                                             ))}
@@ -199,7 +169,7 @@ const LoginPage = () => {
                                 </div>
                             </div>
 
-                            <button type="submit" className="login-btn">Înregistrează-te</button>
+                            <button type="submit" className="login-btn">{t.registerBtn}</button>
                         </form>
                     )}
                 </div>

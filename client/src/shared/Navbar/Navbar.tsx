@@ -1,13 +1,25 @@
 import "./Navbar.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [visible, setVisible] = useState<boolean>(true);
     const [lastScroll, setLastScroll] = useState<number>(0);
+    const [profileMenuOpen, setProfileMenuOpen] = useState<boolean>(false);
+    const [langMenuOpen, setLangMenuOpen] = useState<boolean>(false);
+
+    const profileRef = useRef<HTMLDivElement>(null);
+    const langRef = useRef<HTMLDivElement>(null);
+
     const navigate = useNavigate();
     const location = useLocation();
+    const { user, logout, isAuthenticated } = useAuth();
+    const { language, setLanguage, t } = useLanguage();
+
+    const langLabels = { ro: "RO", ru: "RU", en: "EN" };
 
     useEffect(() => {
         if (location.hash) {
@@ -21,17 +33,24 @@ const Navbar = () => {
     useEffect(() => {
         const handleScroll = () => {
             const currentScroll = window.scrollY;
-            if (currentScroll < lastScroll || currentScroll < 10) {
-                setVisible(true);
-            } else {
-                setVisible(false);
-            }
+            setVisible(currentScroll < lastScroll || currentScroll < 10);
             setLastScroll(currentScroll);
         };
-
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, [lastScroll]);
+
+    // Închide meniurile când se face click în afara lor
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (profileRef.current && !profileRef.current.contains(e.target as Node))
+                setProfileMenuOpen(false);
+            if (langRef.current && !langRef.current.contains(e.target as Node))
+                setLangMenuOpen(false);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     const scrollToSection = (id: string) => {
         if (location.pathname === "/") {
@@ -39,6 +58,12 @@ const Navbar = () => {
         } else {
             navigate(`/#${id}`);
         }
+    };
+
+    const handleLogout = () => {
+        logout();
+        setProfileMenuOpen(false);
+        navigate("/");
     };
 
     return (
@@ -58,18 +83,75 @@ const Navbar = () => {
                     ☰
                 </button>
 
-                <ul className={`navbar-menu ${menuOpen ? 'active' : ''}`}>
-                    <li><a href="/">Acasă</a></li>
-                    <li><a href="/services">Servicii</a></li>
-                    <li><a onClick={() => scrollToSection("echipa")} style={{cursor:"pointer"}}>Medici</a></li>
-                    <li><a href="/profile">Profilul Meu</a></li>
-                    <li><a onClick={() => scrollToSection("testimoniale")} style={{cursor:"pointer"}}>Recenzii</a></li>
-                    <li><Link to="/contact">Contact</Link></li>
+                <ul className={`navbar-menu ${menuOpen ? "active" : ""}`}>
+                    <li><Link to="/">{t.home}</Link></li>
+                    <li><Link to="/services">{t.services}</Link></li>
+                    <li><a onClick={() => scrollToSection("echipa")} style={{ cursor: "pointer" }}>{t.doctors}</a></li>
+                    <li><a onClick={() => scrollToSection("testimoniale")} style={{ cursor: "pointer" }}>{t.reviews}</a></li>
+                    <li><Link to="/news">{t.navNews}</Link></li>
+                    <li><Link to="/help">{t.navHelp}</Link></li>
+                    <li><Link to="/contact">{t.contact}</Link></li>
                 </ul>
 
                 <div className="navbar-actions">
-                    <a href="tel:+37322123456" className="navbar-phone">+373 22 123 456</a>
-                    <button className="navbar-btn">Programare</button>
+
+                    {/* Selector limbă */}
+                    <div className="lang-selector" ref={langRef}>
+                        <button className="lang-btn" onClick={() => setLangMenuOpen(!langMenuOpen)}>
+                            {langLabels[language]} <span className="lang-arrow">▾</span>
+                        </button>
+                        {langMenuOpen && (
+                            <div className="lang-dropdown">
+                                {(["ro", "ru", "en"] as const).map((lang) => (
+                                    <button
+                                        key={lang}
+                                        className={`lang-option ${language === lang ? "active" : ""}`}
+                                        onClick={() => { setLanguage(lang); setLangMenuOpen(false); }}
+                                    >
+                                        {langLabels[lang]}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Auth section */}
+                    {isAuthenticated ? (
+                        <div className="profile-wrapper" ref={profileRef}>
+                            <button
+                                className="profile-avatar-btn"
+                                onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                            >
+                                {user?.photo ? (
+                                    <img src={user.photo} alt="avatar" className="avatar-img" />
+                                ) : (
+                                    <div className="avatar-initials">
+                                        {user?.name?.charAt(0).toUpperCase() ?? "U"}
+                                    </div>
+                                )}
+                            </button>
+
+                            {profileMenuOpen && (
+                                <div className="profile-dropdown">
+                                    <div className="profile-dropdown-header">
+                                        <strong>{user?.name}</strong>
+                                        <span>{user?.email}</span>
+                                    </div>
+                                    <div className="profile-dropdown-divider" />
+                                    <button onClick={() => { navigate("/profile"); setProfileMenuOpen(false); }}>
+                                        {t.profile}
+                                    </button>
+                                    <button onClick={handleLogout} className="signout-btn">
+                                        {t.signOut}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <button className="navbar-btn" onClick={() => navigate("/login")}>
+                            {t.signIn}
+                        </button>
+                    )}
                 </div>
             </div>
         </nav>

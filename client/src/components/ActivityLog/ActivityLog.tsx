@@ -7,6 +7,7 @@ import heroBg7 from "../../assets/hero-bg7.jpg";
 import heroBg8 from "../../assets/hero-bg8.jpg";
 import heroBg9 from "../../assets/hero-bg9.jpg";
 import heroBg10 from "../../assets/hero-bg10.jpg";
+import { useLanguage } from "../../context/LanguageContext";
 
 interface AuditEntry {
     id: number;
@@ -23,116 +24,19 @@ interface AuditEntry {
 }
 
 const auditLog: AuditEntry[] = [
-    {
-        id: 1,
-        adminName: "Alexandru Popa",
-        adminRole: "Administrator",
-        action: "Editare fișă pacient",
-        actionType: "edit",
-        target: "Ion Popescu",
-        targetType: "patient",
-        details: "A modificat diagnosticul și prescripția medicamentelor în fișa pacientului.",
-        date: "20 Feb 2026",
-        time: "10:45",
-        ip: "192.168.1.10"
-    },
-    {
-        id: 2,
-        adminName: "Ion Popescu",
-        adminRole: "Pacient",
-        action: "Creare programare",
-        actionType: "create",
-        target: "Dr. Tatiana Cobzac — 25 Feb 2026",
-        targetType: "appointment",
-        details: "Pacientul a creat o programare nouă la Medicină Internă.",
-        date: "20 Feb 2026",
-        time: "09:30",
-        ip: "192.168.1.20"
-    },
-    {
-        id: 3,
-        adminName: "Admin Sistem",
-        adminRole: "Super Admin",
-        action: "Ștergere cont",
-        actionType: "delete",
-        target: "Elena Cojocaru",
-        targetType: "patient",
-        details: "Contul și dosarul medical au fost șterse definitiv la cererea pacientei.",
-        date: "19 Feb 2026",
-        time: "16:20",
-        ip: "192.168.1.1"
-    },
-    {
-        id: 4,
-        adminName: "Vasile Rusu",
-        adminRole: "Pacient",
-        action: "Modificare programare",
-        actionType: "modify",
-        target: "Dr. Vasile Munteanu — 28 Feb 2026",
-        targetType: "appointment",
-        details: "Pacientul a reprogramat consultația cardiologică de la 22 Feb la 28 Feb 2026.",
-        date: "19 Feb 2026",
-        time: "14:05",
-        ip: "192.168.1.21"
-    },
-    {
-        id: 5,
-        adminName: "Alexandru Popa",
-        adminRole: "Administrator",
-        action: "Editare rezultate analize",
-        actionType: "edit",
-        target: "Natalia Botnaru",
-        targetType: "record",
-        details: "A actualizat valorile hemoleucogramei și a adăugat observații clinice.",
-        date: "18 Feb 2026",
-        time: "13:15",
-        ip: "192.168.1.10"
-    },
-    {
-        id: 6,
-        adminName: "Admin Sistem",
-        adminRole: "Super Admin",
-        action: "Autentificare sistem",
-        actionType: "login",
-        target: "Panou Administrare",
-        targetType: "system",
-        details: "Autentificare reușită în panoul de administrare din rețeaua internă.",
-        date: "18 Feb 2026",
-        time: "08:00",
-        ip: "192.168.1.1"
-    },
-    {
-        id: 7,
-        adminName: "Elena Ciobanu",
-        adminRole: "Pacient",
-        action: "Anulare programare",
-        actionType: "delete",
-        target: "Dr. Natalia Botnari — 15 Feb 2026",
-        targetType: "appointment",
-        details: "Pacienta a anulat programarea la Pediatrie cu 48h înainte de consultație.",
-        date: "13 Feb 2026",
-        time: "11:50",
-        ip: "192.168.1.22"
-    },
-    {
-        id: 8,
-        adminName: "Alexandru Popa",
-        adminRole: "Administrator",
-        action: "Creare cont utilizator",
-        actionType: "create",
-        target: "Gheorghe Popa",
-        targetType: "user",
-        details: "A creat un cont nou de pacient și a configurat preferințele de notificare.",
-        date: "12 Feb 2026",
-        time: "15:30",
-        ip: "192.168.1.10"
-    }
+    { id: 1, adminName: "Alexandru Popa", adminRole: "Administrator", action: "Editare fișă pacient", actionType: "edit", target: "Ion Popescu", targetType: "patient", details: "A modificat diagnosticul și prescripția medicamentelor în fișa pacientului.", date: "20 Feb 2026", time: "10:45", ip: "192.168.1.10" },
+    { id: 2, adminName: "Ion Popescu", adminRole: "Pacient", action: "Creare programare", actionType: "create", target: "Dr. Tatiana Cobzac — 25 Feb 2026", targetType: "appointment", details: "Pacientul a creat o programare nouă la Medicină Internă.", date: "20 Feb 2026", time: "09:30", ip: "192.168.1.20" },
+    { id: 3, adminName: "Admin Sistem", adminRole: "Super Admin", action: "Ștergere cont", actionType: "delete", target: "Elena Cojocaru", targetType: "patient", details: "Contul și dosarul medical au fost șterse definitiv la cererea pacientei.", date: "19 Feb 2026", time: "16:20", ip: "192.168.1.1" },
+    { id: 4, adminName: "Vasile Rusu", adminRole: "Pacient", action: "Modificare programare", actionType: "modify", target: "Dr. Vasile Munteanu — 28 Feb 2026", targetType: "appointment", details: "Pacientul a reprogramat consultația cardiologică de la 22 Feb la 28 Feb 2026.", date: "19 Feb 2026", time: "14:05", ip: "192.168.1.21" },
+    { id: 5, adminName: "Alexandru Popa", adminRole: "Administrator", action: "Editare rezultate analize", actionType: "edit", target: "Natalia Botnaru", targetType: "record", details: "A actualizat valorile hemoleucogramei și a adăugat observații clinice.", date: "18 Feb 2026", time: "13:15", ip: "192.168.1.10" },
+    { id: 6, adminName: "Admin Sistem", adminRole: "Super Admin", action: "Autentificare sistem", actionType: "login", target: "Panou Administrare", targetType: "system", details: "Autentificare reușită în panoul de administrare din rețeaua internă.", date: "18 Feb 2026", time: "08:00", ip: "192.168.1.1" },
+    { id: 7, adminName: "Elena Ciobanu", adminRole: "Pacient", action: "Anulare programare", actionType: "delete", target: "Dr. Natalia Botnari — 15 Feb 2026", targetType: "appointment", details: "Pacienta a anulat programarea la Pediatrie cu 48h înainte de consultație.", date: "13 Feb 2026", time: "11:50", ip: "192.168.1.22" },
+    { id: 8, adminName: "Alexandru Popa", adminRole: "Administrator", action: "Creare cont utilizator", actionType: "create", target: "Gheorghe Popa", targetType: "user", details: "A creat un cont nou de pacient și a configurat preferințele de notificare.", date: "12 Feb 2026", time: "15:30", ip: "192.168.1.10" },
 ];
 
-const actionFilters = ["Toate", "Editare", "Ștergere", "Modificare", "Creare", "Autentificare"];
-
 const ActivityLog = () => {
-    const [activeFilter, setActiveFilter] = useState("Toate");
+    const { t, language } = useLanguage();
+    const [activeFilter, setActiveFilter] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedEntry, setSelectedEntry] = useState<AuditEntry | null>(null);
 
@@ -140,21 +44,21 @@ const ActivityLog = () => {
     const [currentImage, setCurrentImage] = useState(0);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentImage((prev) => (prev + 1) % images.length);
-        }, 3000);
+        const interval = setInterval(() => setCurrentImage((prev) => (prev + 1) % images.length), 3000);
         return () => clearInterval(interval);
     }, []);
 
+    const actionFilters = [
+        { key: "all",     label: language === "ru" ? "Все" : language === "en" ? "All" : "Toate" },
+        { key: "edit",    label: language === "ru" ? "Редактирование" : language === "en" ? "Edit" : "Editare" },
+        { key: "delete",  label: language === "ru" ? "Удаление" : language === "en" ? "Delete" : "Ștergere" },
+        { key: "modify",  label: language === "ru" ? "Изменение" : language === "en" ? "Modify" : "Modificare" },
+        { key: "create",  label: language === "ru" ? "Создание" : language === "en" ? "Create" : "Creare" },
+        { key: "login",   label: language === "ru" ? "Аутентификация" : language === "en" ? "Login" : "Autentificare" },
+    ];
+
     const filtered = auditLog.filter((entry) => {
-        const typeMap: Record<string, string[]> = {
-            "Editare": ["edit"],
-            "Ștergere": ["delete"],
-            "Modificare": ["modify"],
-            "Creare": ["create"],
-            "Autentificare": ["login"]
-        };
-        const matchType = activeFilter === "Toate" || (typeMap[activeFilter]?.includes(entry.actionType));
+        const matchType = activeFilter === "all" || entry.actionType === activeFilter;
         const q = searchQuery.toLowerCase();
         const matchSearch =
             entry.adminName.toLowerCase().includes(q) ||
@@ -176,14 +80,8 @@ const ActivityLog = () => {
     };
 
     const getActionLabel = (type: string) => {
-        switch (type) {
-            case "edit": return "Editare";
-            case "delete": return "Stergere";
-            case "modify": return "Modificare";
-            case "create": return "Creare";
-            case "login": return "Autentificare";
-            default: return type;
-        }
+        const f = actionFilters.find(af => af.key === type);
+        return f ? f.label : type;
     };
 
     const getTargetClass = (type: string) => {
@@ -204,48 +102,66 @@ const ActivityLog = () => {
         modifies: auditLog.filter(a => a.actionType === "modify" || a.actionType === "create").length,
     };
 
+    const heroBadge = language === "ru" ? "Панель администратора" : language === "en" ? "Administrator Panel" : "Panou Administrator";
+    const heroT1 = language === "ru" ? "Аудит & История" : language === "en" ? "Audit & History" : "Audit & Istoric";
+    const heroT2 = language === "ru" ? "Активность системы" : language === "en" ? "System Activity" : "Activitate Sistem";
+    const heroDesc = language === "ru"
+        ? "Полный мониторинг всех действий в системе: редактирование карт пациентов, удаление аккаунтов, изменение записей и аутентификация администратора."
+        : language === "en"
+            ? "Complete monitoring of all actions performed in the system: patient file edits, account deletions, appointment changes and administrator logins."
+            : "Monitorizare completa a tuturor actiunilor efectuate in sistem: editari fise pacient, stergeri conturi, modificari programari si autentificari administrator.";
+
+    const statLabels = {
+        total: language === "ru" ? "Всего действий" : language === "en" ? "Total Actions" : "Total Actiuni",
+        edits: language === "ru" ? "Редактирований" : language === "en" ? "Edits" : "Editari",
+        del: language === "ru" ? "Удалений" : language === "en" ? "Deletions" : "Stergeri",
+        mod: language === "ru" ? "Изменений" : language === "en" ? "Modifications" : "Modificari",
+    };
+
+    const filterTitle = language === "ru" ? "Фильтр действий" : language === "en" ? "Filter Actions" : "Filtrare Actiuni";
+    const activeAdmins = language === "ru" ? "Активные администраторы" : language === "en" ? "Active Administrators" : "Administratori Activi";
+    const journalTitle = language === "ru" ? "Журнал аудита системы" : language === "en" ? "System Audit Log" : "Jurnal Audit Sistem";
+    const foundRecords = language === "ru" ? "записей найдено" : language === "en" ? "records found" : "inregistrari gasite";
+    const searchHolder = language === "ru" ? "Поиск по администратору, действию, пациенту..." : language === "en" ? "Search by admin, action, patient..." : "Cauta dupa admin, actiune, pacient...";
+
+    const tableH = {
+        date: language === "ru" ? "Дата / Время" : language === "en" ? "Date / Time" : "Data / Ora",
+        user: language === "ru" ? "Пользователь" : language === "en" ? "User" : "Utilizator",
+        action: language === "ru" ? "Действие" : language === "en" ? "Action" : "Actiune",
+        target: language === "ru" ? "Цель" : language === "en" ? "Target" : "Tinta",
+        type: language === "ru" ? "Тип" : language === "en" ? "Type" : "Tip",
+        ip: "IP",
+        details: language === "ru" ? "Детали" : language === "en" ? "Details" : "Detalii",
+    };
+
+    const modalTitle = language === "ru" ? "Детали действия" : language === "en" ? "Action Details" : "Detalii Actiune Audit";
+    const viewBtn = language === "ru" ? "Просмотр" : language === "en" ? "View" : "Vezi";
+    const noRecord = language === "ru" ? "Записей не найдено" : language === "en" ? "No records found" : "Nicio inregistrare gasita";
+    const filterHint = language === "ru" ? "Измените фильтры или поиск." : language === "en" ? "Adjust filters or search." : "Modifica filtrele sau cautarea.";
+
     return (
         <div className="al-page">
-
             <AdminNavbar />
 
             <section className="al-hero">
                 {images.map((img, index) => (
-                    <div key={index} className="hero-slide" style={{
-                        backgroundImage: `url(${img})`,
-                        opacity: index === currentImage ? 1 : 0
-                    } as React.CSSProperties}></div>
+                    <div key={index} className="hero-slide" style={{ backgroundImage: `url(${img})`, opacity: index === currentImage ? 1 : 0 } as React.CSSProperties}></div>
                 ))}
                 <div className="hero-overlay"></div>
                 <div className="al-hero-container">
                     <div className="al-hero-content">
-                        <div className="al-hero-badge">Panou Administrator</div>
+                        <div className="al-hero-badge">{heroBadge}</div>
                         <h1 className="al-hero-title">
-                            Audit &amp; Istoric<br />
-                            <span className="al-hero-highlight">Activitate Sistem</span>
+                            {heroT1}<br />
+                            <span className="al-hero-highlight">{heroT2}</span>
                         </h1>
-                        <p className="al-hero-description">
-                            Monitorizare completa a tuturor actiunilor efectuate in sistem: editari fise pacient,
-                            stergeri conturi, modificari programari si autentificari administrator.
-                        </p>
+                        <p className="al-hero-description">{heroDesc}</p>
                     </div>
                     <div className="al-hero-stats">
-                        <div className="al-stat-card">
-                            <span className="al-stat-number">{stats.total}</span>
-                            <span className="al-stat-label">Total Actiuni</span>
-                        </div>
-                        <div className="al-stat-card">
-                            <span className="al-stat-number">{stats.edits}</span>
-                            <span className="al-stat-label">Editari</span>
-                        </div>
-                        <div className="al-stat-card">
-                            <span className="al-stat-number">{stats.deletes}</span>
-                            <span className="al-stat-label">Stergeri</span>
-                        </div>
-                        <div className="al-stat-card">
-                            <span className="al-stat-number">{stats.modifies}</span>
-                            <span className="al-stat-label">Modificari</span>
-                        </div>
+                        <div className="al-stat-card"><span className="al-stat-number">{stats.total}</span><span className="al-stat-label">{statLabels.total}</span></div>
+                        <div className="al-stat-card"><span className="al-stat-number">{stats.edits}</span><span className="al-stat-label">{statLabels.edits}</span></div>
+                        <div className="al-stat-card"><span className="al-stat-number">{stats.deletes}</span><span className="al-stat-label">{statLabels.del}</span></div>
+                        <div className="al-stat-card"><span className="al-stat-number">{stats.modifies}</span><span className="al-stat-label">{statLabels.mod}</span></div>
                     </div>
                 </div>
             </section>
@@ -254,46 +170,18 @@ const ActivityLog = () => {
                 <div className="al-modal-overlay" onClick={() => setSelectedEntry(null)}>
                     <div className="al-modal-box" onClick={(e) => e.stopPropagation()}>
                         <div className="al-modal-header">
-                            <h3 className="al-modal-title">Detalii Actiune Audit</h3>
+                            <h3 className="al-modal-title">{modalTitle}</h3>
                             <button className="al-modal-close" onClick={() => setSelectedEntry(null)}>&#10005;</button>
                         </div>
                         <div className="al-modal-body">
-                            <div className="al-modal-row">
-                                <span className="al-modal-label">Administrator</span>
-                                <span className="al-modal-value">{selectedEntry.adminName}</span>
-                            </div>
-                            <div className="al-modal-row">
-                                <span className="al-modal-label">Rol</span>
-                                <span className="al-modal-value">{selectedEntry.adminRole}</span>
-                            </div>
-                            <div className="al-modal-row">
-                                <span className="al-modal-label">Actiune</span>
-                                <span className={`al-action-badge ${getActionClass(selectedEntry.actionType)}`}>
-                                    {getActionLabel(selectedEntry.actionType)}
-                                </span>
-                            </div>
-                            <div className="al-modal-row">
-                                <span className="al-modal-label">Tinta</span>
-                                <span className="al-modal-value">{selectedEntry.target}</span>
-                            </div>
-                            <div className="al-modal-row">
-                                <span className="al-modal-label">Tip tinta</span>
-                                <span className={`al-target-badge ${getTargetClass(selectedEntry.targetType)}`}>
-                                    {selectedEntry.targetType}
-                                </span>
-                            </div>
-                            <div className="al-modal-row al-modal-row-full">
-                                <span className="al-modal-label">Descriere</span>
-                                <span className="al-modal-value al-modal-details">{selectedEntry.details}</span>
-                            </div>
-                            <div className="al-modal-row">
-                                <span className="al-modal-label">Data si ora</span>
-                                <span className="al-modal-value">{selectedEntry.date} — {selectedEntry.time}</span>
-                            </div>
-                            <div className="al-modal-row">
-                                <span className="al-modal-label">Adresa IP</span>
-                                <span className="al-modal-value al-ip">{selectedEntry.ip}</span>
-                            </div>
+                            <div className="al-modal-row"><span className="al-modal-label">{t.adminName}</span><span className="al-modal-value">{selectedEntry.adminName}</span></div>
+                            <div className="al-modal-row"><span className="al-modal-label">{language === "ru" ? "Роль" : language === "en" ? "Role" : "Rol"}</span><span className="al-modal-value">{selectedEntry.adminRole}</span></div>
+                            <div className="al-modal-row"><span className="al-modal-label">{tableH.action}</span><span className={`al-action-badge ${getActionClass(selectedEntry.actionType)}`}>{getActionLabel(selectedEntry.actionType)}</span></div>
+                            <div className="al-modal-row"><span className="al-modal-label">{tableH.target}</span><span className="al-modal-value">{selectedEntry.target}</span></div>
+                            <div className="al-modal-row"><span className="al-modal-label">{tableH.type}</span><span className={`al-target-badge ${getTargetClass(selectedEntry.targetType)}`}>{selectedEntry.targetType}</span></div>
+                            <div className="al-modal-row al-modal-row-full"><span className="al-modal-label">{language === "ru" ? "Описание" : language === "en" ? "Description" : "Descriere"}</span><span className="al-modal-value al-modal-details">{selectedEntry.details}</span></div>
+                            <div className="al-modal-row"><span className="al-modal-label">{tableH.date}</span><span className="al-modal-value">{selectedEntry.date} — {selectedEntry.time}</span></div>
+                            <div className="al-modal-row"><span className="al-modal-label">{tableH.ip}</span><span className="al-modal-value al-ip">{selectedEntry.ip}</span></div>
                         </div>
                     </div>
                 </div>
@@ -301,46 +189,29 @@ const ActivityLog = () => {
 
             <div className="al-main">
                 <div className="al-main-container">
-
                     <aside className="al-sidebar">
                         <div className="al-sidebar-card">
-                            <h3 className="al-sidebar-title">Filtrare Actiuni</h3>
+                            <h3 className="al-sidebar-title">{filterTitle}</h3>
                             <div className="al-filter-buttons">
                                 {actionFilters.map((f) => {
-                                    const typeMap: Record<string, string> = {
-                                        "Editare": "edit",
-                                        "Stergere": "delete",
-                                        "Modificare": "modify",
-                                        "Creare": "create",
-                                        "Autentificare": "login"
-                                    };
-                                    const count = f === "Toate"
-                                        ? auditLog.length
-                                        : auditLog.filter(a => a.actionType === typeMap[f]).length;
+                                    const count = f.key === "all" ? auditLog.length : auditLog.filter(a => a.actionType === f.key).length;
                                     return (
-                                        <button
-                                            key={f}
-                                            className={`al-filter-btn ${activeFilter === f ? "al-filter-active" : ""}`}
-                                            onClick={() => setActiveFilter(f)}
-                                        >
-                                            <span>{f}</span>
+                                        <button key={f.key} className={`al-filter-btn ${activeFilter === f.key ? "al-filter-active" : ""}`} onClick={() => setActiveFilter(f.key)}>
+                                            <span>{f.label}</span>
                                             <span className="al-filter-count">{count}</span>
                                         </button>
                                     );
                                 })}
                             </div>
                         </div>
-
                         <div className="al-sidebar-card">
-                            <h3 className="al-sidebar-title">Administratori Activi</h3>
+                            <h3 className="al-sidebar-title">{activeAdmins}</h3>
                             <div className="al-admin-list">
                                 {[...new Map(auditLog.map(a => [a.adminName, a])).values()]
                                     .filter(a => a.adminRole === "Administrator" || a.adminRole === "Super Admin")
                                     .map((a, i) => (
                                         <div key={i} className="al-admin-item">
-                                            <div className="al-admin-avatar">
-                                                {a.adminName.split(" ").slice(-2).map(w => w[0]).join("").toUpperCase().slice(0, 2)}
-                                            </div>
+                                            <div className="al-admin-avatar">{a.adminName.split(" ").slice(-2).map(w => w[0]).join("").toUpperCase().slice(0, 2)}</div>
                                             <div className="al-admin-info">
                                                 <span className="al-admin-name">{a.adminName}</span>
                                                 <span className="al-admin-role">{a.adminRole}</span>
@@ -354,79 +225,43 @@ const ActivityLog = () => {
                     <main className="al-content">
                         <div className="al-content-header">
                             <div>
-                                <h2 className="al-content-title">Jurnal Audit Sistem</h2>
-                                <p className="al-content-sub">{filtered.length} inregistrari gasite</p>
+                                <h2 className="al-content-title">{journalTitle}</h2>
+                                <p className="al-content-sub">{filtered.length} {foundRecords}</p>
                             </div>
-                            <input
-                                className="al-search-input"
-                                type="text"
-                                placeholder="Cauta dupa admin, actiune, pacient..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
+                            <input className="al-search-input" type="text" placeholder={searchHolder} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                         </div>
 
                         <div className="al-table-wrapper">
                             <table className="al-table">
                                 <thead>
                                     <tr>
-                                        <th>Data / Ora</th>
-                                        <th>Utilizator</th>
-                                        <th>Actiune</th>
-                                        <th>Tinta</th>
-                                        <th>Tip</th>
-                                        <th>IP</th>
-                                        <th>Detalii</th>
+                                        <th>{tableH.date}</th><th>{tableH.user}</th><th>{tableH.action}</th>
+                                        <th>{tableH.target}</th><th>{tableH.type}</th><th>{tableH.ip}</th><th>{tableH.details}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filtered.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={7} className="al-empty-row">
-                                                <div className="al-empty-state">
-                                                    <p className="al-empty-title">Nicio inregistrare gasita</p>
-                                                    <p className="al-empty-sub">Modifica filtrele sau cautarea.</p>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                        <tr><td colSpan={7} className="al-empty-row">
+                                            <div className="al-empty-state">
+                                                <p className="al-empty-title">{noRecord}</p>
+                                                <p className="al-empty-sub">{filterHint}</p>
+                                            </div>
+                                        </td></tr>
                                     ) : (
                                         filtered.map((entry) => (
                                             <tr key={entry.id} className="al-table-row">
-                                                <td className="al-td-date">
-                                                    <span className="al-date">{entry.date}</span>
-                                                    <span className="al-time">{entry.time}</span>
-                                                </td>
+                                                <td className="al-td-date"><span className="al-date">{entry.date}</span><span className="al-time">{entry.time}</span></td>
                                                 <td className="al-td-admin">
                                                     <div className="al-admin-cell">
-                                                        <div className="al-admin-avatar-sm">
-                                                            {entry.adminName.split(" ").slice(-2).map(w => w[0]).join("").toUpperCase().slice(0, 2)}
-                                                        </div>
-                                                        <div>
-                                                            <span className="al-admin-name-sm">{entry.adminName}</span>
-                                                            <span className="al-admin-role-sm">{entry.adminRole}</span>
-                                                        </div>
+                                                        <div className="al-admin-avatar-sm">{entry.adminName.split(" ").slice(-2).map(w => w[0]).join("").toUpperCase().slice(0, 2)}</div>
+                                                        <div><span className="al-admin-name-sm">{entry.adminName}</span><span className="al-admin-role-sm">{entry.adminRole}</span></div>
                                                     </div>
                                                 </td>
-                                                <td>
-                                                    <span className={`al-action-badge ${getActionClass(entry.actionType)}`}>
-                                                        {getActionLabel(entry.actionType)}
-                                                    </span>
-                                                </td>
+                                                <td><span className={`al-action-badge ${getActionClass(entry.actionType)}`}>{getActionLabel(entry.actionType)}</span></td>
                                                 <td className="al-td-target">{entry.target}</td>
-                                                <td>
-                                                    <span className={`al-target-badge ${getTargetClass(entry.targetType)}`}>
-                                                        {entry.targetType}
-                                                    </span>
-                                                </td>
+                                                <td><span className={`al-target-badge ${getTargetClass(entry.targetType)}`}>{entry.targetType}</span></td>
                                                 <td className="al-td-ip">{entry.ip}</td>
-                                                <td>
-                                                    <button
-                                                        className="al-details-btn"
-                                                        onClick={() => setSelectedEntry(entry)}
-                                                    >
-                                                        Vezi
-                                                    </button>
-                                                </td>
+                                                <td><button className="al-details-btn" onClick={() => setSelectedEntry(entry)}>{viewBtn}</button></td>
                                             </tr>
                                         ))
                                     )}
@@ -438,7 +273,6 @@ const ActivityLog = () => {
             </div>
 
             <Footer />
-
         </div>
     );
 };
