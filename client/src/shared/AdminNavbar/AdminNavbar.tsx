@@ -1,15 +1,19 @@
 import "./AdminNavbar.css";
-import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
+import { useState, useEffect, useRef } from "react";
 
 const AdminNavbar = () => {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [visible, setVisible] = useState<boolean>(true);
     const [lastScroll, setLastScroll] = useState<number>(0);
     const navigate = useNavigate();
+    const [langMenuOpen, setLangMenuOpen] = useState<boolean>(false);
+    const langRef = useRef<HTMLDivElement>(null);
+    const langLabels = { ro: "RO", ru: "RU", en: "EN" };
     const location = useLocation();
     const { t, language, setLanguage } = useLanguage();
+
 
     const isActive = (path: string) => location.pathname === path;
 
@@ -27,6 +31,15 @@ const AdminNavbar = () => {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, [lastScroll]);
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (langRef.current && !langRef.current.contains(e.target as Node))
+                setLangMenuOpen(false);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     return (
         <nav className="admin-navbar" style={{
@@ -47,28 +60,35 @@ const AdminNavbar = () => {
 
                 <ul className={`admin-navbar-menu ${menuOpen ? 'active' : ''}`}>
                     <li>
-                        <a href="/admin/dashboard" className={isActive("/admin/dashboard") ? "admin-nav-active" : ""}>
+                        <a className={isActive("/admin/dashboard") ? "admin-nav-active" : ""} onClick={() => navigate("/admin/dashboard")}>
                             {t.adminNavDashboard}
                         </a>
                     </li>
                     <li>
-                        <a href="/activity" className={isActive("/activity") ? "admin-nav-active" : ""}>
+                        <a className={isActive("/activity") ? "admin-nav-active" : ""} onClick={() => navigate("/activity")}>
                             {t.adminNavAudit}
                         </a>
                     </li>
                 </ul>
 
                 <div className="admin-navbar-actions">
-                    <div className="admin-lang-switcher">
-                        {(["ro", "ru", "en"] as const).map((lang) => (
-                            <button
-                                key={lang}
-                                className={`admin-lang-btn ${language === lang ? "admin-lang-active" : ""}`}
-                                onClick={() => setLanguage(lang)}
-                            >
-                                {lang.toUpperCase()}
-                            </button>
-                        ))}
+                    <div className="lang-selector" ref={langRef}>
+                        <button className="lang-btn" onClick={() => setLangMenuOpen(!langMenuOpen)}>
+                            {langLabels[language]} <span className="lang-arrow">▾</span>
+                        </button>
+                        {langMenuOpen && (
+                            <div className="lang-dropdown">
+                                {(["ro", "ru", "en"] as const).map((lang) => (
+                                    <button
+                                        key={lang}
+                                        className={`lang-option ${language === lang ? "active" : ""}`}
+                                        onClick={() => { setLanguage(lang); setLangMenuOpen(false); }}
+                                    >
+                                        {langLabels[lang]}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                     <div className="admin-role-badge">Super Admin</div>
                     <button className="admin-navbar-btn" onClick={() => navigate("/")}>
@@ -78,6 +98,8 @@ const AdminNavbar = () => {
             </div>
         </nav>
     );
+
+
 };
 
 export default AdminNavbar;

@@ -18,6 +18,33 @@
     justify-content: space-between;
 }
 
+.admin-navbar .lang-btn {
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.admin-navbar .lang-btn:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.admin-navbar .lang-dropdown {
+    background: #1a1a2e;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.admin-navbar .lang-option {
+    color: #aaa;
+}
+
+.admin-navbar .lang-option:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-navbar .lang-option.active {
+    color: #1e90ff;
+}
+
 .admin-navbar-logo {
     display: flex;
     align-items: center;
@@ -59,6 +86,7 @@
     font-weight: 500;
     font-size: 15px;
     transition: color 0.3s ease;
+    cursor: pointer;
 }
 
 .admin-navbar-menu li a:hover {
@@ -160,4 +188,6 @@
     .admin-navbar-actions {
         display: none;
     }
+
+
 }
