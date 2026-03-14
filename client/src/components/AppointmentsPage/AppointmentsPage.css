@@ -7,7 +7,6 @@
 .appointments-page {
   min-height: 100vh;
   background: white;
-  padding: 1rem 2rem 2 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   flex-direction: column;
@@ -17,7 +16,8 @@
 .appointments-container {
   max-width: 900px;
   margin: 0 auto;
-  padding-top: 0;
+  padding-top: 100px;
+  padding-bottom: 80px;
 }
 
 .page-title {
