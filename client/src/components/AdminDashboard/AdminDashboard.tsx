@@ -17,7 +17,7 @@ interface Patient {
 
 const AdminDashboard: React.FC = () => {
   const { t } = useLanguage();
-  const [activeSection, setActiveSection] = useState<'statistici' | 'programari' | 'pacienti' | 'medici' | 'setari'>('pacienti');
+  const [activeSection, setActiveSection] = useState<'statistici' | 'programari' | 'pacienti' | 'medici'>('pacienti');
   const [patients, setPatients] = useState<Patient[]>([
     { id: 1, name: 'Maria Popescu', age: 34, phone: '0721234567', email: 'maria.popescu@email.com', lastVisit: '2024-02-15', status: 'Active', avatar: 'MP' },
     { id: 2, name: 'Ion Ionescu', age: 45, phone: '0732345678', email: 'ion.ionescu@email.com', lastVisit: '2024-02-10', status: 'Active', avatar: 'II' },
@@ -42,7 +42,6 @@ const AdminDashboard: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const handleAddPatient = () => { setEditingPatient(null); setFormData({ name: '', age: '', phone: '', email: '', status: 'Active' }); setShowModal(true); };
   const handleEditPatient = (patient: Patient) => { setEditingPatient(patient); setFormData({ name: patient.name, age: patient.age.toString(), phone: patient.phone, email: patient.email, status: patient.status }); setShowModal(true); };
   const handleDeletePatient = (id: number) => { if (window.confirm(t.adminPatients + '?')) setPatients(patients.filter(p => p.id !== id)); };
 
@@ -57,15 +56,7 @@ const AdminDashboard: React.FC = () => {
     setShowModal(false);
   };
 
-  const sectionTitle = () => {
-    switch (activeSection) {
-      case 'statistici': return t.adminStats;
-      case 'programari': return t.adminAppts;
-      case 'pacienti': return t.adminPatients;
-      case 'medici': return t.adminDoctors;
-      case 'setari': return t.adminSettings;
-    }
-  };
+
 
   const statCards = [
     {
@@ -136,30 +127,20 @@ const AdminDashboard: React.FC = () => {
 
         <div className="admin-dashboard">
           <aside className="sidebar">
-            <div className="sidebar-header"><h2></h2></div>
+            <div className="sidebar-header"></div>
             <nav className="sidebar-nav">
               <a href="#" className={`nav-item ${activeSection === 'statistici' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('statistici'); }}>{t.adminStats}</a>
               <a href="#" className={`nav-item ${activeSection === 'programari' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('programari'); }}>{t.adminAppts}</a>
               <a href="#" className={`nav-item ${activeSection === 'pacienti' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('pacienti'); }}>{t.adminPatients}</a>
               <a href="#" className={`nav-item ${activeSection === 'medici' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('medici'); }}>{t.adminDoctors}</a>
-              <a href="#" className={`nav-item ${activeSection === 'setari' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('setari'); }}>{t.adminSettings}</a>
             </nav>
           </aside>
 
           <main className="main-content">
-            <header className="header">
-              <h1>{sectionTitle()}</h1>
-              <div className="header-actions">
-                {activeSection === 'pacienti' && (
-                    <button className="admin-btn-primary" onClick={handleAddPatient}>{t.adminAddPatient}</button>
-                )}
-                <div className="admin-avatar">A</div>
-              </div>
-            </header>
 
             <div className="content-wrapper">
 
-              {/* ── STATISTICI ── */}
+
               {activeSection === 'statistici' && (
                   <div className="section-content">
                     <div className="stats-grid">
@@ -187,7 +168,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
               )}
 
-              {/* ── PROGRAMĂRI ── */}
+
               {activeSection === 'programari' && (
                   <div className="section-content">
                     <div className="table-container">
@@ -212,7 +193,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
               )}
 
-              {/* ── PACIENȚI ── */}
+
               {activeSection === 'pacienti' && (
                   <>
                     <div className="filters">
@@ -284,7 +265,7 @@ const AdminDashboard: React.FC = () => {
                   </>
               )}
 
-              {/* ── MEDICI ── */}
+
               {activeSection === 'medici' && (
                   <div className="section-content">
                     <div className="table-container">
@@ -305,28 +286,6 @@ const AdminDashboard: React.FC = () => {
                         <tr><td><div className="patient-info"><div className="patient-avatar">GP</div><span>Dr. George Popescu</span></div></td><td>{t.adminSpecMedGen}</td><td>0723333333</td><td>dr.popescu@cabinet.ro</td><td><span className="status-badge active">{t.adminActive}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
                         </tbody>
                       </table>
-                    </div>
-                  </div>
-              )}
-
-              {/* ── SETĂRI ── */}
-              {activeSection === 'setari' && (
-                  <div className="section-content">
-                    <div className="settings-container">
-                      <div className="settings-section">
-                        <h3>{t.adminSettingsTitle}</h3>
-                        <div className="setting-item"><label>{t.adminChangePass}</label><input type="password" placeholder="••••••••" /></div>
-                        <div className="setting-item"><label>{t.adminNotifEmail}</label><input type="email" defaultValue="admin@cabinet.ro" /></div>
-                        <div className="setting-item"><label>{t.adminLanguage}</label><select><option value="ro">Română</option><option value="en">English</option><option value="ru">Русский</option></select></div>
-                        <div className="setting-item"><label>{t.adminTheme}</label><select><option value="light">Light</option><option value="dark">Dark</option><option value="auto">Auto</option></select></div>
-                      </div>
-                      <div className="settings-section">
-                        <h3>{t.profNotifications}</h3>
-                        <div className="setting-item"><label><input type="checkbox" defaultChecked />Email {t.adminAppts}</label></div>
-                        <div className="setting-item"><label><input type="checkbox" defaultChecked />SMS reminder</label></div>
-                        <div className="setting-item"><label><input type="checkbox" />{t.profNotifications}</label></div>
-                      </div>
-                      <button className="btn-primary">{t.adminSave}</button>
                     </div>
                   </div>
               )}
