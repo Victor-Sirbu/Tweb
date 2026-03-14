@@ -153,7 +153,7 @@ const MedicalServices = () => {
                         </h1>
                         <p className="ms-hero-description">{t.msHeroDesc}</p>
                         <div className="ms-hero-buttons">
-                            <button className="ms-btn-primary" onClick={() => navigate("/login")}>{t.msBookNow}</button>
+                            <button className="ms-btn-primary" onClick={() => navigate("/appointments")}>{t.msBookNow}</button>
                             <button className="ms-btn-secondary" onClick={() => navigate("/contact")}>{t.msContactUs}</button>
                         </div>
                     </div>
@@ -238,7 +238,7 @@ const MedicalServices = () => {
                                                 <span className="ms-meta-value">{service.duration}</span>
                                             </div>
                                         </div>
-                                        <button className="ms-service-btn">{t.msBookBtn}</button>
+                                        <button className="ms-service-btn" onClick={() => navigate("/appointments")}>{t.msBookBtn}</button>
                                     </div>
                                 );
                             })}
