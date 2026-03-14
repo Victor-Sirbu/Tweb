@@ -67,14 +67,76 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const statCards = [
+    {
+      label: t.adminTotalPatients,
+      value: patients.length,
+      badge: '+12%',
+      color: '#3b82f6',
+      bg: 'rgba(59,130,246,0.1)',
+      bars: [40, 55, 45, 70, 60, 80, 100],
+      icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+      ),
+    },
+    {
+      label: t.adminActivePatients,
+      value: patients.filter(p => p.status === 'Active').length,
+      badge: `${Math.round((patients.filter(p => p.status === 'Active').length / patients.length) * 100)}%`,
+      color: '#10b981',
+      bg: 'rgba(16,185,129,0.1)',
+      bars: [50, 65, 55, 75, 90, 80, 100],
+      icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+      ),
+    },
+    {
+      label: t.adminTodayAppts,
+      value: 3,
+      badge: 'Azi',
+      color: '#f59e0b',
+      bg: 'rgba(245,158,11,0.1)',
+      bars: [30, 80, 50, 40, 70, 60, 100],
+      icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+      ),
+    },
+    {
+      label: t.adminActiveDoctors,
+      value: 3,
+      badge: 'Activi',
+      color: '#8b5cf6',
+      bg: 'rgba(139,92,246,0.1)',
+      bars: [60, 60, 80, 80, 100, 100, 100],
+      icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+      ),
+    },
+  ];
+
   return (
       <div className="admin-page-wrapper">
-
         <AdminNavbar />
 
         <div className="admin-dashboard">
           <aside className="sidebar">
-            <div className="sidebar-header"><h2>Cabinet Medical</h2></div>
+            <div className="sidebar-header"><h2></h2></div>
             <nav className="sidebar-nav">
               <a href="#" className={`nav-item ${activeSection === 'statistici' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('statistici'); }}>{t.adminStats}</a>
               <a href="#" className={`nav-item ${activeSection === 'programari' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('programari'); }}>{t.adminAppts}</a>
@@ -96,10 +158,71 @@ const AdminDashboard: React.FC = () => {
             </header>
 
             <div className="content-wrapper">
+
+              {/* ── STATISTICI ── */}
+              {activeSection === 'statistici' && (
+                  <div className="section-content">
+                    <div className="stats-grid">
+                      {statCards.map((card, i) => (
+                          <div className="stat-card" key={i}>
+                            <div className="stat-card-top">
+                              <div className="stat-icon" style={{ background: card.bg, color: card.color }}>
+                                {card.icon}
+                              </div>
+                              <span className="stat-badge">{card.badge}</span>
+                            </div>
+                            <p className="stat-number">{card.value}</p>
+                            <p className="stat-label">{card.label}</p>
+                            <div className="mini-bar">
+                              {card.bars.map((h, j) => (
+                                  <span
+                                      key={j}
+                                      style={{ height: `${h}%`, background: card.color, opacity: j === card.bars.length - 1 ? 1 : 0.5 + j * 0.07 }}
+                                  />
+                              ))}
+                            </div>
+                          </div>
+                      ))}
+                    </div>
+                  </div>
+              )}
+
+              {/* ── PROGRAMĂRI ── */}
+              {activeSection === 'programari' && (
+                  <div className="section-content">
+                    <div className="table-container">
+                      <table className="patients-table">
+                        <thead>
+                        <tr>
+                          <th>{t.adminApptDate}</th>
+                          <th>{t.adminApptTime}</th>
+                          <th>{t.adminName}</th>
+                          <th>{t.adminDoctors}</th>
+                          <th>{t.adminStatus}</th>
+                          <th>{t.adminActions}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr><td>2026-02-19</td><td>10:00</td><td>Maria Popescu</td><td>Dr. Ionescu</td><td><span className="status-badge active">{t.adminApptConfirmed}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
+                        <tr><td>2026-02-19</td><td>11:30</td><td>Ion Ionescu</td><td>Dr. Vasilescu</td><td><span className="status-badge active">{t.adminApptConfirmed}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
+                        <tr><td>2026-02-19</td><td>14:00</td><td>Ana Vasilescu</td><td>Dr. Popescu</td><td><span className="status-badge inactive">{t.adminApptPending}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+              )}
+
+              {/* ── PACIENȚI ── */}
               {activeSection === 'pacienti' && (
                   <>
                     <div className="filters">
-                      <input type="text" className="search-input" placeholder={t.adminSearch} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                      <input
+                          type="text"
+                          className="search-input"
+                          placeholder={t.adminSearch}
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                      />
                       <div className="custom-dropdown">
                         <button className="dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
                           {statusFilter === 'All' ? t.adminAllPatients : statusFilter === 'Active' ? t.adminActive : t.adminInactive}
@@ -108,7 +231,11 @@ const AdminDashboard: React.FC = () => {
                         {dropdownOpen && (
                             <div className="dropdown-menu">
                               {(['All', 'Active', 'Inactive'] as const).map((option) => (
-                                  <div key={option} className={`dropdown-item ${statusFilter === option ? 'selected' : ''}`} onClick={() => { setStatusFilter(option); setDropdownOpen(false); }}>
+                                  <div
+                                      key={option}
+                                      className={`dropdown-item ${statusFilter === option ? 'selected' : ''}`}
+                                      onClick={() => { setStatusFilter(option); setDropdownOpen(false); }}
+                                  >
                                     {option === 'All' ? t.adminAllPatients : option === 'Active' ? t.adminActive : t.adminInactive}
                                   </div>
                               ))}
@@ -120,20 +247,33 @@ const AdminDashboard: React.FC = () => {
                       <table className="patients-table">
                         <thead>
                         <tr>
-                          <th>{t.adminName}</th><th>{t.adminAge}</th><th>{t.adminPhone}</th>
-                          <th>{t.adminEmail}</th><th>{t.adminLastVisit}</th><th>{t.adminStatus}</th><th>{t.adminActions}</th>
+                          <th>{t.adminName}</th>
+                          <th>{t.adminAge}</th>
+                          <th>{t.adminPhone}</th>
+                          <th>{t.adminEmail}</th>
+                          <th>{t.adminLastVisit}</th>
+                          <th>{t.adminStatus}</th>
+                          <th>{t.adminActions}</th>
                         </tr>
                         </thead>
                         <tbody>
                         {filteredPatients.map(patient => (
                             <tr key={patient.id}>
-                              <td><div className="patient-info"><div className="patient-avatar">{getAvatar(patient.name)}</div><span>{patient.name}</span></div></td>
-                              <td>{patient.age}</td><td>{patient.phone}</td><td>{patient.email}</td><td>{patient.lastVisit}</td>
+                              <td>
+                                <div className="patient-info">
+                                  <div className="patient-avatar">{getAvatar(patient.name)}</div>
+                                  <span>{patient.name}</span>
+                                </div>
+                              </td>
+                              <td>{patient.age}</td>
+                              <td>{patient.phone}</td>
+                              <td>{patient.email}</td>
+                              <td>{patient.lastVisit}</td>
                               <td><span className={`status-badge ${patient.status.toLowerCase()}`}>{patient.status === 'Active' ? t.adminActive : t.adminInactive}</span></td>
                               <td>
                                 <div className="action-buttons">
-                                  <button className="btn-action btn-edit" onClick={() => handleEditPatient(patient)} title={t.adminEdit}>{t.adminEdit}</button>
-                                  <button className="btn-action btn-delete" onClick={() => handleDeletePatient(patient.id)} title={t.adminDelete}>{t.adminDelete}</button>
+                                  <button className="btn-action btn-edit" onClick={() => handleEditPatient(patient)}>{t.adminEdit}</button>
+                                  <button className="btn-action btn-delete" onClick={() => handleDeletePatient(patient.id)}>{t.adminDelete}</button>
                                 </div>
                               </td>
                             </tr>
@@ -144,37 +284,21 @@ const AdminDashboard: React.FC = () => {
                   </>
               )}
 
-              {activeSection === 'statistici' && (
-                  <div className="section-content">
-                    <div className="stats-grid">
-                      <div className="stat-card"><div className="stat-details"><h3>{t.adminTotalPatients}</h3><p className="stat-number">{patients.length}</p></div></div>
-                      <div className="stat-card"><div className="stat-details"><h3>{t.adminActivePatients}</h3><p className="stat-number">{patients.filter(p => p.status === 'Active').length}</p></div></div>
-                      <div className="stat-card"><div className="stat-details"><h3>{t.adminTodayAppts}</h3><p className="stat-number">3</p></div></div>
-                      <div className="stat-card"><div className="stat-details"><h3>{t.adminActiveDoctors}</h3><p className="stat-number">3</p></div></div>
-                    </div>
-                  </div>
-              )}
-
-              {activeSection === 'programari' && (
-                  <div className="section-content">
-                    <div className="table-container">
-                      <table className="patients-table">
-                        <thead><tr><th>{t.adminApptDate}</th><th>{t.adminApptTime}</th><th>{t.adminName}</th><th>{t.adminDoctors}</th><th>{t.adminStatus}</th><th>{t.adminActions}</th></tr></thead>
-                        <tbody>
-                        <tr><td>2026-02-19</td><td>10:00</td><td>Maria Popescu</td><td>Dr. Ionescu</td><td><span className="status-badge active">{t.adminApptConfirmed}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
-                        <tr><td>2026-02-19</td><td>11:30</td><td>Ion Ionescu</td><td>Dr. Vasilescu</td><td><span className="status-badge active">{t.adminApptConfirmed}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
-                        <tr><td>2026-02-19</td><td>14:00</td><td>Ana Vasilescu</td><td>Dr. Popescu</td><td><span className="status-badge inactive">{t.adminApptPending}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-              )}
-
+              {/* ── MEDICI ── */}
               {activeSection === 'medici' && (
                   <div className="section-content">
                     <div className="table-container">
                       <table className="patients-table">
-                        <thead><tr><th>{t.adminDoctors}</th><th>{t.apptSpecialization ? t.apptSpecialization.replace(' *','') : t.adminSpecCardio}</th><th>{t.adminPhone}</th><th>{t.adminEmail}</th><th>{t.adminStatus}</th><th>{t.adminActions}</th></tr></thead>
+                        <thead>
+                        <tr>
+                          <th>{t.adminDoctors}</th>
+                          <th>{t.apptSpecialization ? t.apptSpecialization.replace(' *', '') : t.adminSpecCardio}</th>
+                          <th>{t.adminPhone}</th>
+                          <th>{t.adminEmail}</th>
+                          <th>{t.adminStatus}</th>
+                          <th>{t.adminActions}</th>
+                        </tr>
+                        </thead>
                         <tbody>
                         <tr><td><div className="patient-info"><div className="patient-avatar">II</div><span>Dr. Ion Ionescu</span></div></td><td>{t.adminSpecCardio}</td><td>0721111111</td><td>dr.ionescu@cabinet.ro</td><td><span className="status-badge active">{t.adminActive}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
                         <tr><td><div className="patient-info"><div className="patient-avatar">AV</div><span>Dr. Ana Vasilescu</span></div></td><td>{t.adminSpecPediatrie}</td><td>0722222222</td><td>dr.vasilescu@cabinet.ro</td><td><span className="status-badge active">{t.adminActive}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
@@ -185,6 +309,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
               )}
 
+              {/* ── SETĂRI ── */}
               {activeSection === 'setari' && (
                   <div className="section-content">
                     <div className="settings-container">
@@ -205,12 +330,14 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
               )}
+
             </div>
           </main>
         </div>
 
         <Footer />
 
+        {/* ── MODAL ── */}
         {showModal && (
             <div className="modal-overlay" onClick={() => setShowModal(false)}>
               <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -233,7 +360,11 @@ const AdminDashboard: React.FC = () => {
                       {statusDropdownOpen && (
                           <div className="dropdown-menu">
                             {(['Active', 'Inactive'] as const).map((option) => (
-                                <div key={option} className={`dropdown-item ${formData.status === option ? 'selected' : ''}`} onClick={() => { setFormData({ ...formData, status: option }); setStatusDropdownOpen(false); }}>
+                                <div
+                                    key={option}
+                                    className={`dropdown-item ${formData.status === option ? 'selected' : ''}`}
+                                    onClick={() => { setFormData({ ...formData, status: option }); setStatusDropdownOpen(false); }}
+                                >
                                   {option === 'Active' ? t.adminActive : t.adminInactive}
                                 </div>
                             ))}
