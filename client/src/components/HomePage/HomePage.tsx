@@ -60,7 +60,7 @@ const HomePage = () => {
                         </h1>
                         <p className="hero-description">{t.heroDesc}</p>
                         <div className="hero-buttons">
-                            <button className="btn-primary" onClick={() => navigate("/login")}>{t.heroBook}</button>
+                            <button className="btn-primary" onClick={() => navigate("/appointments")}>{t.heroBook}</button>
                             <button className="btn-secondary" onClick={() => navigate("/contact")}>{t.heroContact}</button>
                         </div>
                         <div className="hero-stats">
@@ -135,7 +135,6 @@ const HomePage = () => {
                                     <p className="doctor-experience">{doctor.experience}</p>
                                     <p className="doctor-education">{doctor.education}</p>
                                 </div>
-                                <button className="doctor-btn">{t.bookConsultation}</button>
                             </div>
                         ))}
                     </div>
@@ -210,8 +209,8 @@ const HomePage = () => {
                         <h2 className="cta-title">{t.ctaTitle}</h2>
                         <p className="cta-description">{t.ctaDesc}</p>
                         <div className="cta-buttons">
-                            <button className="cta-button-primary">{t.ctaBook}</button>
-                            <button className="cta-button-secondary">{t.ctaPrices}</button>
+                            <button className="cta-button-primary" onClick={() => navigate("/appointments")}>{t.ctaBook}</button>
+                            <button className="cta-button-secondary" onClick={() => navigate("/services")}>{t.ctaPrices}</button>
                         </div>
                     </div>
                     <div className="cta-stats">
