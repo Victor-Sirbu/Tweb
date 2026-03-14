@@ -125,9 +125,9 @@ const AdminDashboard: React.FC = () => {
                         <td><span className={`status-badge ${patient.status.toLowerCase()}`}>{patient.status === 'Active' ? t.adminActive : t.adminInactive}</span></td>
                         <td>
                           <div className="action-buttons">
-                            <button className="btn-action btn-view" title="View">View</button>
-                            <button className="btn-action btn-edit" onClick={() => handleEditPatient(patient)} title="Edit">Edit</button>
-                            <button className="btn-action btn-delete" onClick={() => handleDeletePatient(patient.id)} title="Delete">Delete</button>
+                            <button className="btn-action btn-view" title={t.adminView}>{t.adminView}</button>
+                            <button className="btn-action btn-edit" onClick={() => handleEditPatient(patient)} title={t.adminEdit}>{t.adminEdit}</button>
+                            <button className="btn-action btn-delete" onClick={() => handleDeletePatient(patient.id)} title={t.adminDelete}>{t.adminDelete}</button>
                           </div>
                         </td>
                       </tr>
@@ -153,11 +153,11 @@ const AdminDashboard: React.FC = () => {
             <div className="section-content">
               <div className="table-container">
                 <table className="patients-table">
-                  <thead><tr><th>Data</th><th>Ora</th><th>{t.adminName}</th><th>{t.adminDoctors}</th><th>{t.adminStatus}</th><th>{t.adminActions}</th></tr></thead>
+                  <thead><tr><th>{t.adminApptDate}</th><th>{t.adminApptTime}</th><th>{t.adminName}</th><th>{t.adminDoctors}</th><th>{t.adminStatus}</th><th>{t.adminActions}</th></tr></thead>
                   <tbody>
-                    <tr><td>2026-02-19</td><td>10:00</td><td>Maria Popescu</td><td>Dr. Ionescu</td><td><span className="status-badge active">Confirmat</span></td><td><div className="action-buttons"><button className="btn-action btn-view">View</button><button className="btn-action btn-edit">Edit</button></div></td></tr>
-                    <tr><td>2026-02-19</td><td>11:30</td><td>Ion Ionescu</td><td>Dr. Vasilescu</td><td><span className="status-badge active">Confirmat</span></td><td><div className="action-buttons"><button className="btn-action btn-view">View</button><button className="btn-action btn-edit">Edit</button></div></td></tr>
-                    <tr><td>2026-02-19</td><td>14:00</td><td>Ana Vasilescu</td><td>Dr. Popescu</td><td><span className="status-badge inactive">In Asteptare</span></td><td><div className="action-buttons"><button className="btn-action btn-view">View</button><button className="btn-action btn-edit">Edit</button></div></td></tr>
+                    <tr><td>2026-02-19</td><td>10:00</td><td>Maria Popescu</td><td>Dr. Ionescu</td><td><span className="status-badge active">{t.adminApptConfirmed}</span></td><td><div className="action-buttons"><button className="btn-action btn-view">{t.adminView}</button><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
+                    <tr><td>2026-02-19</td><td>11:30</td><td>Ion Ionescu</td><td>Dr. Vasilescu</td><td><span className="status-badge active">{t.adminApptConfirmed}</span></td><td><div className="action-buttons"><button className="btn-action btn-view">{t.adminView}</button><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
+                    <tr><td>2026-02-19</td><td>14:00</td><td>Ana Vasilescu</td><td>Dr. Popescu</td><td><span className="status-badge inactive">{t.adminApptPending}</span></td><td><div className="action-buttons"><button className="btn-action btn-view">{t.adminView}</button><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
                   </tbody>
                 </table>
               </div>
@@ -168,11 +168,11 @@ const AdminDashboard: React.FC = () => {
             <div className="section-content">
               <div className="table-container">
                 <table className="patients-table">
-                  <thead><tr><th>{t.adminDoctors}</th><th>{t.apptSpecialization ? t.apptSpecialization.replace(' *','') : 'Specializare'}</th><th>{t.adminPhone}</th><th>{t.adminEmail}</th><th>{t.adminStatus}</th><th>{t.adminActions}</th></tr></thead>
+                  <thead><tr><th>{t.adminDoctors}</th><th>{t.apptSpecialization ? t.apptSpecialization.replace(' *','') : t.adminSpecCardio}</th><th>{t.adminPhone}</th><th>{t.adminEmail}</th><th>{t.adminStatus}</th><th>{t.adminActions}</th></tr></thead>
                   <tbody>
-                    <tr><td><div className="patient-info"><div className="patient-avatar">II</div><span>Dr. Ion Ionescu</span></div></td><td>Cardiologie</td><td>0721111111</td><td>dr.ionescu@cabinet.ro</td><td><span className="status-badge active">{t.adminActive}</span></td><td><div className="action-buttons"><button className="btn-action btn-view">View</button><button className="btn-action btn-edit">Edit</button></div></td></tr>
-                    <tr><td><div className="patient-info"><div className="patient-avatar">AV</div><span>Dr. Ana Vasilescu</span></div></td><td>Pediatrie</td><td>0722222222</td><td>dr.vasilescu@cabinet.ro</td><td><span className="status-badge active">{t.adminActive}</span></td><td><div className="action-buttons"><button className="btn-action btn-view">View</button><button className="btn-action btn-edit">Edit</button></div></td></tr>
-                    <tr><td><div className="patient-info"><div className="patient-avatar">GP</div><span>Dr. George Popescu</span></div></td><td>Medicina Generala</td><td>0723333333</td><td>dr.popescu@cabinet.ro</td><td><span className="status-badge active">{t.adminActive}</span></td><td><div className="action-buttons"><button className="btn-action btn-view">View</button><button className="btn-action btn-edit">Edit</button></div></td></tr>
+                    <tr><td><div className="patient-info"><div className="patient-avatar">II</div><span>Dr. Ion Ionescu</span></div></td><td>{t.adminSpecCardio}</td><td>0721111111</td><td>dr.ionescu@cabinet.ro</td><td><span className="status-badge active">{t.adminActive}</span></td><td><div className="action-buttons"><button className="btn-action btn-view">{t.adminView}</button><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
+                    <tr><td><div className="patient-info"><div className="patient-avatar">AV</div><span>Dr. Ana Vasilescu</span></div></td><td>{t.adminSpecPediatrie}</td><td>0722222222</td><td>dr.vasilescu@cabinet.ro</td><td><span className="status-badge active">{t.adminActive}</span></td><td><div className="action-buttons"><button className="btn-action btn-view">{t.adminView}</button><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
+                    <tr><td><div className="patient-info"><div className="patient-avatar">GP</div><span>Dr. George Popescu</span></div></td><td>{t.adminSpecMedGen}</td><td>0723333333</td><td>dr.popescu@cabinet.ro</td><td><span className="status-badge active">{t.adminActive}</span></td><td><div className="action-buttons"><button className="btn-action btn-view">{t.adminView}</button><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
                   </tbody>
                 </table>
               </div>
@@ -191,7 +191,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div className="settings-section">
                   <h3>{t.profNotifications}</h3>
-                  <div className="setting-item"><label><input type="checkbox" defaultChecked />{t.apptSuccess.includes('email') ? 'Email' : 'Email'} {t.adminAppts}</label></div>
+                  <div className="setting-item"><label><input type="checkbox" defaultChecked />Email {t.adminAppts}</label></div>
                   <div className="setting-item"><label><input type="checkbox" defaultChecked />SMS reminder</label></div>
                   <div className="setting-item"><label><input type="checkbox" />{t.profNotifications}</label></div>
                 </div>
@@ -206,7 +206,7 @@ const AdminDashboard: React.FC = () => {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>{editingPatient ? 'Edit Patient' : t.adminAddPatient}</h2>
+              <h2>{editingPatient ? t.adminEditPatient : t.adminAddPatient}</h2>
               <button className="modal-close" onClick={() => setShowModal(false)}>&times;</button>
             </div>
             <form onSubmit={handleSubmit}>
@@ -222,8 +222,8 @@ const AdminDashboard: React.FC = () => {
                 </select>
               </div>
               <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn-submit">{editingPatient ? 'Update' : 'Add'}</button>
+                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>{t.adminCancel}</button>
+                <button type="submit" className="btn-submit">{editingPatient ? t.adminUpdate : t.adminAdd}</button>
               </div>
             </form>
           </div>

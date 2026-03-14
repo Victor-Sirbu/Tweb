@@ -59,9 +59,9 @@ const NewsPage = () => {
                             <div className="news-category-badge" style={{ backgroundColor: getCategoryColor(item.category) }}>
                                 {labels[item.category as keyof typeof labels]}
                             </div>
-                            <h3 className="news-title">{item.title}</h3>
+                            <h3 className="news-title">{item.title[language]}</h3>
                             <div className="news-date">{item.date}</div>
-                            <p className="news-description">{item.description}</p>
+                            <p className="news-description">{item.description[language]}</p>
                             <button className="news-btn" onClick={() => setSelectedNews(item)}>{t.newsViewDetails}</button>
                         </div>
                     ))}

@@ -84,6 +84,17 @@ const ActivityLog = () => {
         return f ? f.label : type;
     };
 
+    const getTargetLabel = (type: string) => {
+        switch (type) {
+            case "patient": return t.auditTargetPatient;
+            case "appointment": return t.auditTargetAppointment;
+            case "record": return t.auditTargetRecord;
+            case "system": return t.auditTargetSystem;
+            case "user": return t.auditTargetUser;
+            default: return type;
+        }
+    };
+
     const getTargetClass = (type: string) => {
         switch (type) {
             case "patient": return "al-target-patient";
@@ -178,7 +189,7 @@ const ActivityLog = () => {
                             <div className="al-modal-row"><span className="al-modal-label">{language === "ru" ? "Роль" : language === "en" ? "Role" : "Rol"}</span><span className="al-modal-value">{selectedEntry.adminRole}</span></div>
                             <div className="al-modal-row"><span className="al-modal-label">{tableH.action}</span><span className={`al-action-badge ${getActionClass(selectedEntry.actionType)}`}>{getActionLabel(selectedEntry.actionType)}</span></div>
                             <div className="al-modal-row"><span className="al-modal-label">{tableH.target}</span><span className="al-modal-value">{selectedEntry.target}</span></div>
-                            <div className="al-modal-row"><span className="al-modal-label">{tableH.type}</span><span className={`al-target-badge ${getTargetClass(selectedEntry.targetType)}`}>{selectedEntry.targetType}</span></div>
+                            <div className="al-modal-row"><span className="al-modal-label">{tableH.type}</span><span className={`al-target-badge ${getTargetClass(selectedEntry.targetType)}`}>{getTargetLabel(selectedEntry.targetType)}</span></div>
                             <div className="al-modal-row al-modal-row-full"><span className="al-modal-label">{language === "ru" ? "Описание" : language === "en" ? "Description" : "Descriere"}</span><span className="al-modal-value al-modal-details">{selectedEntry.details}</span></div>
                             <div className="al-modal-row"><span className="al-modal-label">{tableH.date}</span><span className="al-modal-value">{selectedEntry.date} — {selectedEntry.time}</span></div>
                             <div className="al-modal-row"><span className="al-modal-label">{tableH.ip}</span><span className="al-modal-value al-ip">{selectedEntry.ip}</span></div>
@@ -259,7 +270,7 @@ const ActivityLog = () => {
                                                 </td>
                                                 <td><span className={`al-action-badge ${getActionClass(entry.actionType)}`}>{getActionLabel(entry.actionType)}</span></td>
                                                 <td className="al-td-target">{entry.target}</td>
-                                                <td><span className={`al-target-badge ${getTargetClass(entry.targetType)}`}>{entry.targetType}</span></td>
+                                                <td><span className={`al-target-badge ${getTargetClass(entry.targetType)}`}>{getTargetLabel(entry.targetType)}</span></td>
                                                 <td className="al-td-ip">{entry.ip}</td>
                                                 <td><button className="al-details-btn" onClick={() => setSelectedEntry(entry)}>{viewBtn}</button></td>
                                             </tr>

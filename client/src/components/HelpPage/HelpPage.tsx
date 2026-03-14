@@ -9,12 +9,6 @@ type FaqItem = {
     answer: string;
 };
 
-type GuideStep = {
-    step: number;
-    title: string;
-    description: string;
-};
-
 type Guide = {
     id: number;
     titleKey: string;

@@ -265,6 +265,7 @@ export interface Translations {
     newsViewDetails: string;
     newsNoItems: string;
     newsAll: string;
+    newsClose: string;
 
     // AppointmentsPage
     apptTitle: string;
@@ -282,6 +283,17 @@ export interface Translations {
     apptMyList: string;
     apptCancel: string;
     apptCancelConfirm: string;
+    apptConfirmed: string;
+    apptPending: string;
+    apptCanceled: string;
+    apptSpecCardio: string;
+    apptSpecPediatrie: string;
+    apptSpecMedGen: string;
+    apptSpecDerma: string;
+    apptSpecNeuro: string;
+    apptSpecOrtoped: string;
+    apptSpecOrl: string;
+    apptSpecOftalmologie: string;
 
     // AdminDashboard
     adminStats: string;
@@ -311,6 +323,36 @@ export interface Translations {
     adminLanguage: string;
     adminTheme: string;
     adminSave: string;
+
+    // AdminNavbar
+    adminNavDashboard: string;
+    adminNavAudit: string;
+    adminNavExitAdmin: string;
+    adminNavPanel: string;
+
+    // AdminDashboard extra buttons/labels
+    adminView: string;
+    adminEdit: string;
+    adminDelete: string;
+    adminCancel: string;
+    adminUpdate: string;
+    adminAdd: string;
+    adminEditPatient: string;
+    adminApptDate: string;
+    adminApptTime: string;
+    adminApptConfirmed: string;
+    adminApptPending: string;
+    adminSpecCardio: string;
+    adminSpecPediatrie: string;
+    adminSpecMedGen: string;
+    adminSpecOrtoped: string;
+
+    // ActivityLog target types
+    auditTargetPatient: string;
+    auditTargetAppointment: string;
+    auditTargetRecord: string;
+    auditTargetSystem: string;
+    auditTargetUser: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -604,6 +646,47 @@ const translations: Record<Language, Translations> = {
         adminLanguage: "Limbă",
         adminTheme: "Temă",
         adminSave: "Salvează Modificări",
+
+        adminNavDashboard: "Dashboard",
+        adminNavAudit: "Audit & Activitate",
+        adminNavExitAdmin: "Ieși din Admin",
+        adminNavPanel: "Panou Administrator",
+
+        adminView: "Vizualizează",
+        adminEdit: "Editează",
+        adminDelete: "Șterge",
+        adminCancel: "Anulează",
+        adminUpdate: "Actualizează",
+        adminAdd: "Adaugă",
+        adminEditPatient: "Editează Pacient",
+        adminApptDate: "Data",
+        adminApptTime: "Ora",
+        adminApptConfirmed: "Confirmat",
+        adminApptPending: "În Așteptare",
+        adminSpecCardio: "Cardiologie",
+        adminSpecPediatrie: "Pediatrie",
+        adminSpecMedGen: "Medicină Generală",
+        adminSpecOrtoped: "Ortopedie",
+
+        newsClose: "Închide",
+
+        apptConfirmed: "Confirmată",
+        apptPending: "În așteptare",
+        apptCanceled: "Anulată",
+        apptSpecCardio: "Cardiologie",
+        apptSpecPediatrie: "Pediatrie",
+        apptSpecMedGen: "Medicina Generală",
+        apptSpecDerma: "Dermatologie",
+        apptSpecNeuro: "Neurologie",
+        apptSpecOrtoped: "Ortopedie",
+        apptSpecOrl: "ORL",
+        apptSpecOftalmologie: "Oftalmologie",
+
+        auditTargetPatient: "Pacient",
+        auditTargetAppointment: "Programare",
+        auditTargetRecord: "Dosar Medical",
+        auditTargetSystem: "Sistem",
+        auditTargetUser: "Utilizator",
     },
 
     ru: {
@@ -895,6 +978,47 @@ const translations: Record<Language, Translations> = {
         adminLanguage: "Язык",
         adminTheme: "Тема",
         adminSave: "Сохранить",
+
+        adminNavDashboard: "Панель управления",
+        adminNavAudit: "Аудит & История",
+        adminNavExitAdmin: "Выйти из Панели",
+        adminNavPanel: "Панель Администратора",
+
+        adminView: "Просмотр",
+        adminEdit: "Редактировать",
+        adminDelete: "Удалить",
+        adminCancel: "Отмена",
+        adminUpdate: "Обновить",
+        adminAdd: "Добавить",
+        adminEditPatient: "Редактировать пациента",
+        adminApptDate: "Дата",
+        adminApptTime: "Время",
+        adminApptConfirmed: "Подтверждено",
+        adminApptPending: "Ожидание",
+        adminSpecCardio: "Кардиология",
+        adminSpecPediatrie: "Педиатрия",
+        adminSpecMedGen: "Общая медицина",
+        adminSpecOrtoped: "Ортопедия",
+
+        newsClose: "Закрыть",
+
+        apptConfirmed: "Подтверждена",
+        apptPending: "В ожидании",
+        apptCanceled: "Отменена",
+        apptSpecCardio: "Кардиология",
+        apptSpecPediatrie: "Педиатрия",
+        apptSpecMedGen: "Общая медицина",
+        apptSpecDerma: "Дерматология",
+        apptSpecNeuro: "Неврология",
+        apptSpecOrtoped: "Ортопедия",
+        apptSpecOrl: "ЛОР",
+        apptSpecOftalmologie: "Офтальмология",
+
+        auditTargetPatient: "Пациент",
+        auditTargetAppointment: "Запись",
+        auditTargetRecord: "Медкарта",
+        auditTargetSystem: "Система",
+        auditTargetUser: "Пользователь",
     },
 
     en: {
@@ -1186,6 +1310,47 @@ const translations: Record<Language, Translations> = {
         adminLanguage: "Language",
         adminTheme: "Theme",
         adminSave: "Save Changes",
+
+        adminNavDashboard: "Dashboard",
+        adminNavAudit: "Audit & Activity",
+        adminNavExitAdmin: "Exit Admin",
+        adminNavPanel: "Administrator Panel",
+
+        adminView: "View",
+        adminEdit: "Edit",
+        adminDelete: "Delete",
+        adminCancel: "Cancel",
+        adminUpdate: "Update",
+        adminAdd: "Add",
+        adminEditPatient: "Edit Patient",
+        adminApptDate: "Date",
+        adminApptTime: "Time",
+        adminApptConfirmed: "Confirmed",
+        adminApptPending: "Pending",
+        adminSpecCardio: "Cardiology",
+        adminSpecPediatrie: "Pediatrics",
+        adminSpecMedGen: "General Medicine",
+        adminSpecOrtoped: "Orthopedics",
+
+        newsClose: "Close",
+
+        apptConfirmed: "Confirmed",
+        apptPending: "Pending",
+        apptCanceled: "Cancelled",
+        apptSpecCardio: "Cardiology",
+        apptSpecPediatrie: "Pediatrics",
+        apptSpecMedGen: "General Medicine",
+        apptSpecDerma: "Dermatology",
+        apptSpecNeuro: "Neurology",
+        apptSpecOrtoped: "Orthopedics",
+        apptSpecOrl: "ENT",
+        apptSpecOftalmologie: "Ophthalmology",
+
+        auditTargetPatient: "Patient",
+        auditTargetAppointment: "Appointment",
+        auditTargetRecord: "Medical Record",
+        auditTargetSystem: "System",
+        auditTargetUser: "User",
     },
 };
 

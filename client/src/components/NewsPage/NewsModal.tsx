@@ -1,7 +1,8 @@
 import "./NewsModal.css";
 import { useEffect } from "react";
-import type {NewsItem, NewsCategory} from "./mockNewsData";
+import type { NewsItem, NewsCategory } from "./mockNewsData";
 import * as React from "react";
+import { useLanguage } from "../../context/LanguageContext";
 
 interface NewsModalProps {
     news: NewsItem | null;
@@ -9,6 +10,8 @@ interface NewsModalProps {
 }
 
 const NewsModal = ({ news, onClose }: NewsModalProps) => {
+    const { t, language } = useLanguage();
+
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
             if (e.key === "Escape") {
@@ -31,17 +34,36 @@ const NewsModal = ({ news, onClose }: NewsModalProps) => {
 
     const getCategoryColor = (category: NewsCategory): string => {
         switch (category) {
-            case "Serviciu nou":
-                return "#1e90ff";
-            case "Promoție":
-                return "#ff6b6b";
-            case "Medic nou":
-                return "#2ecc71";
-            case "Actualizare preț":
-                return "#f39c12";
-            default:
-                return "#1e90ff";
+            case "Serviciu nou": return "#1e90ff";
+            case "Promoție": return "#ff6b6b";
+            case "Medic nou": return "#2ecc71";
+            case "Actualizare preț": return "#f39c12";
+            default: return "#1e90ff";
         }
+    };
+
+    const getCategoryLabel = (category: NewsCategory): string => {
+        const labels: Record<string, Record<NewsCategory, string>> = {
+            ru: {
+                "Serviciu nou": "Новая услуга",
+                "Promoție": "Акция",
+                "Medic nou": "Новый врач",
+                "Actualizare preț": "Обновление цены",
+            },
+            en: {
+                "Serviciu nou": "New service",
+                "Promoție": "Promotion",
+                "Medic nou": "New doctor",
+                "Actualizare preț": "Price update",
+            },
+            ro: {
+                "Serviciu nou": "Serviciu nou",
+                "Promoție": "Promoție",
+                "Medic nou": "Medic nou",
+                "Actualizare preț": "Actualizare preț",
+            },
+        };
+        return labels[language]?.[category] ?? category;
     };
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -61,20 +83,19 @@ const NewsModal = ({ news, onClose }: NewsModalProps) => {
                     className="modal-category-badge"
                     style={{ backgroundColor: getCategoryColor(news.category) }}
                 >
-                    {news.category}
+                    {getCategoryLabel(news.category)}
                 </div>
 
-                <h2 className="modal-title">{news.title}</h2>
+                <h2 className="modal-title">{news.title[language]}</h2>
 
                 <div className="modal-date">{news.date}</div>
 
                 <div className="modal-divider"></div>
 
-                <p className="modal-full-description">{news.fullDescription}</p>
+                <p className="modal-full-description">{news.fullDescription[language]}</p>
 
                 <button className="modal-close-bottom-btn" onClick={onClose}>
-
-                    Închide
+                    {t.newsClose}
                 </button>
             </div>
         </div>

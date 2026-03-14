@@ -105,6 +105,36 @@
     transform: translateY(-2px);
 }
 
+.admin-lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.admin-lang-btn {
+    padding: 5px 10px;
+    background: transparent;
+    color: #aaa;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    letter-spacing: 0.5px;
+}
+
+.admin-lang-btn:hover {
+    color: white;
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.admin-lang-active {
+    background: #1e90ff !important;
+    color: white !important;
+    border-color: #1e90ff !important;
+}
+
 @media (max-width: 768px) {
     .admin-menu-toggle {
         display: block;
