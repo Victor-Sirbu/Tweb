@@ -224,18 +224,18 @@
     transform: translateY(-3px);
 }
 
-.stat-box .stat-number {
+.profile-page .stat-box .stat-number {
     display: block;
     font-size: 28px;
     font-weight: 800;
-    color: #1e90ff;
+    color: #1e90ff !important;
 }
 
-.stat-box .stat-label {
+.profile-page .stat-box .stat-label {
     display: block;
     font-size: 12px;
-    color: #666;
-    font-weight: 500;
+    color: #1a1a1a !important;
+    font-weight: 600;
     margin-top: 4px;
 }
 
