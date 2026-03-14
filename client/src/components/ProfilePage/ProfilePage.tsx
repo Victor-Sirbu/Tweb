@@ -8,6 +8,8 @@ import heroBg4 from "../../assets/hero-bg4.jpg";
 import heroBg5 from "../../assets/hero-bg5.jpg";
 import { useState, useEffect } from "react";
 import { useLanguage } from "../../context/LanguageContext";
+import { useNavigate } from "react-router-dom";
+import testPdf from "../../assets/test-result.pdf";
 
 interface Programare {
     id: number;
@@ -96,6 +98,7 @@ const ProfilePage = () => {
     const [activeTab, setActiveTab] = useState("programari");
     const images = [heroBg1, heroBg2, heroBg3, heroBg4, heroBg5];
     const [currentImage, setCurrentImage] = useState(0);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const interval = setInterval(() => setCurrentImage((prev) => (prev + 1) % images.length), 3000);
@@ -270,7 +273,7 @@ const ProfilePage = () => {
                             <div className="tab-content">
                                 <div className="content-header">
                                     <h2 className="content-title">{t.profTabAppts}</h2>
-                                    <button className="navbar-btn">{t.profNewAppt}</button>
+                                    <button className="navbar-btn" onClick={() => navigate("/appointments")}>{t.profNewAppt}</button>
                                 </div>
                                 <div className="appointments-list">
                                     {programari.map((p) => (
@@ -311,7 +314,12 @@ const ProfilePage = () => {
                                             </div>
                                             <div className="analiza-right">
                                                 <span className={`status-badge ${getStatusClass(a.status)}`}>{getStatusLabel(a.status)}</span>
-                                                <button className="navbar-btn">{t.profDownloadPdf}</button>
+                                                <button className="navbar-btn" onClick={() => {
+                                                    const link = document.createElement("a");
+                                                    link.href = testPdf;
+                                                    link.download = `rezultat-${a.name}.pdf`;
+                                                    link.click();
+                                                }}>{t.profDownloadPdf}</button>
                                             </div>
                                         </div>
                                     ))}
