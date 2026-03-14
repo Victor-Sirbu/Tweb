@@ -60,7 +60,7 @@ const AdminNavbar = () => {
 
                 <ul className={`admin-navbar-menu ${menuOpen ? 'active' : ''}`}>
                     <li>
-                        <a className={isActive("/admin/dashboard") ? "admin-nav-active" : ""} onClick={() => navigate("/admin/dashboard")}>
+                        <a className={isActive("/admin") ? "admin-nav-active" : ""} onClick={() => navigate("/admin")}>
                             {t.adminNavDashboard}
                         </a>
                     </li>
