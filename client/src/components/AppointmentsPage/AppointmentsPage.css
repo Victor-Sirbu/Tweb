@@ -105,7 +105,7 @@
 .form-group input,
 .form-group select {
   padding: 0.55rem 0.75rem;
-  border: 2px solid #2563eb;
+  border: 2px solid #d1d5db;
   border-radius: 25px;
   font-size: 0.95rem;
   transition: all 0.3s;
@@ -131,7 +131,7 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #1d4ed8;
+  border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
@@ -169,7 +169,7 @@
 
 .custom-select-toggle {
   padding: 0.55rem 0.75rem;
-  border: 2px solid #2563eb;
+  border: 2px solid #d1d5db;
   border-radius: 25px;
   font-size: 0.95rem;
   background: white;
@@ -189,8 +189,9 @@
   border-bottom-color: transparent;
 }
 
-.custom-select-toggle:hover {
-  border-color: #1d4ed8;
+.custom-select-toggle:hover,
+.custom-select-toggle:focus {
+  border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
@@ -209,7 +210,7 @@
   left: 0;
   right: 0;
   background: white;
-  border: 2px solid #2563eb;
+  border: 2px solid #d1d5db;
   border-top: none;
   border-radius: 0 0 20px 20px;
   z-index: 100;
