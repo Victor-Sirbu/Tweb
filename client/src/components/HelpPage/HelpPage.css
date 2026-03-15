@@ -1,25 +1,109 @@
 .help-page {
-    padding: 32px 40px;
+    padding: 0 0 40px 0;
     background: #f0f2f5;
     min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.help-header {
-    margin-bottom: 24px;
+.help-hero {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+    padding: 90px 40px 40px 40px;
+    margin-bottom: 28px;
+    overflow: hidden;
+}
+
+.back-btn {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 8px 18px;
+    border-radius: 25px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+.back-btn:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateX(-2px);
+}
+
+.help-hero-content {
+    text-align: center;
+}
+
+.help-hero-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
 }
 
 .help-title {
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 800;
-    color: #1a1a2e;
-    margin: 0 0 4px 0;
+    color: #ffffff;
+    margin: 0 0 8px 0;
     letter-spacing: -0.5px;
 }
 
 .help-subtitle {
-    font-size: 14px;
-    color: #9ca3af;
+    font-size: 15px;
+    color: rgba(255,255,255,0.75);
     margin: 0;
+}
+
+.help-stats {
+    display: flex;
+    gap: 12px;
+    margin: 0 40px 28px 40px;
+    flex-wrap: wrap;
+}
+
+.stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+    min-width: 140px;
+    border: 2px solid transparent;
+}
+
+.stat-chip:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+.stat-chip--active {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    font-size: 24px;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-count {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 2px;
 }
 
 .guide-section {
@@ -27,7 +111,7 @@
     border-radius: 16px;
     border: 1px solid #e5e9ef;
     padding: 24px 28px;
-    margin-bottom: 28px;
+    margin: 0 40px 28px 40px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
@@ -67,10 +151,10 @@
 .guide-tab:hover {
     border-color: #3a7bd5;
     color: #3a7bd5;
+    background: #eff6ff;
 }
 
 .guide-tab--active {
-    color: #ffffff;
     font-weight: 600;
 }
 
@@ -131,19 +215,36 @@
     line-height: 1.5;
 }
 
+.faq-section {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e5e9ef;
+    padding: 24px 28px;
+    margin: 0 40px 28px 40px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
 .help-search-wrap {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 14px;
 }
 
 .help-search {
     width: 100%;
-    padding: 13px 18px;
+    padding: 13px 18px 13px 40px;
     border: 1.5px solid #d8dee6;
     border-radius: 12px;
     font-size: 14px;
     font-family: inherit;
-    background: #ffffff;
+    background: #f8f9fb;
     color: #1a1a2e;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
@@ -153,43 +254,11 @@
 .help-search:focus {
     border-color: #3a7bd5;
     box-shadow: 0 0 0 3px rgba(58,123,213,0.1);
+    background: #ffffff;
 }
 
 .help-search::placeholder {
     color: #aab0bb;
-}
-
-.help-stats {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.stat-chip {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.15s;
-}
-
-.stat-chip:hover {
-    opacity: 0.8;
-    transform: translateY(-1px);
-}
-
-.stat-count {
-    font-size: 18px;
-    font-weight: 800;
-    line-height: 1;
-}
-
-.stat-label {
-    font-size: 12px;
-    font-weight: 600;
 }
 
 .filter-tabs {
@@ -215,20 +284,26 @@
 .filter-tab:hover {
     border-color: #3a7bd5;
     color: #3a7bd5;
+    background: #eff6ff;
 }
 
 .filter-tab--active {
     background: #3a7bd5;
     border-color: #3a7bd5;
-    color: #ffffff;
+    color: #ffffff !important;
     font-weight: 600;
+}
+
+.filter-tab--active:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff !important;
 }
 
 .faq-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: 32px;
 }
 
 .faq-card {
@@ -279,9 +354,14 @@
 .faq-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     flex: 1;
     min-width: 0;
+}
+
+.faq-cat-icon {
+    font-size: 16px;
+    flex-shrink: 0;
 }
 
 .faq-badge {
@@ -337,22 +417,32 @@
 }
 
 .help-contact {
-    background: #ffffff;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
     border-radius: 16px;
-    border: 1px solid #e5e9ef;
     padding: 24px 28px;
+    margin: 0 40px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.contact-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.contact-icon {
+    font-size: 28px;
 }
 
 .contact-text {
     font-size: 14px;
-    color: #6b7280;
+    color: rgba(255,255,255,0.85);
     margin: 0;
+    font-weight: 500;
 }
 
 .contact-actions {
@@ -362,12 +452,12 @@
 }
 
 .contact-btn {
-    padding: 9px 20px;
+    padding: 10px 20px;
     border-radius: 25px;
     font-size: 13px;
     font-weight: 600;
     text-decoration: none;
-    transition: opacity 0.2s, transform 0.15s;
+    transition: all 0.2s;
     display: inline-block;
 }
 
@@ -377,13 +467,14 @@
 }
 
 .contact-btn--email {
-    background: #dbeafe;
-    color: #3a7bd5;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
 }
 
 .contact-btn--phone {
-    background: #ccfbf1;
-    color: #0d9488;
+    background: white;
+    color: #2563eb;
 }
 
 .empty-state {

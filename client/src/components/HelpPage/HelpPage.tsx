@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./HelpPage.css";
 import { useLanguage } from "../../context/LanguageContext";
+import { useNavigate } from "react-router-dom";
 
 type FaqItem = {
     id: number;
@@ -58,34 +59,22 @@ const guideIds: Guide[] = [
     },
 ];
 
-// Static multilingual content (no key lookup overhead)
 type LangContent = {
-    guide1: string;
-    guide2: string;
-    guide3: string;
-    g1s1t: string; g1s1d: string;
-    g1s2t: string; g1s2d: string;
-    g1s3t: string; g1s3d: string;
-    g1s4t: string; g1s4d: string;
-    g1s5t: string; g1s5d: string;
-    g2s1t: string; g2s1d: string;
-    g2s2t: string; g2s2d: string;
-    g2s3t: string; g2s3d: string;
-    g2s4t: string; g2s4d: string;
-    g2s5t: string; g2s5d: string;
-    g3s1t: string; g3s1d: string;
-    g3s2t: string; g3s2d: string;
-    g3s3t: string; g3s3d: string;
-    g3s4t: string; g3s4d: string;
+    guide1: string; guide2: string; guide3: string;
+    g1s1t: string; g1s1d: string; g1s2t: string; g1s2d: string;
+    g1s3t: string; g1s3d: string; g1s4t: string; g1s4d: string;
+    g1s5t: string; g1s5d: string; g2s1t: string; g2s1d: string;
+    g2s2t: string; g2s2d: string; g2s3t: string; g2s3d: string;
+    g2s4t: string; g2s4d: string; g2s5t: string; g2s5d: string;
+    g3s1t: string; g3s1d: string; g3s2t: string; g3s2d: string;
+    g3s3t: string; g3s3d: string; g3s4t: string; g3s4d: string;
     cats: { Programari: string; Medici: string; Pacienti: string; Notificari: string; Cont: string; };
     faqs: FaqItem[];
 };
 
 const content: Record<string, LangContent> = {
     ro: {
-        guide1: "Cum fac o programare",
-        guide2: "Cum adaug un pacient",
-        guide3: "Cum adaug un medic",
+        guide1: "Cum fac o programare", guide2: "Cum adaug un pacient", guide3: "Cum adaug un medic",
         g1s1t: "Deschide Programari", g1s1d: "Apasa pe Programari in meniul din stanga.",
         g1s2t: "Apasa Add Appointment", g1s2d: "Butonul se afla in coltul din dreapta sus.",
         g1s3t: "Completeaza formularul", g1s3d: "Introdu numele pacientului, telefonul si emailul.",
@@ -116,9 +105,7 @@ const content: Record<string, LangContent> = {
         ],
     },
     ru: {
-        guide1: "Как создать запись",
-        guide2: "Как добавить пациента",
-        guide3: "Как добавить врача",
+        guide1: "Как создать запись", guide2: "Как добавить пациента", guide3: "Как добавить врача",
         g1s1t: "Открыть Записи", g1s1d: "Нажмите на Записи в боковом меню.",
         g1s2t: "Нажать Add Appointment", g1s2d: "Кнопка находится в правом верхнем углу.",
         g1s3t: "Заполнить форму", g1s3d: "Введите имя пациента, телефон и email.",
@@ -149,9 +136,7 @@ const content: Record<string, LangContent> = {
         ],
     },
     en: {
-        guide1: "How to make an appointment",
-        guide2: "How to add a patient",
-        guide3: "How to add a doctor",
+        guide1: "How to make an appointment", guide2: "How to add a patient", guide3: "How to add a doctor",
         g1s1t: "Open Appointments", g1s1d: "Click on Appointments in the left menu.",
         g1s2t: "Click Add Appointment", g1s2d: "The button is in the top right corner.",
         g1s3t: "Fill the form", g1s3d: "Enter the patient name, phone and email.",
@@ -183,16 +168,17 @@ const content: Record<string, LangContent> = {
     },
 };
 
-const categoryConfig: Record<string, { color: string; bg: string }> = {
-    "Programari": { color: "#3a7bd5", bg: "#dbeafe" },
-    "Medici":     { color: "#0d9488", bg: "#ccfbf1" },
-    "Pacienti":   { color: "#7c3aed", bg: "#ede9fe" },
-    "Notificari": { color: "#d97706", bg: "#fef3c7" },
-    "Cont":       { color: "#6b7280", bg: "#f3f4f6" },
+const categoryConfig: Record<string, { color: string; bg: string; icon: string }> = {
+    "Programari": { color: "#3a7bd5", bg: "#dbeafe", icon: "📅" },
+    "Medici":     { color: "#0d9488", bg: "#ccfbf1", icon: "👨‍⚕️" },
+    "Pacienti":   { color: "#7c3aed", bg: "#ede9fe", icon: "👤" },
+    "Notificari": { color: "#d97706", bg: "#fef3c7", icon: "🔔" },
+    "Cont":       { color: "#6b7280", bg: "#f3f4f6", icon: "⚙️" },
 };
 
 export default function HelpPage() {
     const { t, language } = useLanguage();
+    const navigate = useNavigate();
     const lc = content[language] ?? content["ro"];
     const [activeCategory, setActiveCategory] = useState("Toate");
     const [openId, setOpenId] = useState<number | null>(null);
@@ -212,14 +198,19 @@ export default function HelpPage() {
 
     const toggle = (id: number) => setOpenId((prev) => (prev === id ? null : id));
     const selectedGuide = guideIds.find((g) => g.id === activeGuide)!;
-
     const getStepText = (key: string) => (lc as unknown as Record<string, string>)[key] ?? key;
 
     return (
         <div className="help-page">
-            <div className="help-header">
-                <h1 className="help-title">{t.helpTitle}</h1>
-                <p className="help-subtitle">{t.helpSubtitle}</p>
+            <div className="help-navbar-cover" />
+            <div className="help-hero">
+                <button className="back-btn" onClick={() => navigate(-1)}>
+                    ← {language === "ru" ? "Назад" : language === "en" ? "Back" : "Înapoi"}
+                </button>
+                <div className="help-hero-content">
+                    <h1 className="help-title">{t.helpTitle}</h1>
+                    <p className="help-subtitle">{t.helpSubtitle}</p>
+                </div>
             </div>
 
             <div className="guide-section">
@@ -231,7 +222,7 @@ export default function HelpPage() {
                         <button
                             key={g.id}
                             className={`guide-tab ${activeGuide === g.id ? "guide-tab--active" : ""}`}
-                            style={activeGuide === g.id ? { background: g.color, borderColor: g.color } : {}}
+                            style={activeGuide === g.id ? { background: g.color, borderColor: g.color, color: "#fff" } : {}}
                             onClick={() => setActiveGuide(g.id)}
                         >
                             {getStepText(g.titleKey)}
@@ -259,84 +250,79 @@ export default function HelpPage() {
                 </div>
             </div>
 
-            <div className="help-search-wrap">
-                <input
-                    className="help-search"
-                    type="text"
-                    placeholder={t.helpSearchPlaceholder}
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-            </div>
+            <div className="faq-section">
+                <h2 className="section-title" style={{ marginBottom: "16px" }}>FAQ</h2>
 
-            <div className="help-stats">
-                {(Object.entries(categoryConfig) as [string, { color: string; bg: string }][]).map(([cat, cfg]) => (
-                    <div
-                        key={cat}
-                        className="stat-chip"
-                        style={{ background: cfg.bg, color: cfg.color }}
-                        onClick={() => { setActiveCategory(cat); setSearch(""); }}
-                    >
-                        <span className="stat-count">{lc.faqs.filter((f) => f.category === cat).length}</span>
-                        <span className="stat-label">{cats[cat as keyof typeof cats]}</span>
-                    </div>
-                ))}
-            </div>
+                <div className="help-search-wrap">
+                    <span className="search-icon">🔍</span>
+                    <input
+                        className="help-search"
+                        type="text"
+                        placeholder={t.helpSearchPlaceholder}
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
 
-            <div className="filter-tabs">
-                {[allLabel, ...Object.keys(cats)].map((cat) => (
-                    <button
-                        key={cat}
-                        className={`filter-tab ${activeCategory === cat ? "filter-tab--active" : ""}`}
-                        onClick={() => setActiveCategory(cat)}
-                    >
-                        {cat === allLabel ? allLabel : cats[cat as keyof typeof cats] ?? cat}
-                    </button>
-                ))}
-            </div>
-
-            <div className="faq-list">
-                {filtered.length === 0 && (
-                    <div className="empty-state">
-                        <p className="empty-text">{t.helpEmpty}</p>
-                    </div>
-                )}
-                {filtered.map((f) => {
-                    const cfg = categoryConfig[f.category];
-                    const isOpen = openId === f.id;
-                    return (
-                        <div
-                            key={f.id}
-                            className={`faq-card ${isOpen ? "faq-card--open" : ""}`}
-                            onClick={() => toggle(f.id)}
+                <div className="filter-tabs">
+                    {[allLabel, ...Object.keys(cats)].map((cat) => (
+                        <button
+                            key={cat}
+                            className={`filter-tab ${activeCategory === cat ? "filter-tab--active" : ""}`}
+                            onClick={() => setActiveCategory(cat)}
                         >
-                            <div className="faq-top">
-                                <div className="faq-left">
-                                    <span className="faq-badge" style={{ background: cfg.bg, color: cfg.color }}>
-                                        {cats[f.category as keyof typeof cats] ?? f.category}
-                                    </span>
-                                    <span className="faq-question">{f.question}</span>
-                                </div>
-                                <span className={`faq-arrow ${isOpen ? "faq-arrow--open" : ""}`}>›</span>
-                            </div>
-                            {isOpen && (
-                                <div className="faq-answer">
-                                    <p>{f.answer}</p>
-                                </div>
-                            )}
+                            {cat === allLabel ? allLabel : cats[cat as keyof typeof cats] ?? cat}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="faq-list">
+                    {filtered.length === 0 && (
+                        <div className="empty-state">
+                            <p className="empty-text">{t.helpEmpty}</p>
                         </div>
-                    );
-                })}
+                    )}
+                    {filtered.map((f) => {
+                        const cfg = categoryConfig[f.category];
+                        const isOpen = openId === f.id;
+                        return (
+                            <div
+                                key={f.id}
+                                className={`faq-card ${isOpen ? "faq-card--open" : ""}`}
+                                onClick={() => toggle(f.id)}
+                            >
+                                <div className="faq-top">
+                                    <div className="faq-left">
+                                        <span className="faq-cat-icon">{cfg.icon}</span>
+                                        <span className="faq-badge" style={{ background: cfg.bg, color: cfg.color }}>
+                                            {cats[f.category as keyof typeof cats] ?? f.category}
+                                        </span>
+                                        <span className="faq-question">{f.question}</span>
+                                    </div>
+                                    <span className={`faq-arrow ${isOpen ? "faq-arrow--open" : ""}`}>›</span>
+                                </div>
+                                {isOpen && (
+                                    <div className="faq-answer">
+                                        <p>{f.answer}</p>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
 
             <div className="help-contact">
-                <p className="contact-text">{t.helpContactText}</p>
+                <div className="contact-left">
+                    <span className="contact-icon">📩</span>
+                    <p className="contact-text">{t.helpContactText}</p>
+                </div>
                 <div className="contact-actions">
                     <a href="mailto:suport@cabinetmedical.md" className="contact-btn contact-btn--email">
-                        suport@cabinetmedical.md
+                        ✉️ suport@cabinetmedical.md
                     </a>
                     <a href="tel:+37369000000" className="contact-btn contact-btn--phone">
-                        +373 69 000 000
+                        📞 +373 69 000 000
                     </a>
                 </div>
             </div>
