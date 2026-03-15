@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './AppointmentsPage.css';
 import { useLanguage } from '../../context/LanguageContext';
 import Navbar from '../../shared/Navbar/Navbar';
 import Footer from '../../shared/Footer/Footer';
+import ReactDOM from 'react-dom';
 
 interface Doctor {
   id: number;
@@ -22,6 +23,102 @@ interface Appointment {
   reason: string;
   status: 'confirmed' | 'pending' | 'canceled';
 }
+
+interface CustomSelectProps {
+  options: { value: string; label: string }[];
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}
+
+const CustomSelect: React.FC<CustomSelectProps> = ({ options, value, onChange, placeholder }) => {
+  const [open, setOpen] = useState(false);
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
+  const ref = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const calculatePosition = () => {
+    if (toggleRef.current) {
+      const rect = toggleRef.current.getBoundingClientRect();
+      setMenuStyle({
+        position: 'fixed',
+        top: rect.bottom - 2,
+        left: rect.left,
+        width: rect.width,
+        zIndex: 9999,
+        background: 'white',
+        border: '2px solid #2563eb',
+        borderTop: 'none',
+        borderRadius: '0 0 20px 20px',
+        overflowY: 'auto',
+        maxHeight: '220px',
+        boxShadow: '0 8px 16px rgba(37, 99, 235, 0.15)',
+      });
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      const clickedInsideToggle = ref.current && ref.current.contains(target);
+      const clickedInsideMenu = menuRef.current && menuRef.current.contains(target);
+      if (!clickedInsideToggle && !clickedInsideMenu) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      const handleScroll = (e: Event) => {
+        if (menuRef.current && menuRef.current.contains(e.target as Node)) return;
+        calculatePosition();
+      };
+      window.addEventListener('scroll', handleScroll, true);
+      return () => window.removeEventListener('scroll', handleScroll, true);
+    }
+  }, [open]);
+
+  const handleToggle = () => {
+    if (!open) {
+      calculatePosition();
+    }
+    setOpen(!open);
+  };
+
+  const selected = options.find(o => o.value === value);
+
+  return (
+      <div className="custom-select-wrapper" ref={ref}>
+        <div
+            className={`custom-select-toggle ${open ? 'open' : ''}`}
+            onClick={handleToggle}
+            ref={toggleRef}
+        >
+          <span className={selected ? '' : 'placeholder'}>{selected ? selected.label : placeholder}</span>
+          <span className="custom-select-arrow">▾</span>
+        </div>
+        {open && ReactDOM.createPortal(
+            <div style={menuStyle} ref={menuRef}>
+              {options.map((option) => (
+                  <div
+                      key={option.value}
+                      className={`custom-select-item ${value === option.value ? 'selected' : ''}`}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => { onChange(option.value); setOpen(false); }}
+                  >
+                    {option.label}
+                  </div>
+              ))}
+            </div>,
+            document.body
+        )}
+      </div>
+  );
+};
 
 const AppointmentsPage: React.FC = () => {
   const { t } = useLanguage();
@@ -59,13 +156,12 @@ const AppointmentsPage: React.FC = () => {
     '12:00', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'
   ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleDoctorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const doctorId = e.target.value;
+  const handleDoctorChange = (doctorId: string) => {
     const selectedDoctor = doctors.find(d => d.id === parseInt(doctorId));
     setFormData(prev => ({
       ...prev,
@@ -127,116 +223,130 @@ const AppointmentsPage: React.FC = () => {
     }
   };
 
+  const doctorOptions = doctors.map(d => ({
+    value: String(d.id),
+    label: `${d.name} - ${t[d.specializationKey as keyof typeof t]}`
+  }));
+
+  const specializationOptions = specializationKeys.map(key => ({
+    value: t[key] as string,
+    label: t[key] as string
+  }));
+
+  const timeOptions = availableTimes.map(time => ({
+    value: time,
+    label: time
+  }));
+
   return (
-    <div className="appointments-page">
-      <Navbar />
-      <div className="appointments-container">
-        <h1 className="page-title">{t.apptTitle}</h1>
+      <>
+        <div className="appointments-page">
+          <Navbar />
+          <div className="appointments-container">
+            <h1 className="page-title">{t.apptTitle}</h1>
 
-        {showSuccess && (
-          <div className="success-message">{t.apptSuccess}</div>
-        )}
+            {showSuccess && (
+                <div className="success-message">{t.apptSuccess}</div>
+            )}
 
-        <div className="form-card">
-          <h2 className="section-title">{t.apptFormTitle}</h2>
-          <form onSubmit={handleSubmit} className="appointment-form">
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="patientName">{t.apptPatientName}</label>
-                <input type="text" id="patientName" name="patientName" value={formData.patientName} onChange={handleInputChange} required />
-              </div>
-              <div className="form-group">
-                <label htmlFor="phone">{t.apptPhone}</label>
-                <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleInputChange} required />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="email">{t.apptEmail}</label>
-              <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} required />
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="doctorId">{t.apptSelectDoctor}</label>
-                <select id="doctorId" name="doctorId" value={formData.doctorId} onChange={handleDoctorChange} required>
-                  <option value="">-- {t.apptSelectDoctor} --</option>
-                  {doctors.map(doctor => (
-                    <option key={doctor.id} value={doctor.id}>
-                      {doctor.name} - {t[doctor.specializationKey as keyof typeof t]}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="specialization">{t.apptSpecialization}</label>
-                <select id="specialization" name="specialization" value={formData.specialization} onChange={handleInputChange} required>
-                  <option value="">-- {t.apptSpecialization} --</option>
-                  {specializationKeys.map(key => (
-                    <option key={key} value={t[key] as string}>{t[key] as string}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="date">{t.apptDate}</label>
-                <input type="date" id="date" name="date" value={formData.date} onChange={handleInputChange} min={getMinDate()} max={getMaxDate()} required />
-              </div>
-              <div className="form-group">
-                <label htmlFor="time">{t.apptTime}</label>
-                <select id="time" name="time" value={formData.time} onChange={handleInputChange} required>
-                  <option value="">-- {t.apptTime} --</option>
-                  {availableTimes.map(time => (
-                    <option key={time} value={time}>{time}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="reason">{t.apptReason}</label>
-              <textarea id="reason" name="reason" value={formData.reason} onChange={handleInputChange} rows={4} required />
-            </div>
-
-            <button type="submit" className="submit-btn">{t.apptSubmit}</button>
-          </form>
-        </div>
-
-        {appointments.length > 0 && (
-          <div className="appointments-list-card">
-            <h2 className="section-title">{t.apptMyList}</h2>
-            <div className="appointments-grid">
-              {appointments.map(appointment => (
-                <div key={appointment.id} className="appointment-item">
-                  <div className="appointment-header">
-                    <h3>{appointment.patientName}</h3>
-                    <span className={`status-badge status-${appointment.status}`}>{getStatusLabel(appointment.status)}</span>
+            <div className="form-card">
+              <h2 className="section-title">{t.apptFormTitle}</h2>
+              <form onSubmit={handleSubmit} className="appointment-form">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>{t.apptPatientName}</label>
+                    <input type="text" name="patientName" value={formData.patientName} onChange={handleInputChange} required />
                   </div>
-                  <div className="appointment-details">
-                    <div className="detail-row"><span className="detail-label">{t.apptPhone}:</span><span className="detail-value">{appointment.phone}</span></div>
-                    <div className="detail-row"><span className="detail-label">{t.apptEmail}:</span><span className="detail-value">{appointment.email}</span></div>
-                    <div className="detail-row"><span className="detail-label">{t.adminDoctors}:</span><span className="detail-value">{appointment.doctor}</span></div>
-                    <div className="detail-row"><span className="detail-label">{t.apptSpecialization}:</span><span className="detail-value">{appointment.specialization}</span></div>
-                    <div className="detail-row"><span className="detail-label">{t.apptDate}:</span><span className="detail-value">{appointment.date}</span></div>
-                    <div className="detail-row"><span className="detail-label">{t.apptTime}:</span><span className="detail-value">{appointment.time}</span></div>
-                    <div className="detail-row"><span className="detail-label">{t.apptReason}:</span><span className="detail-value">{appointment.reason}</span></div>
+                  <div className="form-group">
+                    <label>{t.apptPhone}</label>
+                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required />
                   </div>
-                  {appointment.status !== 'canceled' && (
-                    <button className="cancel-btn" onClick={() => handleCancelAppointment(appointment.id)}>
-                      {t.apptCancel}
-                    </button>
-                  )}
                 </div>
-              ))}
+
+                <div className="form-group">
+                  <label>{t.apptEmail}</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} required />
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>{t.apptSelectDoctor}</label>
+                    <CustomSelect
+                        options={doctorOptions}
+                        value={formData.doctorId}
+                        onChange={handleDoctorChange}
+                        placeholder={`-- ${t.apptSelectDoctor} --`}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>{t.apptSpecialization}</label>
+                    <CustomSelect
+                        options={specializationOptions}
+                        value={formData.specialization}
+                        onChange={(val) => setFormData(prev => ({ ...prev, specialization: val }))}
+                        placeholder={`-- ${t.apptSpecialization} --`}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>{t.apptDate}</label>
+                    <input type="date" name="date" value={formData.date} onChange={handleInputChange} min={getMinDate()} max={getMaxDate()} required />
+                  </div>
+                  <div className="form-group">
+                    <label>{t.apptTime}</label>
+                    <CustomSelect
+                        options={timeOptions}
+                        value={formData.time}
+                        onChange={(val) => setFormData(prev => ({ ...prev, time: val }))}
+                        placeholder={`-- ${t.apptTime} --`}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>{t.apptReason}</label>
+                  <textarea name="reason" value={formData.reason} onChange={handleInputChange} rows={4} required />
+                </div>
+
+                <button type="submit" className="submit-btn">{t.apptSubmit}</button>
+              </form>
             </div>
+
+            {appointments.length > 0 && (
+                <div className="appointments-list-card">
+                  <h2 className="section-title">{t.apptMyList}</h2>
+                  <div className="appointments-grid">
+                    {appointments.map(appointment => (
+                        <div key={appointment.id} className="appointment-item">
+                          <div className="appointment-header">
+                            <h3>{appointment.patientName}</h3>
+                            <span className={`status-badge status-${appointment.status}`}>{getStatusLabel(appointment.status)}</span>
+                          </div>
+                          <div className="appointment-details">
+                            <div className="detail-row"><span className="detail-label">{t.apptPhone}:</span><span className="detail-value">{appointment.phone}</span></div>
+                            <div className="detail-row"><span className="detail-label">{t.apptEmail}:</span><span className="detail-value">{appointment.email}</span></div>
+                            <div className="detail-row"><span className="detail-label">{t.adminDoctors}:</span><span className="detail-value">{appointment.doctor}</span></div>
+                            <div className="detail-row"><span className="detail-label">{t.apptSpecialization}:</span><span className="detail-value">{appointment.specialization}</span></div>
+                            <div className="detail-row"><span className="detail-label">{t.apptDate}:</span><span className="detail-value">{appointment.date}</span></div>
+                            <div className="detail-row"><span className="detail-label">{t.apptTime}:</span><span className="detail-value">{appointment.time}</span></div>
+                            <div className="detail-row"><span className="detail-label">{t.apptReason}:</span><span className="detail-value">{appointment.reason}</span></div>
+                          </div>
+                          {appointment.status !== 'canceled' && (
+                              <button className="cancel-btn" onClick={() => handleCancelAppointment(appointment.id)}>
+                                {t.apptCancel}
+                              </button>
+                          )}
+                        </div>
+                    ))}
+                  </div>
+                </div>
+            )}
           </div>
-        )}
-      </div>
-      <Footer />
-    </div>
+        </div>
+        <Footer />
+      </>
   );
 };
 
