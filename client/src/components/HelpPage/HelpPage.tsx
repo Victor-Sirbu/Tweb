@@ -122,11 +122,11 @@ const content: Record<string, LangContent> = {
 };
 
 const categoryConfig: Record<string, { color: string; bg: string; icon: string }> = {
-    "Programari": { color: "#3a7bd5", bg: "#dbeafe", icon: "📅" },
-    "Medici":     { color: "#0d9488", bg: "#ccfbf1", icon: "👨‍⚕️" },
-    "Pacienti":   { color: "#7c3aed", bg: "#ede9fe", icon: "👤" },
-    "Notificari": { color: "#d97706", bg: "#fef3c7", icon: "🔔" },
-    "Cont":       { color: "#6b7280", bg: "#f3f4f6", icon: "⚙️" },
+    "Programari": { color: "#3a7bd5", bg: "#dbeafe", icon: "" },
+    "Medici":     { color: "#0d9488", bg: "#ccfbf1", icon: "" },
+    "Pacienti":   { color: "#7c3aed", bg: "#ede9fe", icon: "" },
+    "Notificari": { color: "#d97706", bg: "#fef3c7", icon: "" },
+    "Cont":       { color: "#6b7280", bg: "#f3f4f6", icon: "" },
 };
 
 export default function HelpPage() {
@@ -231,7 +231,7 @@ export default function HelpPage() {
 
             <div className="help-contact">
                 <div className="contact-left">
-                    <span className="contact-icon">📩</span>
+                    <span className="contact-icon"></span>
                     <p className="contact-text">{t.helpContactText}</p>
                 </div>
                 <div className="contact-actions">
@@ -239,7 +239,7 @@ export default function HelpPage() {
                         ✉️ suport@cabinetmedical.md
                     </a>
                     <a href="tel:+37369000000" className="contact-btn contact-btn--phone">
-                        📞 +373 69 000 000
+                         +373 69 000 000
                     </a>
                 </div>
             </div>
