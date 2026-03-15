@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./NotificationsPage.css";
 import { useLanguage } from "../../context/LanguageContext";
 
@@ -24,6 +25,7 @@ const initialNotifications: Notification[] = [
 
 export default function NotificationsPage() {
     const { t, language } = useLanguage();
+    const navigate = useNavigate();
     const [notifications, setNotifications] = useState(initialNotifications);
     const [filtru, setFiltru] = useState("all");
     const [selected, setSelected] = useState<Notification | null>(null);
@@ -46,6 +48,12 @@ export default function NotificationsPage() {
     const deleteNotif = (id: number) => {
         setNotifications((prev) => prev.filter((n) => n.id !== id));
         if (selected?.id === id) setSelected(null);
+    };
+
+    const getBackLabel = () => {
+        if (language === "ru") return "Назад";
+        if (language === "en") return "Back";
+        return "Înapoi";
     };
 
     const getTypeConfig = (type: string) => {
@@ -85,6 +93,9 @@ export default function NotificationsPage() {
     return (
         <div className="notif-page">
             <div className="notif-header">
+                <button className="back-btn" onClick={() => navigate(-1)}>
+                    ← {getBackLabel()}
+                </button>
                 <h1 className="notif-title">{t.notifTitle}</h1>
             </div>
 
