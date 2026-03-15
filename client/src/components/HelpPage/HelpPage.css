@@ -7,7 +7,7 @@
 
 .help-hero {
     background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
-    padding: 90px 40px 40px 40px;
+    padding: 28px 40px 36px 40px;
     margin-bottom: 28px;
     overflow: hidden;
 }
@@ -106,14 +106,7 @@
     margin-top: 2px;
 }
 
-.guide-section {
-    background: #ffffff;
-    border-radius: 16px;
-    border: 1px solid #e5e9ef;
-    padding: 24px 28px;
-    margin: 0 40px 28px 40px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
+
 
 .section-title {
     font-size: 17px;
@@ -128,46 +121,6 @@
     margin: 0 0 20px 0;
 }
 
-.guide-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-}
-
-.guide-tab {
-    padding: 8px 18px;
-    border-radius: 25px;
-    border: 1.5px solid #d8dee6;
-    background: #ffffff;
-    color: #6b7280;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: inherit;
-}
-
-.guide-tab:hover {
-    border-color: #3a7bd5;
-    color: #3a7bd5;
-    background: #eff6ff;
-}
-
-.guide-tab--active {
-    font-weight: 600;
-}
-
-.guide-steps {
-    display: flex;
-    flex-direction: column;
-}
-
-.guide-step {
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-}
 
 .step-left {
     display: flex;
@@ -187,6 +140,7 @@
     font-weight: 800;
     flex-shrink: 0;
 }
+
 
 .step-line {
     width: 2px;

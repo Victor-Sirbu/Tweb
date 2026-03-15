@@ -10,54 +10,7 @@ type FaqItem = {
     answer: string;
 };
 
-type Guide = {
-    id: number;
-    titleKey: string;
-    color: string;
-    bg: string;
-    stepsKeys: { step: number; titleKey: string; descKey: string }[];
-};
 
-const guideIds: Guide[] = [
-    {
-        id: 1,
-        titleKey: "guide1",
-        color: "#3a7bd5",
-        bg: "#dbeafe",
-        stepsKeys: [
-            { step: 1, titleKey: "g1s1t", descKey: "g1s1d" },
-            { step: 2, titleKey: "g1s2t", descKey: "g1s2d" },
-            { step: 3, titleKey: "g1s3t", descKey: "g1s3d" },
-            { step: 4, titleKey: "g1s4t", descKey: "g1s4d" },
-            { step: 5, titleKey: "g1s5t", descKey: "g1s5d" },
-        ],
-    },
-    {
-        id: 2,
-        titleKey: "guide2",
-        color: "#7c3aed",
-        bg: "#ede9fe",
-        stepsKeys: [
-            { step: 1, titleKey: "g2s1t", descKey: "g2s1d" },
-            { step: 2, titleKey: "g2s2t", descKey: "g2s2d" },
-            { step: 3, titleKey: "g2s3t", descKey: "g2s3d" },
-            { step: 4, titleKey: "g2s4t", descKey: "g2s4d" },
-            { step: 5, titleKey: "g2s5t", descKey: "g2s5d" },
-        ],
-    },
-    {
-        id: 3,
-        titleKey: "guide3",
-        color: "#0d9488",
-        bg: "#ccfbf1",
-        stepsKeys: [
-            { step: 1, titleKey: "g3s1t", descKey: "g3s1d" },
-            { step: 2, titleKey: "g3s2t", descKey: "g3s2d" },
-            { step: 3, titleKey: "g3s3t", descKey: "g3s3d" },
-            { step: 4, titleKey: "g3s4t", descKey: "g3s4d" },
-        ],
-    },
-];
 
 type LangContent = {
     guide1: string; guide2: string; guide3: string;
@@ -183,7 +136,7 @@ export default function HelpPage() {
     const [activeCategory, setActiveCategory] = useState("Toate");
     const [openId, setOpenId] = useState<number | null>(null);
     const [search, setSearch] = useState("");
-    const [activeGuide, setActiveGuide] = useState<number>(1);
+
 
     const cats = lc.cats;
     const allLabel = language === "ru" ? "Все" : language === "en" ? "All" : "Toate";
@@ -197,58 +150,22 @@ export default function HelpPage() {
     });
 
     const toggle = (id: number) => setOpenId((prev) => (prev === id ? null : id));
-    const selectedGuide = guideIds.find((g) => g.id === activeGuide)!;
-    const getStepText = (key: string) => (lc as unknown as Record<string, string>)[key] ?? key;
+
 
     return (
         <div className="help-page">
-            <div className="help-navbar-cover" />
             <div className="help-hero">
-                <button className="back-btn" onClick={() => navigate(-1)}>
-                    ← {language === "ru" ? "Назад" : language === "en" ? "Back" : "Înapoi"}
-                </button>
+                <div className="help-hero-top">
+                    <button className="back-btn" onClick={() => navigate(-1)}>
+                        ← {language === "ru" ? "Назад" : language === "en" ? "Back" : "Înapoi"}
+                    </button>
+                </div>
                 <div className="help-hero-content">
                     <h1 className="help-title">{t.helpTitle}</h1>
                     <p className="help-subtitle">{t.helpSubtitle}</p>
                 </div>
             </div>
 
-            <div className="guide-section">
-                <h2 className="section-title">{t.helpGuideTitle}</h2>
-                <p className="section-subtitle">{t.helpGuideSub}</p>
-
-                <div className="guide-tabs">
-                    {guideIds.map((g) => (
-                        <button
-                            key={g.id}
-                            className={`guide-tab ${activeGuide === g.id ? "guide-tab--active" : ""}`}
-                            style={activeGuide === g.id ? { background: g.color, borderColor: g.color, color: "#fff" } : {}}
-                            onClick={() => setActiveGuide(g.id)}
-                        >
-                            {getStepText(g.titleKey)}
-                        </button>
-                    ))}
-                </div>
-
-                <div className="guide-steps">
-                    {selectedGuide.stepsKeys.map((s, index) => (
-                        <div key={s.step} className="guide-step">
-                            <div className="step-left">
-                                <div className="step-number" style={{ background: selectedGuide.bg, color: selectedGuide.color }}>
-                                    {s.step}
-                                </div>
-                                {index < selectedGuide.stepsKeys.length - 1 && (
-                                    <div className="step-line" style={{ background: selectedGuide.bg }} />
-                                )}
-                            </div>
-                            <div className="step-content">
-                                <span className="step-title">{getStepText(s.titleKey)}</span>
-                                <p className="step-desc">{getStepText(s.descKey)}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
 
             <div className="faq-section">
                 <h2 className="section-title" style={{ marginBottom: "16px" }}>FAQ</h2>
