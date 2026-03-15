@@ -1,5 +1,4 @@
 import "./LoginPage.css";
-import doctor from "../../assets/doctor.png";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -51,16 +50,6 @@ const LoginPage = () => {
         <div className="page">
             <div className="card">
 
-                <div className="left">
-                    <h2>
-                        Protejează-te pe tine și familia ta — <br />
-                        Programări online ușoare.
-                    </h2>
-                    <div className="image-box">
-                        <img src={doctor} alt="doctor" />
-                    </div>
-                </div>
-
                 <div className={`right ${!isExistingPatient ? 'scroll-enabled' : ''}`}>
                     <div className="login-header">
                         <h2>{isExistingPatient ? t.loginTitle : t.registerTitle}</h2>
@@ -111,8 +100,6 @@ const LoginPage = () => {
 
                                 <button type="submit" className="login-btn">{t.loginBtn}</button>
                             </form>
-
-                            <a href="#" className="code-login">{t.loginWithCode}</a>
                         </>
                     ) : (
                         <form className="form">

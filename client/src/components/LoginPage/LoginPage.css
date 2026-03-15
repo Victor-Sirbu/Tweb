@@ -10,64 +10,21 @@
 
 .card {
     width: 100%;
-    max-width: 1200px;
-    max-height: calc(100vh - 80px);
+    max-width: 550px;
+    max-height: calc(100vh - 20px);
     background: white;
     border-radius: 30px;
-    padding: 60px;
+    padding: 50px 60px;
     box-shadow: 0 25px 70px rgba(0, 0, 0, 0.1);
     display: flex;
+    justify-content: center;
+    align-items: center;
     overflow: hidden;
 }
 
-.left {
-    width: 50%;
-    padding: 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.left h2 {
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 30px;
-    color: #1a1a1a;
-}
-
-.image-box {
-    background: #1e90ff;
-    border-radius: 20px;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-}
-
-.image-box img {
-    width: 240px;
-    position: relative;
-}
-
-.stats {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    display: flex;
-    gap: 15px;
-}
-
-
-.stats span {
-    background: white;
-    padding: 8px 14px;
-    border-radius: 10px;
-    font-size: 13px;
-}
-
-
 .right {
-    width: 50%;
-    padding: 50px;
+    width: 100%;
+    padding: 0;
     display: flex;
     flex-direction: column;
     overflow-y: hidden;
@@ -233,13 +190,6 @@
     font-size: 14px;
 }
 
-.code-login {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 14px;
-    color: #1e90ff;
-    text-decoration: none;
-}
 
 /* Date of Birth Inputs */
 .date-inputs {
@@ -354,4 +304,40 @@
 
 .dropdown-option:not(:last-child) {
     border-bottom: 1px solid #f0f0f0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page {
+        padding: 20px;
+    }
+
+    .card {
+        max-width: 100%;
+        padding: 30px 25px;
+    }
+
+    .login-header h2 {
+        font-size: 20px;
+    }
+
+    .tab-btn {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 25px 20px;
+    }
+
+    .patient-tabs {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .tab-btn {
+        width: 100%;
+    }
 }
