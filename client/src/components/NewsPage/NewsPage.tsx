@@ -2,6 +2,7 @@ import "./NewsPage.css";
 import { useState } from "react";
 import Navbar from "../../shared/Navbar/Navbar";
 import Footer from "../../shared/Footer/Footer";
+import HeroSlider from "../../shared/HeroSlider/HeroSlider";
 import NewsModal from "./NewsModal";
 import { newsData } from "./mockNewsData";
 import type { NewsItem, NewsCategory } from "./mockNewsData";
@@ -38,12 +39,7 @@ const NewsPage = () => {
     return (
         <div className="news-page">
             <Navbar />
-            <div className="news-hero">
-                <div className="news-hero-content">
-                    <h1 className="news-hero-title">{t.newsTitle}</h1>
-                    <p className="news-hero-subtitle">{t.newsSubtitle}</p>
-                </div>
-            </div>
+            <HeroSlider />
             <div className="news-container">
                 <div className="news-filters">
                     <button className={`filter-btn ${selectedCategory === "all" ? "active" : ""}`} onClick={() => setSelectedCategory("all")}>{labels.all}</button>
