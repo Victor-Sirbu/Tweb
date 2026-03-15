@@ -1,6 +1,7 @@
 import "./ContactPage.css";
 import Navbar from "../../shared/Navbar/Navbar";
 import Footer from "../../shared/Footer/Footer";
+import HeroSlider from "../../shared/HeroSlider/HeroSlider";
 import { useState } from "react";
 import { useLanguage } from "../../context/LanguageContext";
 
@@ -35,13 +36,7 @@ const ContactPage = () => {
         <div className="contact-page">
             <Navbar />
 
-            <div className="contact-hero">
-                <div className="contact-hero-overlay"></div>
-                <div className="contact-hero-container">
-                    <h1 className="contact-hero-title">{t.contactTitle}</h1>
-                    <p className="contact-hero-description">{t.contactSubtitle}</p>
-                </div>
-            </div>
+            <HeroSlider />
 
             <div className="contact-content">
                 <div className="contact-container">

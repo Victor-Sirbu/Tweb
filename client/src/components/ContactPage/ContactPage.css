@@ -10,51 +10,6 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
-/* Hero Section */
-.contact-hero {
-    min-height: 50vh;
-    background: linear-gradient(135deg, #1e90ff 0%, #0066cc 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 120px 40px 80px;
-    position: relative;
-    text-align: center;
-}
-
-.contact-hero-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.1);
-    z-index: 1;
-}
-
-.contact-hero-container {
-    position: relative;
-    z-index: 2;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.contact-hero-title {
-    font-size: 52px;
-    font-weight: 800;
-    color: white;
-    margin-bottom: 20px;
-    line-height: 1.2;
-}
-
-.contact-hero-description {
-    font-size: 18px;
-    color: rgba(255, 255, 255, 0.95);
-    line-height: 1.6;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
 /* Content Section */
 .contact-content {
     padding: 80px 40px;
@@ -212,19 +167,6 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .contact-hero {
-        min-height: 40vh;
-        padding: 100px 24px 60px;
-    }
-
-    .contact-hero-title {
-        font-size: 36px;
-    }
-
-    .contact-hero-description {
-        font-size: 16px;
-    }
-
     .contact-content {
         padding: 60px 24px;
     }
