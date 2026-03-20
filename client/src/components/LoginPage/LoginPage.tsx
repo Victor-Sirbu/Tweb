@@ -103,14 +103,17 @@ const LoginPage = () => {
                         </>
                     ) : (
                         <form className="form">
-                            <div className="field">
-                                <label>{t.firstName}</label>
-                                <input type="text" placeholder="Introdu prenumele" />
-                            </div>
 
-                            <div className="field">
-                                <label>{t.lastName}</label>
-                                <input type="text" placeholder="Introdu numele" />
+                            {/* Prenume + Nume pe același rând */}
+                            <div className="field-row">
+                                <div className="field">
+                                    <label>{t.firstName}</label>
+                                    <input type="text" placeholder="Introdu prenumele" />
+                                </div>
+                                <div className="field">
+                                    <label>{t.lastName}</label>
+                                    <input type="text" placeholder="Introdu numele" />
+                                </div>
                             </div>
 
                             <div className="field">
@@ -118,42 +121,44 @@ const LoginPage = () => {
                                 <input type="email" placeholder="exemplu@email.com" />
                             </div>
 
-                            <div className="field">
-                                <label>{t.phone}</label>
-                                <input type="text" placeholder="+373 xx xxx xxx" />
+                            {/* Telefon + Gen pe același rând */}
+                            <div className="field-row">
+                                <div className="field">
+                                    <label>{t.phone}</label>
+                                    <input type="text" placeholder="+373 xx xxx xxx" />
+                                </div>
+                                <div className="field">
+                                    <label>{t.gender}</label>
+                                    <div className="custom-dropdown">
+                                        <div className="dropdown-header" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                                            <span>{selectedGender || t.selectGender}</span>
+                                            <span className={`dropdown-arrow ${isDropdownOpen ? "open" : ""}`}>▼</span>
+                                        </div>
+                                        {isDropdownOpen && (
+                                            <div className="dropdown-list">
+                                                {genderOptions.map((option) => (
+                                                    <div key={option} className="dropdown-option"
+                                                         onClick={() => { setSelectedGender(option); setIsDropdownOpen(false); }}>
+                                                        {option}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="field">
                                 <label>{t.birthDate}</label>
                                 <div className="date-inputs">
                                     <input type="number" placeholder={t.day} min="1" max="31" value={birthDay}
-                                        onChange={(e) => { setBirthDay(e.target.value); validateDate(e.target.value, birthMonth, birthYear); }} className="date-input" />
+                                           onChange={(e) => { setBirthDay(e.target.value); validateDate(e.target.value, birthMonth, birthYear); }} className="date-input" />
                                     <input type="number" placeholder={t.month} min="1" max="12" value={birthMonth}
-                                        onChange={(e) => { setBirthMonth(e.target.value); validateDate(birthDay, e.target.value, birthYear); }} className="date-input" />
+                                           onChange={(e) => { setBirthMonth(e.target.value); validateDate(birthDay, e.target.value, birthYear); }} className="date-input" />
                                     <input type="number" placeholder={t.year} min="1900" max={currentYear} value={birthYear}
-                                        onChange={(e) => { setBirthYear(e.target.value); validateDate(birthDay, birthMonth, e.target.value); }} className="date-input" />
+                                           onChange={(e) => { setBirthYear(e.target.value); validateDate(birthDay, birthMonth, e.target.value); }} className="date-input" />
                                 </div>
                                 {dateError && <span className="error-message">{dateError}</span>}
-                            </div>
-
-                            <div className="field">
-                                <label>{t.gender}</label>
-                                <div className="custom-dropdown">
-                                    <div className="dropdown-header" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-                                        <span>{selectedGender || t.selectGender}</span>
-                                        <span className={`dropdown-arrow ${isDropdownOpen ? "open" : ""}`}>▼</span>
-                                    </div>
-                                    {isDropdownOpen && (
-                                        <div className="dropdown-list">
-                                            {genderOptions.map((option) => (
-                                                <div key={option} className="dropdown-option"
-                                                    onClick={() => { setSelectedGender(option); setIsDropdownOpen(false); }}>
-                                                    {option}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
                             </div>
 
                             <button type="submit" className="login-btn">{t.registerBtn}</button>
