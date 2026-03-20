@@ -8,6 +8,7 @@ import heroBg4 from "../../assets/hero-bg4.jpg";
 import heroBg5 from "../../assets/hero-bg5.jpg";
 import { useState, useEffect } from "react";
 import { useLanguage } from "../../context/LanguageContext";
+import { translateSpecialization } from "../../utils/translateSpecialization";
 import { useNavigate } from "react-router-dom";
 import testPdf from "../../assets/test-result.pdf";
 
@@ -282,7 +283,7 @@ const ProfilePage = () => {
                                                 <div className="doctor-avatar-sm">{p.initials}</div>
                                                 <div className="appointment-info">
                                                     <h3 className="appointment-doctor">{p.doctor}</h3>
-                                                    <p className="appointment-specialty">{p.specialty}</p>
+                                                    <p className="appointment-specialty">{translateSpecialization(p.specialty, language)}</p>
                                                 </div>
                                             </div>
                                             <div className="appointment-center">

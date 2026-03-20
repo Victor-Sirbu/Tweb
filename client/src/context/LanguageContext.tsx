@@ -830,10 +830,10 @@ const translations: Record<Language, Translations> = {
         msDuration: "Длительность",
         msBookBtn: "Записаться →",
         msCatAll: "Все",
-        msCatGeneral: "Generala",
-        msCatSpec: "Specialitate",
-        msCatLab: "Laborator",
-        msCatImaging: "Imagistica",
+        msCatGeneral: "Общая",
+        msCatSpec: "Специализация",
+        msCatLab: "Лаборатория",
+        msCatImaging: "Визуализация",
 
         // ContactPage
         contactTitle: "Контакты и поддержка",
@@ -1162,10 +1162,10 @@ const translations: Record<Language, Translations> = {
         msDuration: "Duration",
         msBookBtn: "Book →",
         msCatAll: "All",
-        msCatGeneral: "Generala",
-        msCatSpec: "Specialitate",
-        msCatLab: "Laborator",
-        msCatImaging: "Imagistica",
+        msCatGeneral: "General",
+        msCatSpec: "Specialty",
+        msCatLab: "Laboratory",
+        msCatImaging: "Imaging",
 
         // ContactPage
         contactTitle: "Contact & Support",

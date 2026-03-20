@@ -3,6 +3,7 @@ import './AdminDashboard.css';
 import { useLanguage } from '../../context/LanguageContext';
 import AdminNavbar from '../../shared/AdminNavbar/AdminNavbar';
 import Footer from '../../shared/Footer/Footer';
+import { getSpecializationLabel, translateSpecialization } from '../../utils/translateSpecialization';
 
 interface Patient {
   id: number;
@@ -35,7 +36,7 @@ interface Appointment {
 }
 
 const AdminDashboard: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeSection, setActiveSection] = useState<'statistici' | 'programari' | 'pacienti' | 'medici'>('pacienti');
   const [patients, setPatients] = useState<Patient[]>([
     { id: 1, name: 'Maria Popescu', age: 34, phone: '0721234567', email: 'maria.popescu@email.com', lastVisit: '2024-02-15', status: 'Active', avatar: 'MP' },
@@ -400,7 +401,7 @@ const AdminDashboard: React.FC = () => {
                                   <span>{doctor.name}</span>
                                 </div>
                               </td>
-                              <td>{doctor.specialization}</td>
+                              <td>{translateSpecialization(doctor.specialization, language)}</td>
                               <td>{doctor.phone}</td>
                               <td>{doctor.email}</td>
                               <td><span className={`status-badge ${doctor.status.toLowerCase()}`}>{doctor.status === 'Active' ? t.adminActive : t.adminInactive}</span></td>
@@ -434,8 +435,10 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <form onSubmit={handlePatientSubmit}>
                   <div className="form-group"><label>{t.adminName}</label><input type="text" required value={patientFormData.name} onChange={(e) => setPatientFormData({ ...patientFormData, name: e.target.value })} /></div>
-                  <div className="form-group"><label>{t.adminAge}</label><input type="number" required value={patientFormData.age} onChange={(e) => setPatientFormData({ ...patientFormData, age: e.target.value })} /></div>
-                  <div className="form-group"><label>{t.adminPhone}</label><input type="tel" required value={patientFormData.phone} onChange={(e) => setPatientFormData({ ...patientFormData, phone: e.target.value })} /></div>
+                  <div className="form-row">
+                    <div className="form-group"><label>{t.adminAge}</label><input type="number" required value={patientFormData.age} onChange={(e) => setPatientFormData({ ...patientFormData, age: e.target.value })} /></div>
+                    <div className="form-group"><label>{t.adminPhone}</label><input type="tel" required value={patientFormData.phone} onChange={(e) => setPatientFormData({ ...patientFormData, phone: e.target.value })} /></div>
+                  </div>
                   <div className="form-group"><label>{t.adminEmail}</label><input type="email" required value={patientFormData.email} onChange={(e) => setPatientFormData({ ...patientFormData, email: e.target.value })} /></div>
                   <div className="form-group">
                     <label>{t.adminStatus}</label>
@@ -473,14 +476,18 @@ const AdminDashboard: React.FC = () => {
             <div className="modal-overlay" onClick={() => setShowDoctorModal(false)}>
               <div className="modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
-                  <h2>{editingDoctor ? 'Editează Medic' : 'Adaugă Medic'}</h2>
+                  <h2>{editingDoctor ? (language === 'ru' ? 'Редактировать врача' : language === 'en' ? 'Edit Doctor' : 'Editează Medic') : (language === 'ru' ? 'Добавить врача' : language === 'en' ? 'Add Doctor' : 'Adaugă Medic')}</h2>
                   <button className="modal-close" onClick={() => setShowDoctorModal(false)}>&times;</button>
                 </div>
                 <form onSubmit={handleDoctorSubmit}>
-                  <div className="form-group"><label>{t.adminName}</label><input type="text" required value={doctorFormData.name} onChange={(e) => setDoctorFormData({ ...doctorFormData, name: e.target.value })} /></div>
-                  <div className="form-group"><label>Specializare</label><input type="text" required value={doctorFormData.specialization} onChange={(e) => setDoctorFormData({ ...doctorFormData, specialization: e.target.value })} /></div>
-                  <div className="form-group"><label>{t.adminPhone}</label><input type="tel" required value={doctorFormData.phone} onChange={(e) => setDoctorFormData({ ...doctorFormData, phone: e.target.value })} /></div>
-                  <div className="form-group"><label>{t.adminEmail}</label><input type="email" required value={doctorFormData.email} onChange={(e) => setDoctorFormData({ ...doctorFormData, email: e.target.value })} /></div>
+                  <div className="form-row">
+                    <div className="form-group"><label>{t.adminName}</label><input type="text" required value={doctorFormData.name} onChange={(e) => setDoctorFormData({ ...doctorFormData, name: e.target.value })} /></div>
+                    <div className="form-group"><label>{getSpecializationLabel(language)}</label><input type="text" required value={doctorFormData.specialization} onChange={(e) => setDoctorFormData({ ...doctorFormData, specialization: e.target.value })} /></div>
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group"><label>{t.adminPhone}</label><input type="tel" required value={doctorFormData.phone} onChange={(e) => setDoctorFormData({ ...doctorFormData, phone: e.target.value })} /></div>
+                    <div className="form-group"><label>{t.adminEmail}</label><input type="email" required value={doctorFormData.email} onChange={(e) => setDoctorFormData({ ...doctorFormData, email: e.target.value })} /></div>
+                  </div>
                   <div className="form-group">
                     <label>{t.adminStatus}</label>
                     <div className="custom-dropdown">
@@ -517,14 +524,18 @@ const AdminDashboard: React.FC = () => {
             <div className="modal-overlay" onClick={() => setShowAppointmentModal(false)}>
               <div className="modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
-                  <h2>{editingAppointment ? 'Editează Programare' : 'Adaugă Programare'}</h2>
+                  <h2>{editingAppointment ? (language === 'ru' ? 'Редактировать запись' : language === 'en' ? 'Edit Appointment' : 'Editează Programare') : (language === 'ru' ? 'Добавить запись' : language === 'en' ? 'Add Appointment' : 'Adaugă Programare')}</h2>
                   <button className="modal-close" onClick={() => setShowAppointmentModal(false)}>&times;</button>
                 </div>
                 <form onSubmit={handleAppointmentSubmit}>
-                  <div className="form-group"><label>Data</label><input type="date" required value={appointmentFormData.date} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, date: e.target.value })} /></div>
-                  <div className="form-group"><label>Ora</label><input type="time" required value={appointmentFormData.time} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, time: e.target.value })} /></div>
-                  <div className="form-group"><label>Pacient</label><input type="text" required value={appointmentFormData.patientName} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, patientName: e.target.value })} /></div>
-                  <div className="form-group"><label>Medic</label><input type="text" required value={appointmentFormData.doctorName} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, doctorName: e.target.value })} /></div>
+                  <div className="form-row">
+                    <div className="form-group"><label>{language === 'ru' ? 'Дата' : language === 'en' ? 'Date' : 'Data'}</label><input type="date" required value={appointmentFormData.date} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, date: e.target.value })} /></div>
+                    <div className="form-group"><label>{language === 'ru' ? 'Время' : language === 'en' ? 'Time' : 'Ora'}</label><input type="time" required value={appointmentFormData.time} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, time: e.target.value })} /></div>
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group"><label>{language === 'ru' ? 'Пациент' : language === 'en' ? 'Patient' : 'Pacient'}</label><input type="text" required value={appointmentFormData.patientName} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, patientName: e.target.value })} /></div>
+                    <div className="form-group"><label>{language === 'ru' ? 'Врач' : language === 'en' ? 'Doctor' : 'Medic'}</label><input type="text" required value={appointmentFormData.doctorName} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, doctorName: e.target.value })} /></div>
+                  </div>
                   <div className="form-group">
                     <label>{t.adminStatus}</label>
                     <div className="custom-dropdown">
