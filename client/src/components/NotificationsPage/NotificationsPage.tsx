@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./NotificationsPage.css";
 import { useLanguage } from "../../context/LanguageContext";
@@ -7,9 +7,14 @@ import { useNotifications, type Notification } from "../../context/NotificationC
 export default function NotificationsPage() {
     const { t, language } = useLanguage();
     const navigate = useNavigate();
-    const { notifications, unreadCount, setNotifications, markAllRead, deleteNotification } = useNotifications();
+    const { notifications, unreadCount, setNotifications, markAllRead, deleteNotification, updateLanguage } = useNotifications();
     const [filtru, setFiltru] = useState("all");
     const [selected, setSelected] = useState<Notification | null>(null);
+
+    // Update notifications when language changes
+    useEffect(() => {
+        updateLanguage(language);
+    }, [language, updateLanguage]);
 
     const filtered = notifications.filter((n) => {
         if (filtru === "unread") return !n.read;
@@ -143,13 +148,6 @@ export default function NotificationsPage() {
                                     <span className="notif-time">{n.time}</span>
                                 </div>
                             </div>
-                            <button
-                                className="btn-delete"
-                                onClick={(e) => { e.stopPropagation(); deleteNotif(n.id); }}
-                                title={t.notifDelete}
-                            >
-                                ✕
-                            </button>
                         </div>
                     );
                 })}
