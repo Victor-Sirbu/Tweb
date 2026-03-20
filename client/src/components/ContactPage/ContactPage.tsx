@@ -13,7 +13,7 @@ interface FormData {
 }
 
 const ContactPage = () => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [formData, setFormData] = useState<FormData>({
         name: "",
         email: "",
@@ -32,11 +32,58 @@ const ContactPage = () => {
         setFormData({ name: "", email: "", subject: "", message: "" });
     };
 
+    const contactMethods = [
+        {
+            icon: language === "ro" ? "TELEFON" : language === "ru" ? "ТЕЛЕФОН" : "PHONE",
+            title: language === "ro" ? "Sună-ne acum" : language === "ru" ? "Позвоните нам" : "Call us now",
+            detail: "+373 22 123 456",
+            subdetail: "+373 79 123 456"
+        },
+        {
+            icon: language === "ro" ? "EMAIL" : language === "ru" ? "ПОЧТА" : "EMAIL",
+            title: language === "ro" ? "Scrie-ne" : language === "ru" ? "Напишите нам" : "Write to us",
+            detail: "contact@clinica.md",
+            subdetail: "programari@clinica.md"
+        },
+        {
+            icon: language === "ro" ? "LOCAȚIE" : language === "ru" ? "ЛОКАЦИЯ" : "LOCATION",
+            title: language === "ro" ? "Vizitează-ne" : language === "ru" ? "Посетите нас" : "Visit us",
+            detail: "Str. Mihai Eminescu 47",
+            subdetail: "Chișinău, MD-2012"
+        }
+    ];
+
     return (
         <div className="contact-page">
             <Navbar />
 
-            <HeroSlider />
+            <HeroSlider
+                badge={language === "ro" ? "CONTACTEAZĂ-NE" : language === "ru" ? "СВЯЖИТЕСЬ С НАМИ" : "CONTACT US"}
+                title1={language === "ro" ? "Suntem mereu aici pentru" : language === "ru" ? "Мы всегда здесь для" : "We are always here for"}
+                title2={language === "ro" ? "Sănătatea Ta" : language === "ru" ? "Вашего Здоровья" : "Your Health"}
+                description={
+                    language === "ro"
+                        ? "Contactați-ne pentru programări medicale, consultații, întrebări sau feedback. Echipa noastră profesionistă de specialiști este pregătită să vă ofere îngrijirea medicală de care aveți nevoie și să răspundă tuturor întrebărilor dumneavoastră."
+                        : language === "ru"
+                        ? "Свяжитесь с нами для медицинских записей, консультаций, вопросов или отзывов. Наша профессиональная команда специалистов готова предоставить вам необходимую медицинскую помощь и ответить на все ваши вопросы."
+                        : "Contact us for medical appointments, consultations, questions or feedback. Our professional team of specialists is ready to provide you with the healthcare you need and answer all your questions."
+                }
+                showButtons={false}
+                showStats={false}
+                showScheduleCard={false}
+                customContent={
+                    <div className="contact-hero-methods">
+                        {contactMethods.map((method, index) => (
+                            <div key={index} className="contact-method-card">
+                                <div className="contact-method-icon">{method.icon}</div>
+                                <div className="contact-method-title">{method.title}</div>
+                                <div className="contact-method-detail">{method.detail}</div>
+                                <div className="contact-method-subdetail">{method.subdetail}</div>
+                            </div>
+                        ))}
+                    </div>
+                }
+            />
 
             <div className="contact-content">
                 <div className="contact-container">
@@ -45,28 +92,28 @@ const ContactPage = () => {
 
                         <div className="contact-cards">
                             <div className="contact-card">
-                                <div className="contact-icon">📞</div>
+                                <div className="contact-icon-text">{language === "ro" ? "TELEFON" : language === "ru" ? "ТЕЛЕФОН" : "PHONE"}</div>
                                 <h3>{t.contactPhone}</h3>
                                 <p>+373 22 123 456</p>
                                 <p>+373 79 123 456</p>
                             </div>
 
                             <div className="contact-card">
-                                <div className="contact-icon">📧</div>
+                                <div className="contact-icon-text">{language === "ro" ? "EMAIL" : language === "ru" ? "ПОЧТА" : "EMAIL"}</div>
                                 <h3>{t.contactEmail}</h3>
                                 <p>contact@clinica.md</p>
                                 <p>programari@clinica.md</p>
                             </div>
 
                             <div className="contact-card">
-                                <div className="contact-icon">📍</div>
+                                <div className="contact-icon-text">{language === "ro" ? "ADRESĂ" : language === "ru" ? "АДРЕС" : "ADDRESS"}</div>
                                 <h3>{t.contactAddress}</h3>
                                 <p>Strada Mihai Eminescu 47</p>
                                 <p>Chișinău, MD-2012</p>
                             </div>
 
                             <div className="contact-card">
-                                <div className="contact-icon">🕐</div>
+                                <div className="contact-icon-text">{language === "ro" ? "PROGRAM" : language === "ru" ? "ГРАФИК" : "SCHEDULE"}</div>
                                 <h3>{t.contactScheduleLabel}</h3>
                                 <p>{t.contactScheduleVal}</p>
                                 <p>{t.contactScheduleSat}</p>

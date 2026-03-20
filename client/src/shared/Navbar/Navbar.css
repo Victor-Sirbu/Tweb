@@ -58,6 +58,7 @@
     align-items: center;
 }
 
+
 .navbar-menu li a {
     text-decoration: none;
     color: #1a1a1a;
@@ -106,7 +107,7 @@
     box-shadow: 0 6px 15px rgba(47, 128, 237, 0.3);
 }
 
-/* ── Language Selector ── */
+
 .lang-selector {
     position: relative;
 }

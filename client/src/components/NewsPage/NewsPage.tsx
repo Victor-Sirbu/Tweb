@@ -36,10 +36,53 @@ const NewsPage = () => {
         }
     };
 
+    const newsStats = [
+        {
+            icon: language === "ro" ? "TOTAL" : language === "ru" ? "ВСЕГО" : "TOTAL",
+            count: newsData.length,
+            label: language === "ro" ? "Noutăți" : language === "ru" ? "Новости" : "News Items"
+        },
+        {
+            icon: language === "ro" ? "PROMOȚII" : language === "ru" ? "АКЦИИ" : "PROMOTIONS",
+            count: newsData.filter(n => n.category === "Promoție").length,
+            label: language === "ro" ? "Promoții Active" : language === "ru" ? "Активные акции" : "Active Promotions"
+        },
+        {
+            icon: language === "ro" ? "SERVICII" : language === "ru" ? "УСЛУГИ" : "SERVICES",
+            count: newsData.filter(n => n.category === "Serviciu nou").length,
+            label: language === "ro" ? "Servicii Noi" : language === "ru" ? "Новые услуги" : "New Services"
+        }
+    ];
+
     return (
         <div className="news-page">
             <Navbar />
-            <HeroSlider />
+            <HeroSlider
+                badge={language === "ro" ? "NOUTĂȚI ȘI ACTUALIZĂRI" : language === "ru" ? "НОВОСТИ И ОБНОВЛЕНИЯ" : "NEWS & UPDATES"}
+                title1={language === "ro" ? "Fii mereu la curent cu" : language === "ru" ? "Будьте всегда в курсе" : "Always stay informed about"}
+                title2={language === "ro" ? "Ultimele Noutăți ale Clinicii" : language === "ru" ? "Последних Новостей Клиники" : "Latest Clinic News"}
+                description={
+                    language === "ro"
+                        ? "Descoperiți cele mai recente servicii medicale, promoții exclusive și actualizări importante din clinica noastră. Suntem dedicați să vă ținem la curent cu toate inovațiile și oportunitățile pentru îngrijirea dumneavoastră."
+                        : language === "ru"
+                        ? "Узнайте о новейших медицинских услугах, эксклюзивных акциях и важных обновлениях в нашей клинике. Мы стремимся держать вас в курсе всех инноваций и возможностей для вашего здоровья."
+                        : "Discover the latest medical services, exclusive promotions and important updates from our clinic. We are dedicated to keeping you informed about all innovations and opportunities for your healthcare."
+                }
+                showButtons={false}
+                showStats={false}
+                showScheduleCard={false}
+                customContent={
+                    <div className="news-hero-stats">
+                        {newsStats.map((stat, index) => (
+                            <div key={index} className="news-stat-card">
+                                <div className="news-stat-icon">{stat.icon}</div>
+                                <div className="news-stat-number">{stat.count}</div>
+                                <div className="news-stat-label">{stat.label}</div>
+                            </div>
+                        ))}
+                    </div>
+                }
+            />
             <div className="news-container">
                 <div className="news-filters">
                     <button className={`filter-btn ${selectedCategory === "all" ? "active" : ""}`} onClick={() => setSelectedCategory("all")}>{labels.all}</button>

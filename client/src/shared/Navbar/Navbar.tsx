@@ -10,7 +10,6 @@ const Navbar = () => {
     const [lastScroll, setLastScroll] = useState<number>(0);
     const [profileMenuOpen, setProfileMenuOpen] = useState<boolean>(false);
     const [langMenuOpen, setLangMenuOpen] = useState<boolean>(false);
-
     const profileRef = useRef<HTMLDivElement>(null);
     const langRef = useRef<HTMLDivElement>(null);
 
@@ -40,7 +39,7 @@ const Navbar = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [lastScroll]);
 
-    // Închide meniurile când se face click în afara lor
+
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (profileRef.current && !profileRef.current.contains(e.target as Node))
@@ -95,7 +94,7 @@ const Navbar = () => {
 
                 <div className="navbar-actions">
 
-                    {/* Selector limbă */}
+
                     <div className="lang-selector" ref={langRef}>
                         <button className="lang-btn" onClick={() => setLangMenuOpen(!langMenuOpen)}>
                             {langLabels[language]} <span className="lang-arrow">▾</span>

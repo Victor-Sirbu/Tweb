@@ -10,6 +10,10 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
+.contact-page .hero-section {
+    min-height: 95vh;
+}
+
 /* Content Section */
 .contact-content {
     padding: 80px 40px;
@@ -58,6 +62,19 @@
 .contact-icon {
     font-size: 48px;
     margin-bottom: 16px;
+}
+
+.contact-icon-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e90ff;
+    margin-bottom: 16px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: rgba(30, 144, 255, 0.1);
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: inline-block;
 }
 
 .contact-card h3 {
@@ -165,6 +182,64 @@
     display: block;
 }
 
+/* Contact Hero Methods */
+.contact-hero-methods {
+    display: flex;
+    gap: 30px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+}
+
+.contact-method-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 30px 28px;
+    border-radius: 20px;
+    flex: 1;
+    min-width: 220px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.contact-method-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.contact-method-icon {
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.contact-method-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+}
+
+.contact-method-detail {
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 6px;
+}
+
+.contact-method-subdetail {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .contact-content {
@@ -225,5 +300,14 @@
     .submit-btn {
         padding: 14px 28px;
         font-size: 15px;
+    }
+
+    .contact-hero-methods {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .contact-method-card {
+        min-width: 100%;
     }
 }
