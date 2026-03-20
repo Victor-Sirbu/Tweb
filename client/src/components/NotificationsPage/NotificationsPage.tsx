@@ -2,35 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./NotificationsPage.css";
 import { useLanguage } from "../../context/LanguageContext";
-
-type Notification = {
-    id: number;
-    type: "programare" | "rezultat" | "reamintire" | "sistem";
-    title: string;
-    message: string;
-    time: string;
-    read: boolean;
-};
-
-const initialNotifications: Notification[] = [
-    { id: 1, type: "programare", title: "Programare nouă", message: "Maria Popescu a făcut o programare pentru 28 Feb 2026, ora 10:00 la Dr. Ion Ionescu (Cardiologie).", time: "Acum 5 min", read: false },
-    { id: 2, type: "rezultat", title: "Rezultate analize disponibile", message: "Rezultatele analizelor de sânge pentru Ion Ionescu sunt disponibile. Vă rugăm să le verificați.", time: "Acum 30 min", read: false },
-    { id: 3, type: "reamintire", title: "Reamintire consultație mâine", message: "Mâine la ora 14:00 aveți consultație cu Ana Vasilescu la Dr. Ana Vasilescu (Pediatrie).", time: "1 oră în urmă", read: false },
-    { id: 4, type: "programare", title: "Programare anulată", message: "Victor Gudima a anulat programarea din 27 Feb 2026, ora 09:30 la Dr. George Popescu (Medicina Generală).", time: "2 ore în urmă", read: true },
-    { id: 5, type: "sistem", title: "Actualizare sistem finalizată", message: "Sistemul a fost actualizat cu succes la versiunea 2.4.1. Toate funcționalitățile sunt disponibile.", time: "Ieri, 18:30", read: true },
-    { id: 6, type: "rezultat", title: "Rezultate EKG gata", message: "Rezultatele EKG pentru George Mihai (52 ani) sunt gata de vizualizat. Consultați fișa pacientului.", time: "Ieri, 15:10", read: true },
-    { id: 7, type: "reamintire", title: "3 programări mâine", message: "Mâine aveți 3 programări: 09:00 Ion Ionescu, 11:00 Maria Popescu, 15:30 George Mihai.", time: "Ieri, 08:00", read: true },
-    { id: 8, type: "programare", title: "Programare confirmată", message: "Programarea lui George Mihai pentru 26 Feb 2026 la ora 15:30 a fost confirmată cu succes.", time: "26 Feb, 10:00", read: true },
-];
+import { useNotifications, type Notification } from "../../context/NotificationContext";
 
 export default function NotificationsPage() {
     const { t, language } = useLanguage();
     const navigate = useNavigate();
-    const [notifications, setNotifications] = useState(initialNotifications);
+    const { notifications, unreadCount, setNotifications, markAllRead, deleteNotification } = useNotifications();
     const [filtru, setFiltru] = useState("all");
     const [selected, setSelected] = useState<Notification | null>(null);
-
-    const unreadCount = notifications.filter((n) => !n.read).length;
 
     const filtered = notifications.filter((n) => {
         if (filtru === "unread") return !n.read;
@@ -38,15 +17,13 @@ export default function NotificationsPage() {
         return true;
     });
 
-    const markAllRead = () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-
     const handleClick = (n: Notification) => {
         setSelected(n);
-        setNotifications((prev) => prev.map((item) => (item.id === n.id ? { ...item, read: true } : item)));
+        setNotifications(notifications.map((item) => (item.id === n.id ? { ...item, read: true } : item)));
     };
 
     const deleteNotif = (id: number) => {
-        setNotifications((prev) => prev.filter((n) => n.id !== id));
+        deleteNotification(id);
         if (selected?.id === id) setSelected(null);
     };
 

@@ -7,6 +7,9 @@ import { useLanguage } from "../../context/LanguageContext";
 const TEST_EMAIL = "admin@gmail.com";
 const TEST_PASSWORD = "admin";
 
+const AUDIT_EMAIL = "audit@gmail.com";
+const AUDIT_PASSWORD = "audit";
+
 const LoginPage = () => {
     const [activeTab, setActiveTab] = useState<"existing" | "new">("existing");
     const [loginEmail, setLoginEmail] = useState("");
@@ -31,6 +34,9 @@ const LoginPage = () => {
         if (loginEmail === TEST_EMAIL && loginPassword === TEST_PASSWORD) {
             login({ name: "Admin", email: TEST_EMAIL });
             navigate("/");
+        } else if (loginEmail === AUDIT_EMAIL && loginPassword === AUDIT_PASSWORD) {
+            login({ name: "Audit Admin", email: AUDIT_EMAIL });
+            navigate("/activity");
         } else {
             setLoginError("Email sau parolă incorectă.");
         }
