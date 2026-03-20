@@ -15,6 +15,25 @@ interface Patient {
   avatar: string;
 }
 
+interface Doctor {
+  id: number;
+  name: string;
+  specialization: string;
+  phone: string;
+  email: string;
+  status: 'Active' | 'Inactive';
+  avatar: string;
+}
+
+interface Appointment {
+  id: number;
+  date: string;
+  time: string;
+  patientName: string;
+  doctorName: string;
+  status: 'Confirmed' | 'Pending';
+}
+
 const AdminDashboard: React.FC = () => {
   const { t } = useLanguage();
   const [activeSection, setActiveSection] = useState<'statistici' | 'programari' | 'pacienti' | 'medici'>('pacienti');
@@ -26,13 +45,37 @@ const AdminDashboard: React.FC = () => {
     { id: 5, name: 'George Mihai', age: 52, phone: '0754567890', email: 'george.mihai@email.com', lastVisit: '2024-02-18', status: 'Active', avatar: 'GM' },
   ]);
 
+  const [doctors, setDoctors] = useState<Doctor[]>([
+    { id: 1, name: 'Dr. Ion Ionescu', specialization: 'Cardiologie', phone: '0721111111', email: 'dr.ionescu@cabinet.ro', status: 'Active', avatar: 'II' },
+    { id: 2, name: 'Dr. Ana Vasilescu', specialization: 'Pediatrie', phone: '0722222222', email: 'dr.vasilescu@cabinet.ro', status: 'Active', avatar: 'AV' },
+    { id: 3, name: 'Dr. George Popescu', specialization: 'Medicină Generală', phone: '0723333333', email: 'dr.popescu@cabinet.ro', status: 'Active', avatar: 'GP' },
+  ]);
+
+  const [appointments, setAppointments] = useState<Appointment[]>([
+    { id: 1, date: '2026-02-19', time: '10:00', patientName: 'Maria Popescu', doctorName: 'Dr. Ionescu', status: 'Confirmed' },
+    { id: 2, date: '2026-02-19', time: '11:30', patientName: 'Ion Ionescu', doctorName: 'Dr. Vasilescu', status: 'Confirmed' },
+    { id: 3, date: '2026-02-19', time: '14:00', patientName: 'Ana Vasilescu', doctorName: 'Dr. Popescu', status: 'Pending' },
+  ]);
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Inactive'>('All');
-  const [showModal, setShowModal] = useState(false);
+
+  // Patient modal
+  const [showPatientModal, setShowPatientModal] = useState(false);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
-  const [formData, setFormData] = useState({ name: '', age: '', phone: '', email: '', status: 'Active' as 'Active' | 'Inactive' });
+  const [patientFormData, setPatientFormData] = useState({ name: '', age: '', phone: '', email: '', status: 'Active' as 'Active' | 'Inactive' });
+
+  // Doctor modal
+  const [showDoctorModal, setShowDoctorModal] = useState(false);
+  const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
+  const [doctorFormData, setDoctorFormData] = useState({ name: '', specialization: '', phone: '', email: '', status: 'Active' as 'Active' | 'Inactive' });
+
+  // Appointment modal
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+  const [appointmentFormData, setAppointmentFormData] = useState({ date: '', time: '', patientName: '', doctorName: '', status: 'Confirmed' as 'Confirmed' | 'Pending' });
 
   const getAvatar = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase();
 
@@ -42,18 +85,70 @@ const AdminDashboard: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const handleEditPatient = (patient: Patient) => { setEditingPatient(patient); setFormData({ name: patient.name, age: patient.age.toString(), phone: patient.phone, email: patient.email, status: patient.status }); setShowModal(true); };
-  const handleDeletePatient = (id: number) => { if (window.confirm(t.adminPatients + '?')) setPatients(patients.filter(p => p.id !== id)); };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  // Patient handlers
+  const handleEditPatient = (patient: Patient) => {
+    setEditingPatient(patient);
+    setPatientFormData({ name: patient.name, age: patient.age.toString(), phone: patient.phone, email: patient.email, status: patient.status });
+    setShowPatientModal(true);
+  };
+  const handleDeletePatient = (id: number) => {
+    if (window.confirm('Sigur doriți să ștergeți acest pacient?'))
+      setPatients(patients.filter(p => p.id !== id));
+  };
+  const handlePatientSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingPatient) {
-      setPatients(patients.map(p => p.id === editingPatient.id ? { ...p, name: formData.name, age: parseInt(formData.age), phone: formData.phone, email: formData.email, status: formData.status, avatar: getAvatar(formData.name) } : p));
+      setPatients(patients.map(p => p.id === editingPatient.id ? { ...p, name: patientFormData.name, age: parseInt(patientFormData.age), phone: patientFormData.phone, email: patientFormData.email, status: patientFormData.status, avatar: getAvatar(patientFormData.name) } : p));
     } else {
-      const newPatient: Patient = { id: Math.max(...patients.map(p => p.id)) + 1, name: formData.name, age: parseInt(formData.age), phone: formData.phone, email: formData.email, lastVisit: new Date().toISOString().split('T')[0], status: formData.status, avatar: getAvatar(formData.name) };
+      const newPatient: Patient = { id: Math.max(...patients.map(p => p.id)) + 1, name: patientFormData.name, age: parseInt(patientFormData.age), phone: patientFormData.phone, email: patientFormData.email, lastVisit: new Date().toISOString().split('T')[0], status: patientFormData.status, avatar: getAvatar(patientFormData.name) };
       setPatients([...patients, newPatient]);
     }
-    setShowModal(false);
+    setShowPatientModal(false);
+    setEditingPatient(null);
+  };
+
+  // Doctor handlers
+  const handleEditDoctor = (doctor: Doctor) => {
+    setEditingDoctor(doctor);
+    setDoctorFormData({ name: doctor.name, specialization: doctor.specialization, phone: doctor.phone, email: doctor.email, status: doctor.status });
+    setShowDoctorModal(true);
+  };
+  const handleDeleteDoctor = (id: number) => {
+    if (window.confirm('Sigur doriți să ștergeți acest medic?'))
+      setDoctors(doctors.filter(d => d.id !== id));
+  };
+  const handleDoctorSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingDoctor) {
+      setDoctors(doctors.map(d => d.id === editingDoctor.id ? { ...d, name: doctorFormData.name, specialization: doctorFormData.specialization, phone: doctorFormData.phone, email: doctorFormData.email, status: doctorFormData.status, avatar: getAvatar(doctorFormData.name) } : d));
+    } else {
+      const newDoctor: Doctor = { id: Math.max(...doctors.map(d => d.id)) + 1, name: doctorFormData.name, specialization: doctorFormData.specialization, phone: doctorFormData.phone, email: doctorFormData.email, status: doctorFormData.status, avatar: getAvatar(doctorFormData.name) };
+      setDoctors([...doctors, newDoctor]);
+    }
+    setShowDoctorModal(false);
+    setEditingDoctor(null);
+  };
+
+  // Appointment handlers
+  const handleEditAppointment = (appointment: Appointment) => {
+    setEditingAppointment(appointment);
+    setAppointmentFormData({ date: appointment.date, time: appointment.time, patientName: appointment.patientName, doctorName: appointment.doctorName, status: appointment.status });
+    setShowAppointmentModal(true);
+  };
+  const handleDeleteAppointment = (id: number) => {
+    if (window.confirm('Sigur doriți să ștergeți această programare?'))
+      setAppointments(appointments.filter(a => a.id !== id));
+  };
+  const handleAppointmentSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingAppointment) {
+      setAppointments(appointments.map(a => a.id === editingAppointment.id ? { ...a, date: appointmentFormData.date, time: appointmentFormData.time, patientName: appointmentFormData.patientName, doctorName: appointmentFormData.doctorName, status: appointmentFormData.status } : a));
+    } else {
+      const newAppointment: Appointment = { id: Math.max(...appointments.map(a => a.id)) + 1, date: appointmentFormData.date, time: appointmentFormData.time, patientName: appointmentFormData.patientName, doctorName: appointmentFormData.doctorName, status: appointmentFormData.status };
+      setAppointments([...appointments, newAppointment]);
+    }
+    setShowAppointmentModal(false);
+    setEditingAppointment(null);
   };
 
 
@@ -184,9 +279,25 @@ const AdminDashboard: React.FC = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        <tr><td>2026-02-19</td><td>10:00</td><td>Maria Popescu</td><td>Dr. Ionescu</td><td><span className="status-badge active">{t.adminApptConfirmed}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
-                        <tr><td>2026-02-19</td><td>11:30</td><td>Ion Ionescu</td><td>Dr. Vasilescu</td><td><span className="status-badge active">{t.adminApptConfirmed}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
-                        <tr><td>2026-02-19</td><td>14:00</td><td>Ana Vasilescu</td><td>Dr. Popescu</td><td><span className="status-badge inactive">{t.adminApptPending}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
+                        {appointments.map(appointment => (
+                            <tr key={appointment.id}>
+                              <td>{appointment.date}</td>
+                              <td>{appointment.time}</td>
+                              <td>{appointment.patientName}</td>
+                              <td>{appointment.doctorName}</td>
+                              <td>
+                                <span className={`status-badge ${appointment.status === 'Confirmed' ? 'active' : 'inactive'}`}>
+                                  {appointment.status === 'Confirmed' ? t.adminApptConfirmed : t.adminApptPending}
+                                </span>
+                              </td>
+                              <td>
+                                <div className="action-buttons">
+                                  <button className="btn-action btn-edit" onClick={() => handleEditAppointment(appointment)}>{t.adminEdit}</button>
+                                  <button className="btn-action btn-delete" onClick={() => handleDeleteAppointment(appointment.id)}>{t.adminDelete}</button>
+                                </div>
+                              </td>
+                            </tr>
+                        ))}
                         </tbody>
                       </table>
                     </div>
@@ -281,9 +392,26 @@ const AdminDashboard: React.FC = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        <tr><td><div className="patient-info"><div className="patient-avatar">II</div><span>Dr. Ion Ionescu</span></div></td><td>{t.adminSpecCardio}</td><td>0721111111</td><td>dr.ionescu@cabinet.ro</td><td><span className="status-badge active">{t.adminActive}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
-                        <tr><td><div className="patient-info"><div className="patient-avatar">AV</div><span>Dr. Ana Vasilescu</span></div></td><td>{t.adminSpecPediatrie}</td><td>0722222222</td><td>dr.vasilescu@cabinet.ro</td><td><span className="status-badge active">{t.adminActive}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
-                        <tr><td><div className="patient-info"><div className="patient-avatar">GP</div><span>Dr. George Popescu</span></div></td><td>{t.adminSpecMedGen}</td><td>0723333333</td><td>dr.popescu@cabinet.ro</td><td><span className="status-badge active">{t.adminActive}</span></td><td><div className="action-buttons"><button className="btn-action btn-edit">{t.adminEdit}</button></div></td></tr>
+                        {doctors.map(doctor => (
+                            <tr key={doctor.id}>
+                              <td>
+                                <div className="patient-info">
+                                  <div className="patient-avatar">{doctor.avatar}</div>
+                                  <span>{doctor.name}</span>
+                                </div>
+                              </td>
+                              <td>{doctor.specialization}</td>
+                              <td>{doctor.phone}</td>
+                              <td>{doctor.email}</td>
+                              <td><span className={`status-badge ${doctor.status.toLowerCase()}`}>{doctor.status === 'Active' ? t.adminActive : t.adminInactive}</span></td>
+                              <td>
+                                <div className="action-buttons">
+                                  <button className="btn-action btn-edit" onClick={() => handleEditDoctor(doctor)}>{t.adminEdit}</button>
+                                  <button className="btn-action btn-delete" onClick={() => handleDeleteDoctor(doctor.id)}>{t.adminDelete}</button>
+                                </div>
+                              </td>
+                            </tr>
+                        ))}
                         </tbody>
                       </table>
                     </div>
@@ -296,24 +424,24 @@ const AdminDashboard: React.FC = () => {
 
         <Footer />
 
-        {/* ── MODAL ── */}
-        {showModal && (
-            <div className="modal-overlay" onClick={() => setShowModal(false)}>
+        {/* ── MODAL PACIENT ── */}
+        {showPatientModal && (
+            <div className="modal-overlay" onClick={() => setShowPatientModal(false)}>
               <div className="modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
                   <h2>{editingPatient ? t.adminEditPatient : t.adminAddPatient}</h2>
-                  <button className="modal-close" onClick={() => setShowModal(false)}>&times;</button>
+                  <button className="modal-close" onClick={() => setShowPatientModal(false)}>&times;</button>
                 </div>
-                <form onSubmit={handleSubmit}>
-                  <div className="form-group"><label>{t.adminName}</label><input type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} /></div>
-                  <div className="form-group"><label>{t.adminAge}</label><input type="number" required value={formData.age} onChange={(e) => setFormData({ ...formData, age: e.target.value })} /></div>
-                  <div className="form-group"><label>{t.adminPhone}</label><input type="tel" required value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} /></div>
-                  <div className="form-group"><label>{t.adminEmail}</label><input type="email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} /></div>
+                <form onSubmit={handlePatientSubmit}>
+                  <div className="form-group"><label>{t.adminName}</label><input type="text" required value={patientFormData.name} onChange={(e) => setPatientFormData({ ...patientFormData, name: e.target.value })} /></div>
+                  <div className="form-group"><label>{t.adminAge}</label><input type="number" required value={patientFormData.age} onChange={(e) => setPatientFormData({ ...patientFormData, age: e.target.value })} /></div>
+                  <div className="form-group"><label>{t.adminPhone}</label><input type="tel" required value={patientFormData.phone} onChange={(e) => setPatientFormData({ ...patientFormData, phone: e.target.value })} /></div>
+                  <div className="form-group"><label>{t.adminEmail}</label><input type="email" required value={patientFormData.email} onChange={(e) => setPatientFormData({ ...patientFormData, email: e.target.value })} /></div>
                   <div className="form-group">
                     <label>{t.adminStatus}</label>
                     <div className="custom-dropdown">
                       <button type="button" className="dropdown-toggle" onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}>
-                        {formData.status === 'Active' ? t.adminActive : t.adminInactive}
+                        {patientFormData.status === 'Active' ? t.adminActive : t.adminInactive}
                         <span className="dropdown-arrow">▾</span>
                       </button>
                       {statusDropdownOpen && (
@@ -321,8 +449,8 @@ const AdminDashboard: React.FC = () => {
                             {(['Active', 'Inactive'] as const).map((option) => (
                                 <div
                                     key={option}
-                                    className={`dropdown-item ${formData.status === option ? 'selected' : ''}`}
-                                    onClick={() => { setFormData({ ...formData, status: option }); setStatusDropdownOpen(false); }}
+                                    className={`dropdown-item ${patientFormData.status === option ? 'selected' : ''}`}
+                                    onClick={() => { setPatientFormData({ ...patientFormData, status: option }); setStatusDropdownOpen(false); }}
                                 >
                                   {option === 'Active' ? t.adminActive : t.adminInactive}
                                 </div>
@@ -332,8 +460,96 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
                   <div className="modal-actions">
-                    <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>{t.adminCancel}</button>
+                    <button type="button" className="btn-cancel" onClick={() => setShowPatientModal(false)}>{t.adminCancel}</button>
                     <button type="submit" className="btn-submit">{editingPatient ? t.adminUpdate : t.adminAdd}</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+        )}
+
+        {/* ── MODAL MEDIC ── */}
+        {showDoctorModal && (
+            <div className="modal-overlay" onClick={() => setShowDoctorModal(false)}>
+              <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h2>{editingDoctor ? 'Editează Medic' : 'Adaugă Medic'}</h2>
+                  <button className="modal-close" onClick={() => setShowDoctorModal(false)}>&times;</button>
+                </div>
+                <form onSubmit={handleDoctorSubmit}>
+                  <div className="form-group"><label>{t.adminName}</label><input type="text" required value={doctorFormData.name} onChange={(e) => setDoctorFormData({ ...doctorFormData, name: e.target.value })} /></div>
+                  <div className="form-group"><label>Specializare</label><input type="text" required value={doctorFormData.specialization} onChange={(e) => setDoctorFormData({ ...doctorFormData, specialization: e.target.value })} /></div>
+                  <div className="form-group"><label>{t.adminPhone}</label><input type="tel" required value={doctorFormData.phone} onChange={(e) => setDoctorFormData({ ...doctorFormData, phone: e.target.value })} /></div>
+                  <div className="form-group"><label>{t.adminEmail}</label><input type="email" required value={doctorFormData.email} onChange={(e) => setDoctorFormData({ ...doctorFormData, email: e.target.value })} /></div>
+                  <div className="form-group">
+                    <label>{t.adminStatus}</label>
+                    <div className="custom-dropdown">
+                      <button type="button" className="dropdown-toggle" onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}>
+                        {doctorFormData.status === 'Active' ? t.adminActive : t.adminInactive}
+                        <span className="dropdown-arrow">▾</span>
+                      </button>
+                      {statusDropdownOpen && (
+                          <div className="dropdown-menu">
+                            {(['Active', 'Inactive'] as const).map((option) => (
+                                <div
+                                    key={option}
+                                    className={`dropdown-item ${doctorFormData.status === option ? 'selected' : ''}`}
+                                    onClick={() => { setDoctorFormData({ ...doctorFormData, status: option }); setStatusDropdownOpen(false); }}
+                                >
+                                  {option === 'Active' ? t.adminActive : t.adminInactive}
+                                </div>
+                            ))}
+                          </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="modal-actions">
+                    <button type="button" className="btn-cancel" onClick={() => setShowDoctorModal(false)}>{t.adminCancel}</button>
+                    <button type="submit" className="btn-submit">{editingDoctor ? t.adminUpdate : t.adminAdd}</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+        )}
+
+        {/* ── MODAL PROGRAMARE ── */}
+        {showAppointmentModal && (
+            <div className="modal-overlay" onClick={() => setShowAppointmentModal(false)}>
+              <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h2>{editingAppointment ? 'Editează Programare' : 'Adaugă Programare'}</h2>
+                  <button className="modal-close" onClick={() => setShowAppointmentModal(false)}>&times;</button>
+                </div>
+                <form onSubmit={handleAppointmentSubmit}>
+                  <div className="form-group"><label>Data</label><input type="date" required value={appointmentFormData.date} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, date: e.target.value })} /></div>
+                  <div className="form-group"><label>Ora</label><input type="time" required value={appointmentFormData.time} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, time: e.target.value })} /></div>
+                  <div className="form-group"><label>Pacient</label><input type="text" required value={appointmentFormData.patientName} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, patientName: e.target.value })} /></div>
+                  <div className="form-group"><label>Medic</label><input type="text" required value={appointmentFormData.doctorName} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, doctorName: e.target.value })} /></div>
+                  <div className="form-group">
+                    <label>{t.adminStatus}</label>
+                    <div className="custom-dropdown">
+                      <button type="button" className="dropdown-toggle" onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}>
+                        {appointmentFormData.status === 'Confirmed' ? t.adminApptConfirmed : t.adminApptPending}
+                        <span className="dropdown-arrow">▾</span>
+                      </button>
+                      {statusDropdownOpen && (
+                          <div className="dropdown-menu">
+                            {(['Confirmed', 'Pending'] as const).map((option) => (
+                                <div
+                                    key={option}
+                                    className={`dropdown-item ${appointmentFormData.status === option ? 'selected' : ''}`}
+                                    onClick={() => { setAppointmentFormData({ ...appointmentFormData, status: option }); setStatusDropdownOpen(false); }}
+                                >
+                                  {option === 'Confirmed' ? t.adminApptConfirmed : t.adminApptPending}
+                                </div>
+                            ))}
+                          </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="modal-actions">
+                    <button type="button" className="btn-cancel" onClick={() => setShowAppointmentModal(false)}>{t.adminCancel}</button>
+                    <button type="submit" className="btn-submit">{editingAppointment ? t.adminUpdate : t.adminAdd}</button>
                   </div>
                 </form>
               </div>
