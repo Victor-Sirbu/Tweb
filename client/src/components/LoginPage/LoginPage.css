@@ -74,8 +74,8 @@
 
 .patient-tabs {
     display: flex;
-    gap: 15px;
-    margin-bottom: 25px;
+    gap: 12px;
+    margin-bottom: 18px;
 }
 
 .tab-btn {
@@ -116,26 +116,26 @@
 .form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
 }
 
 .field {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 5px;
 }
 
 .field label {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
 }
 
 .field input,
 .field select {
-    padding: 9px;
+    padding: 8px;
     border-radius: 8px;
     border: 1px solid #ccc;
-    font-size: 14px;
+    font-size: 13px;
     font-family: inherit;
     background-color: white;
     cursor: pointer;
@@ -172,14 +172,14 @@
 }
 
 .login-btn {
-    margin-top: 8px;
-    padding: 12px;
+    margin-top: 4px;
+    padding: 10px;
     font-weight: 600;
     background: #1e90ff;
     border: none;
     border-radius: 10px;
     color: white;
-    font-size: 15px;
+    font-size: 14px;
     cursor: pointer;
     width: 60%;
     align-self: center;
@@ -192,11 +192,11 @@
 }
 
 .login-header {
-    margin-bottom: 25px;
+    margin-bottom: 18px;
 }
 .login-header h2 {
-    font-size: 22px;
-    margin-bottom: 6px;
+    font-size: 20px;
+    margin-bottom: 4px;
 }
 
 .login-header p {
@@ -213,10 +213,10 @@
 
 .date-input {
     flex: 1;
-    padding: 9px;
+    padding: 8px;
     border-radius: 8px;
     border: 1px solid #ccc;
-    font-size: 14px;
+    font-size: 13px;
     font-family: inherit;
     background-color: white;
 }
@@ -246,6 +246,40 @@
     display: block;
 }
 
+/* Password Input Wrapper */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper input {
+    width: 100%;
+    padding-right: 40px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    color: #666;
+    transition: color 0.3s ease;
+}
+
+.toggle-password:hover {
+    color: #1e90ff;
+}
+
+.toggle-password:focus {
+    outline: none;
+}
+
 /* Custom Dropdown */
 .custom-dropdown {
     position: relative;
@@ -253,7 +287,7 @@
 }
 
 .dropdown-header {
-    padding: 9px;
+    padding: 8px;
     border: 1px solid #ccc;
     border-radius: 8px;
     background-color: white;
@@ -261,7 +295,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 14px;
+    font-size: 13px;
     transition: all 0.3s ease;
 }
 
@@ -305,9 +339,9 @@
 }
 
 .dropdown-option {
-    padding: 12px;
+    padding: 10px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     transition: all 0.2s ease;
 }
 
