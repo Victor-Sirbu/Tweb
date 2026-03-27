@@ -13,6 +13,8 @@ import ContactPage from "./components/ContactPage/ContactPage";
 import { AuthProvider } from "./context/AuthContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import { NotificationProvider } from "./context/NotificationContext";
+import PrivateRoute from "./shared/PrivateRoute";
+import AdminRoute from "./shared/AdminRoute";
 
 function App() {
     return (
@@ -22,16 +24,16 @@ function App() {
                     <Router>
                         <Routes>
                             <Route path="/" element={<HomePage />} />
-                            <Route path="/profile" element={<ProfilePage />} />
                             <Route path="/services" element={<MedicalServices />} />
-                            <Route path="/activity" element={<ActivityLog />} />
-                            <Route path="/admin" element={<AdminDashboard />} />
-                            <Route path="/appointments" element={<AppointmentsPage />} />
-                            <Route path="/notifications" element={<NotificationsPage />} />
                             <Route path="/help" element={<HelpPage />} />
-                            <Route path="/login" element={<LoginPage />} />
                             <Route path="/news" element={<NewsPage />} />
                             <Route path="/contact" element={<ContactPage />} />
+                            <Route path="/login" element={<LoginPage />} />
+                            <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+                            <Route path="/appointments" element={<PrivateRoute><AppointmentsPage /></PrivateRoute>} />
+                            <Route path="/notifications" element={<PrivateRoute><NotificationsPage /></PrivateRoute>} />
+                            <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+                            <Route path="/activity" element={<AdminRoute><ActivityLog /></AdminRoute>} />
                         </Routes>
                     </Router>
                 </NotificationProvider>

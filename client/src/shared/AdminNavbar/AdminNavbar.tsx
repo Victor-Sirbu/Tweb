@@ -1,6 +1,7 @@
 import "./AdminNavbar.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
+import { useAuth } from "../../context/AuthContext";
 import { useState, useEffect, useRef } from "react";
 
 const AdminNavbar = () => {
@@ -13,9 +14,14 @@ const AdminNavbar = () => {
     const langLabels = { ro: "RO", ru: "RU", en: "EN" };
     const location = useLocation();
     const { t, language, setLanguage } = useLanguage();
-
+    const { logout } = useAuth();
 
     const isActive = (path: string) => location.pathname === path;
+
+    const handleExit = () => {
+        logout();
+        navigate("/login");
+    };
 
     useEffect(() => {
         const handleScroll = () => {
@@ -47,7 +53,7 @@ const AdminNavbar = () => {
             transition: "transform 0.4s ease"
         }}>
             <div className="admin-navbar-container">
-                <div className="admin-navbar-logo" onClick={() => navigate("/")}>
+                <div className="admin-navbar-logo" onClick={() => navigate("/admin")}>
                     <div className="logo-text">
                         <span className="logo-title">MediCare</span>
                         <span className="logo-subtitle">{t.adminNavPanel}</span>
@@ -91,15 +97,13 @@ const AdminNavbar = () => {
                         )}
                     </div>
                     <div className="admin-role-badge">Super Admin</div>
-                    <button className="admin-navbar-btn" onClick={() => navigate("/")}>
+                    <button className="admin-navbar-btn" onClick={handleExit}>
                         {t.adminNavExitAdmin}
                     </button>
                 </div>
             </div>
         </nav>
     );
-
-
 };
 
 export default AdminNavbar;

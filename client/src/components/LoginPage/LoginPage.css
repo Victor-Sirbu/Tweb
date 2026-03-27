@@ -204,6 +204,25 @@
     font-size: 14px;
 }
 
+.back-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: #1e90ff;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 10px;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.back-home-btn:hover {
+    color: #2f80ed;
+    transform: translateX(-3px);
+}
 
 /* Date of Birth Inputs */
 .date-inputs {
@@ -389,3 +408,4 @@
         width: 100%;
     }
 }
+

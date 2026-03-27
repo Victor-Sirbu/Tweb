@@ -2,35 +2,11 @@ import "./ContactPage.css";
 import Navbar from "../../shared/Navbar/Navbar";
 import Footer from "../../shared/Footer/Footer";
 import HeroSlider from "../../shared/HeroSlider/HeroSlider";
-import { useState } from "react";
 import { useLanguage } from "../../context/LanguageContext";
-
-interface FormData {
-    name: string;
-    email: string;
-    subject: string;
-    message: string;
-}
 
 const ContactPage = () => {
     const { t, language } = useLanguage();
-    const [formData, setFormData] = useState<FormData>({
-        name: "",
-        email: "",
-        subject: "",
-        message: ""
-    });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        alert(t.contactSuccessMsg);
-        setFormData({ name: "", email: "", subject: "", message: "" });
-    };
 
     const contactMethods = [
         {
@@ -119,38 +95,6 @@ const ContactPage = () => {
                                 <p>{t.contactScheduleSat}</p>
                             </div>
                         </div>
-                    </div>
-
-                    <div className="contact-form-section">
-                        <h2 className="section-title">{t.contactFormTitle}</h2>
-
-                        <form className="contact-form" onSubmit={handleSubmit}>
-                            <div className="form-group">
-                                <label htmlFor="name">{t.contactFullName}</label>
-                                <input type="text" id="name" name="name" value={formData.name}
-                                    onChange={handleChange} placeholder={t.contactFullName} required />
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="email">{t.contactEmail}</label>
-                                <input type="email" id="email" name="email" value={formData.email}
-                                    onChange={handleChange} placeholder="exemplu@email.com" required />
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="subject">{t.contactSubject}</label>
-                                <input type="text" id="subject" name="subject" value={formData.subject}
-                                    onChange={handleChange} placeholder={t.contactSubject} required />
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="message">{t.contactMessage}</label>
-                                <textarea id="message" name="message" value={formData.message}
-                                    onChange={handleChange} placeholder={t.contactMessage} rows={6} required></textarea>
-                            </div>
-
-                            <button type="submit" className="submit-btn">{t.contactSubmit}</button>
-                        </form>
                     </div>
 
                     <div className="map-section">

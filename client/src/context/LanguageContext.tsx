@@ -353,6 +353,7 @@ export interface Translations {
     auditTargetRecord: string;
     auditTargetSystem: string;
     auditTargetUser: string;
+    backToHome: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -687,6 +688,7 @@ const translations: Record<Language, Translations> = {
         auditTargetRecord: "Dosar Medical",
         auditTargetSystem: "Sistem",
         auditTargetUser: "Utilizator",
+        backToHome: "Înapoi la Home",
     },
 
     ru: {
@@ -1019,6 +1021,7 @@ const translations: Record<Language, Translations> = {
         auditTargetRecord: "Медкарта",
         auditTargetSystem: "Система",
         auditTargetUser: "Пользователь",
+        backToHome: "На главную",
     },
 
     en: {
@@ -1351,6 +1354,7 @@ const translations: Record<Language, Translations> = {
         auditTargetRecord: "Medical Record",
         auditTargetSystem: "System",
         auditTargetUser: "User",
+        backToHome: "Back to Home",
     },
 };
 

@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useLanguage } from "../../context/LanguageContext";
 
-const TEST_EMAIL = "admin@gmail.com";
-const TEST_PASSWORD = "admin";
+const ADMIN_EMAIL = "admin@gmail.com";
+const ADMIN_PASSWORD = "admin";
 
-const AUDIT_EMAIL = "audit@gmail.com";
-const AUDIT_PASSWORD = "audit";
+const PATIENT_EMAIL = "pacient@gmail.com";
+const PATIENT_PASSWORD = "pacient";
 
 const LoginPage = () => {
     const [activeTab, setActiveTab] = useState<"existing" | "new">("existing");
@@ -33,12 +33,12 @@ const LoginPage = () => {
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        if (loginEmail === TEST_EMAIL && loginPassword === TEST_PASSWORD) {
-            login({ name: "Admin", email: TEST_EMAIL });
-            navigate("/");
-        } else if (loginEmail === AUDIT_EMAIL && loginPassword === AUDIT_PASSWORD) {
-            login({ name: "Audit Admin", email: AUDIT_EMAIL });
-            navigate("/activity");
+        if (loginEmail === ADMIN_EMAIL && loginPassword === ADMIN_PASSWORD) {
+            login({ name: "Admin", email: ADMIN_EMAIL, role: "admin" });
+            navigate("/admin");
+        } else if (loginEmail === PATIENT_EMAIL && loginPassword === PATIENT_PASSWORD) {
+            login({ name: "Pacient", email: PATIENT_EMAIL, role: "user" });
+            navigate("/profile");
         } else {
             setLoginError("Email sau parolă incorectă.");
         }
@@ -60,6 +60,12 @@ const LoginPage = () => {
 
                 <div className={`right ${!isExistingPatient ? 'scroll-enabled' : ''}`}>
                     <div className="login-header">
+                        <button
+                            className="back-home-btn"
+                            onClick={() => navigate("/")}
+                        >
+                            ← {t.backToHome ?? "Înapoi la Home"}
+                        </button>
                         <h2>{isExistingPatient ? t.loginTitle : t.registerTitle}</h2>
                     </div>
 
@@ -207,6 +213,7 @@ const LoginPage = () => {
 
             </div>
         </div>
+
     );
 };
 

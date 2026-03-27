@@ -1,9 +1,12 @@
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 
+export type UserRole = "admin" | "user";
+
 export interface User {
     name: string;
     email: string;
+    role: UserRole;
     photo?: string;
 }
 
@@ -12,6 +15,7 @@ interface AuthContextType {
     login: (user: User) => void;
     logout: () => void;
     isAuthenticated: boolean;
+    isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,7 +36,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             user,
             login,
             logout,
-            isAuthenticated: user !== null
+            isAuthenticated: user !== null,
+            isAdmin: user?.role === "admin"
         }}>
             {children}
         </AuthContext.Provider>
