@@ -4,6 +4,8 @@ import { useLanguage } from '../../context/LanguageContext';
 import AdminNavbar from '../../shared/AdminNavbar/AdminNavbar';
 import Footer from '../../shared/Footer/Footer';
 import { getSpecializationLabel, translateSpecialization } from '../../utils/translateSpecialization';
+import { useNotifications } from '../../context/NotificationContext';
+import type { Notification } from '../../context/NotificationContext';
 
 interface Patient {
   id: number;
@@ -37,7 +39,8 @@ interface Appointment {
 
 const AdminDashboard: React.FC = () => {
   const { t, language } = useLanguage();
-  const [activeSection, setActiveSection] = useState<'statistici' | 'programari' | 'pacienti' | 'medici'>('pacienti');
+  const { notifications, setNotifications } = useNotifications();
+  const [activeSection, setActiveSection] = useState<'statistici' | 'programari' | 'pacienti' | 'medici' | 'notificari'>('pacienti');
   const [patients, setPatients] = useState<Patient[]>([
     { id: 1, name: 'Maria Popescu', age: 34, phone: '0721234567', email: 'maria.popescu@email.com', lastVisit: '2024-02-15', status: 'Active', avatar: 'MP' },
     { id: 2, name: 'Ion Ionescu', age: 45, phone: '0732345678', email: 'ion.ionescu@email.com', lastVisit: '2024-02-10', status: 'Active', avatar: 'II' },
@@ -77,6 +80,23 @@ const AdminDashboard: React.FC = () => {
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [appointmentFormData, setAppointmentFormData] = useState({ date: '', time: '', patientName: '', doctorName: '', status: 'Confirmed' as 'Confirmed' | 'Pending' });
+
+  // Notification state
+  const [selectedPatients, setSelectedPatients] = useState<number[]>([]);
+  const [patientSearchTerm, setPatientSearchTerm] = useState('');
+  const [notificationFormData, setNotificationFormData] = useState({
+    title: '',
+    message: ''
+  });
+  const [notificationHistory, setNotificationHistory] = useState<Array<{
+    id: number;
+    adminName: string;
+    patientNames: string[];
+    title: string;
+    message: string;
+    timestamp: string;
+  }>>([]);
+  const [expandedHistoryIds, setExpandedHistoryIds] = useState<number[]>([]);
 
   const getAvatar = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase();
 
@@ -150,6 +170,74 @@ const AdminDashboard: React.FC = () => {
     }
     setShowAppointmentModal(false);
     setEditingAppointment(null);
+  };
+
+  // Notification handlers
+  const togglePatientSelection = (patientId: number) => {
+    setSelectedPatients(prev =>
+      prev.includes(patientId) ? prev.filter(id => id !== patientId) : [...prev, patientId]
+    );
+  };
+
+  const handleSendNotification = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedPatients.length === 0) {
+      alert(language === 'ru' ? 'Выберите хотя бы одного пациента' : language === 'en' ? 'Select at least one patient' : 'Selectați cel puțin un pacient');
+      return;
+    }
+
+    const now = new Date();
+    const timeStr = language === 'ru' ? 'Только что' : language === 'en' ? 'Just now' : 'Acum';
+
+    const newNotifications: Notification[] = selectedPatients.map(patientId => {
+      return {
+        id: Math.max(...notifications.map(n => n.id), 0) + patientId,
+        type: 'sistem',
+        title: notificationFormData.title,
+        message: notificationFormData.message,
+        time: timeStr,
+        read: false
+      };
+    });
+
+    setNotifications([...newNotifications, ...notifications]);
+
+    // Add to history
+    const selectedPatientNames = patients
+      .filter(p => selectedPatients.includes(p.id))
+      .map(p => p.name);
+
+    const historyEntry = {
+      id: Date.now(),
+      adminName: 'Admin',
+      patientNames: selectedPatientNames,
+      title: notificationFormData.title,
+      message: notificationFormData.message,
+      timestamp: new Date().toLocaleString(language === 'ru' ? 'ru-RU' : language === 'en' ? 'en-US' : 'ro-RO')
+    };
+
+    setNotificationHistory([historyEntry, ...notificationHistory]);
+
+    // Reset form
+    setNotificationFormData({ title: '', message: '' });
+    setSelectedPatients([]);
+
+    alert(language === 'ru' ? `Уведомление отправлено ${selectedPatients.length} пациентам` :
+          language === 'en' ? `Notification sent to ${selectedPatients.length} patients` :
+          `Notificare trimisă la ${selectedPatients.length} pacienți`);
+  };
+
+  const filteredPatientsForNotification = patients.filter(patient => {
+    if (patient.status !== 'Active') return false;
+    const searchLower = patientSearchTerm.toLowerCase();
+    return patient.name.toLowerCase().includes(searchLower) ||
+           patient.email.toLowerCase().includes(searchLower);
+  });
+
+  const toggleHistoryDetails = (id: number) => {
+    setExpandedHistoryIds(prev =>
+      prev.includes(id) ? prev.filter(historyId => historyId !== id) : [...prev, id]
+    );
   };
 
 
@@ -229,6 +317,9 @@ const AdminDashboard: React.FC = () => {
               <a href="#" className={`nav-item ${activeSection === 'programari' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('programari'); }}>{t.adminAppts}</a>
               <a href="#" className={`nav-item ${activeSection === 'pacienti' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('pacienti'); }}>{t.adminPatients}</a>
               <a href="#" className={`nav-item ${activeSection === 'medici' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('medici'); }}>{t.adminDoctors}</a>
+              <a href="#" className={`nav-item ${activeSection === 'notificari' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('notificari'); }}>
+                {language === 'ru' ? 'Уведомления' : language === 'en' ? 'Notifications' : 'Notificări'}
+              </a>
             </nav>
           </aside>
 
@@ -415,6 +506,161 @@ const AdminDashboard: React.FC = () => {
                         ))}
                         </tbody>
                       </table>
+                    </div>
+                  </div>
+              )}
+
+              {activeSection === 'notificari' && (
+                  <div className="section-content">
+                    <div className="notifications-section">
+                      <div className="notification-content-grid">
+                        {/* Left side - Patient selection */}
+                        <div className="patients-selection-panel">
+                          <div className="panel-header">
+                            <h3>{language === 'ru' ? 'Пациенты' : language === 'en' ? 'Patients' : 'Pacienți'}</h3>
+                            <span className="selected-count">
+                              {selectedPatients.length} {language === 'ru' ? 'выбрано' : language === 'en' ? 'selected' : 'selectați'}
+                            </span>
+                          </div>
+
+                          <div className="search-patient-box">
+                            <input
+                                type="text"
+                                className="search-patient-input"
+                                placeholder={language === 'ru' ? 'Поиск по имени или email...' : language === 'en' ? 'Search by name or email...' : 'Caută după nume sau email...'}
+                                value={patientSearchTerm}
+                                onChange={(e) => setPatientSearchTerm(e.target.value)}
+                            />
+                          </div>
+
+                          <div className="patients-list">
+                            {filteredPatientsForNotification.map(patient => (
+                                <div
+                                    key={patient.id}
+                                    className={`patient-select-card ${selectedPatients.includes(patient.id) ? 'selected' : ''}`}
+                                    onClick={() => togglePatientSelection(patient.id)}
+                                >
+                                  <input
+                                      type="checkbox"
+                                      checked={selectedPatients.includes(patient.id)}
+                                      onChange={() => {}}
+                                  />
+                                  <div className="patient-avatar">{patient.avatar}</div>
+                                  <div className="patient-details">
+                                    <span className="patient-name">{patient.name}</span>
+                                    <span className="patient-email">{patient.email}</span>
+                                  </div>
+                                </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Right side - Notification form */}
+                        <div className="notification-form-panel">
+                          <form onSubmit={handleSendNotification}>
+                            <div className="form-group">
+                              <label>
+                                {language === 'ru' ? 'Заголовок' : language === 'en' ? 'Title' : 'Titlu'} *
+                                <span className="char-counter">
+                                  {notificationFormData.title.length}/50
+                                </span>
+                              </label>
+                              <input
+                                  type="text"
+                                  className="form-input"
+                                  required
+                                  maxLength={50}
+                                  placeholder={language === 'ru' ? 'Введите заголовок уведомления' : language === 'en' ? 'Enter notification title' : 'Introduceți titlul notificării'}
+                                  value={notificationFormData.title}
+                                  onChange={(e) => setNotificationFormData({ ...notificationFormData, title: e.target.value })}
+                              />
+                            </div>
+
+                            <div className="form-group">
+                              <label>
+                                {language === 'ru' ? 'Сообщение' : language === 'en' ? 'Message' : 'Mesaj'} *
+                                <span className="char-counter">
+                                  {notificationFormData.message.length}/200
+                                </span>
+                              </label>
+                              <textarea
+                                  className="form-textarea"
+                                  rows={6}
+                                  required
+                                  maxLength={200}
+                                  placeholder={language === 'ru' ? 'Введите текст уведомления' : language === 'en' ? 'Enter notification message' : 'Introduceți mesajul notificării'}
+                                  value={notificationFormData.message}
+                                  onChange={(e) => setNotificationFormData({ ...notificationFormData, message: e.target.value })}
+                              />
+                            </div>
+
+                            <div className="form-actions">
+                              <button type="submit" className="btn-send-notification">
+                                {language === 'ru' ? 'Отправить' : language === 'en' ? 'Send' : 'Trimite'}
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+
+                      {/* Notification History */}
+                      <div className="notification-history-section">
+                        <h3 className="history-title">
+                          {language === 'ru' ? 'История уведомлений' : language === 'en' ? 'Notification History' : 'Istoric Notificări'}
+                        </h3>
+
+                        {notificationHistory.length === 0 ? (
+                          <div className="history-empty">
+                            <p>{language === 'ru' ? 'История пуста' : language === 'en' ? 'No history yet' : 'Niciun istoric încă'}</p>
+                          </div>
+                        ) : (
+                          <div className="history-list">
+                            {notificationHistory.map(entry => {
+                              const isExpanded = expandedHistoryIds.includes(entry.id);
+                              return (
+                                <div key={entry.id} className="history-card">
+                                  <div className="history-header">
+                                    <div className="history-meta">
+                                      <span className="history-admin">
+                                        {language === 'ru' ? 'От' : language === 'en' ? 'From' : 'De la'}: <strong>{entry.adminName}</strong>
+                                      </span>
+                                      <span className="history-timestamp">{entry.timestamp}</span>
+                                    </div>
+                                  </div>
+
+                                  <div className="history-recipients">
+                                    <span className="recipients-label">
+                                      {language === 'ru' ? 'Кому' : language === 'en' ? 'To' : 'Către'}:
+                                    </span>
+                                    <div className="recipients-tags">
+                                      {entry.patientNames.map((name, idx) => (
+                                        <span key={idx} className="recipient-tag">{name}</span>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  {isExpanded && (
+                                    <div className="history-content">
+                                      <h4 className="history-subject">{entry.title}</h4>
+                                      <p className="history-message">{entry.message}</p>
+                                    </div>
+                                  )}
+
+                                  <button
+                                    className="btn-toggle-details"
+                                    onClick={() => toggleHistoryDetails(entry.id)}
+                                  >
+                                    {isExpanded
+                                      ? (language === 'ru' ? 'Скрыть' : language === 'en' ? 'Hide' : 'Ascunde')
+                                      : (language === 'ru' ? 'Детали' : language === 'en' ? 'Details' : 'Detalii')
+                                    }
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
               )}
