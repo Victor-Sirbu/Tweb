@@ -38,34 +38,6 @@ export default function NotificationsPage() {
         return "Înapoi";
     };
 
-    const getTypeConfig = (type: string) => {
-        if (language === "ru") {
-            const ru: Record<string, { label: string; color: string; bg: string }> = {
-                programare: { label: "Запись",       color: "#3a7bd5", bg: "#dbeafe" },
-                rezultat:   { label: "Результат",    color: "#0d9488", bg: "#ccfbf1" },
-                reamintire: { label: "Напоминание",  color: "#d97706", bg: "#fef3c7" },
-                sistem:     { label: "Система",      color: "#6b7280", bg: "#f3f4f6" },
-            };
-            return ru[type] ?? { label: type, color: "#6b7280", bg: "#f3f4f6" };
-        }
-        if (language === "en") {
-            const en: Record<string, { label: string; color: string; bg: string }> = {
-                programare: { label: "Appointment", color: "#3a7bd5", bg: "#dbeafe" },
-                rezultat:   { label: "Result",      color: "#0d9488", bg: "#ccfbf1" },
-                reamintire: { label: "Reminder",    color: "#d97706", bg: "#fef3c7" },
-                sistem:     { label: "System",      color: "#6b7280", bg: "#f3f4f6" },
-            };
-            return en[type] ?? { label: type, color: "#6b7280", bg: "#f3f4f6" };
-        }
-        const ro: Record<string, { label: string; color: string; bg: string }> = {
-            programare: { label: "Programare", color: "#3a7bd5", bg: "#dbeafe" },
-            rezultat:   { label: "Rezultat",   color: "#0d9488", bg: "#ccfbf1" },
-            reamintire: { label: "Reamintire", color: "#d97706", bg: "#fef3c7" },
-            sistem:     { label: "Sistem",     color: "#6b7280", bg: "#f3f4f6" },
-        };
-        return ro[type] ?? { label: type, color: "#6b7280", bg: "#f3f4f6" };
-    };
-
     const tabs = [
         { key: "all",    label: t.notifAll },
         { key: "unread", label: t.notifUnreadTab },
@@ -127,7 +99,6 @@ export default function NotificationsPage() {
                     </div>
                 )}
                 {filtered.map((n) => {
-                    const cfg = getTypeConfig(n.type);
                     return (
                         <div
                             key={n.id}

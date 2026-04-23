@@ -186,7 +186,7 @@ const AdminDashboard: React.FC = () => {
       return;
     }
 
-    const now = new Date();
+
     const timeStr = language === 'ru' ? 'Только что' : language === 'en' ? 'Just now' : 'Acum';
 
     const newNotifications: Notification[] = selectedPatients.map(patientId => {
