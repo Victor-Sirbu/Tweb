@@ -227,7 +227,6 @@ const MedicalServices = () => {
                                         <div className="ms-service-cat-badge">{activeCategoryLabel !== t.msCatAll ? activeCategoryLabel : categories.find(c => c.key === service.category)?.label}</div>
                                         <h3 className="ms-service-title">{localized.title}</h3>
                                         <p className="ms-service-description">{localized.desc}</p>
-                                        <p className="ms-service-details">{localized.det}</p>
                                         <div className="ms-service-meta">
                                             <div className="ms-meta-item">
                                                 <span className="ms-meta-label">{t.msPrice}</span>

@@ -209,13 +209,13 @@
     top: 0;
     bottom: 0;
     width: 5px;
+    background: #3a7bd5;
     transition: width 0.3s;
 }
 
-.notif-card[data-type="programare"]::before { background: linear-gradient(180deg, #3a7bd5 0%, #5a9bf5 100%); }
-.notif-card[data-type="rezultat"]::before   { background: linear-gradient(180deg, #0d9488 0%, #14b8a6 100%); }
-.notif-card[data-type="reamintire"]::before { background: linear-gradient(180deg, #d97706 0%, #f59e0b 100%); }
-.notif-card[data-type="sistem"]::before     { background: linear-gradient(180deg, #6b7280 0%, #9ca3af 100%); }
+.notif-card--unread::before {
+    background: #ef4444;
+}
 
 .notif-card:hover {
     box-shadow: 0 8px 24px rgba(58, 123, 213, 0.12);

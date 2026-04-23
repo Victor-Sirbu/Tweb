@@ -142,9 +142,6 @@ export default function NotificationsPage() {
                                 </div>
                                 <p className="notif-message">{n.message}</p>
                                 <div className="notif-footer">
-                                    <span className="notif-badge" style={{ background: cfg.bg, color: cfg.color }}>
-                                        {cfg.label}
-                                    </span>
                                     <span className="notif-time">{n.time}</span>
                                 </div>
                             </div>
@@ -156,11 +153,8 @@ export default function NotificationsPage() {
             {selected && (
                 <div className="modal-overlay" onClick={() => setSelected(null)}>
                     <div className="modal" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header" style={{ borderLeft: `5px solid ${getTypeConfig(selected.type).color}` }}>
+                        <div className="modal-header">
                             <div>
-                                <span className="modal-badge" style={{ background: getTypeConfig(selected.type).bg, color: getTypeConfig(selected.type).color }}>
-                                    {getTypeConfig(selected.type).label}
-                                </span>
                                 <h2 className="modal-title">{selected.title}</h2>
                                 <span className="modal-time">{selected.time}</span>
                             </div>
