@@ -11,7 +11,7 @@ export default function NotificationsPage() {
     const [filtru, setFiltru] = useState("all");
     const [selected, setSelected] = useState<Notification | null>(null);
 
-    // Update notifications when language changes
+
     useEffect(() => {
         updateLanguage(language);
     }, [language, updateLanguage]);
