@@ -12,7 +12,7 @@ export interface User {
 
 interface AuthContextType {
     user: User | null;
-    login: (user: User) => void;
+    login: (user: User, token: string) => void;
     logout: () => void;
     isAuthenticated: boolean;
     isAdmin: boolean;
@@ -21,14 +21,22 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<User | null>(() => {
+        // Citim userul din localStorage la initializare (persista dupa refresh)
+        const saved = localStorage.getItem("user");
+        return saved ? JSON.parse(saved) : null;
+    });
 
-    const login = (userData: User) => {
+    const login = (userData: User, token: string) => {
         setUser(userData);
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(userData));
     };
 
     const logout = () => {
         setUser(null);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
     };
 
     return (
