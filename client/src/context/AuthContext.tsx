@@ -22,7 +22,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(() => {
-        // Citim userul din localStorage la initializare (persista dupa refresh)
+
         const saved = localStorage.getItem("user");
         return saved ? JSON.parse(saved) : null;
     });

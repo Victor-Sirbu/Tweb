@@ -409,3 +409,63 @@
     }
 }
 
+
+/* MODAL RESET PAROLA */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.modal-card h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.cancel-btn {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.cancel-btn:hover {
+    background: #f5f5f5;
+}
+
+.success-message {
+    color: #16a34a;
+    font-size: 0.875rem;
+}
+
+.success-message {
+    color: #16a34a;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
