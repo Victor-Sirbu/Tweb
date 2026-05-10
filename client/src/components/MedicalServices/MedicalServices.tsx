@@ -9,87 +9,75 @@ import heroBg3 from "../../assets/hero-bg3.jpg";
 import heroBg4 from "../../assets/hero-bg4.jpg";
 import heroBg5 from "../../assets/hero-bg5.jpg";
 import { useLanguage } from "../../context/LanguageContext";
-
-// Each service has names and descriptions for all 3 languages, plus the raw category key
-const servicesData = [
-    {
-        category: "Generala",
-        ro: { title: "Medicina Internă",      desc: "Consultații complete pentru diagnostic și tratament al afecțiunilor interne.", det: "Evaluare medicală complexă, tratamente personalizate și monitorizare continuă." },
-        ru: { title: "Внутренняя медицина",   desc: "Полные консультации по диагностике и лечению внутренних заболеваний.",        det: "Комплексная медицинская оценка, персонализированное лечение и наблюдение." },
-        en: { title: "Internal Medicine",     desc: "Complete consultations for diagnosis and treatment of internal conditions.",    det: "Complex medical evaluation, personalized treatments and continuous monitoring." },
-        price: "250 MDL", duration: "45 min",
-    },
-    {
-        category: "Specialitate",
-        ro: { title: "Cardiologie",            desc: "Evaluări cardiologice complete, ECG, monitorizare holter și ecocardiografie.",     det: "Prevenție și tratament boli cardiovasculare, consult specializat." },
-        ru: { title: "Кардиология",            desc: "Полные кардиологические обследования, ЭКГ, мониторинг Холтера и эхокардиография.", det: "Профилактика и лечение сердечно-сосудистых заболеваний." },
-        en: { title: "Cardiology",             desc: "Complete cardiology evaluations, ECG, Holter monitoring and echocardiography.",     det: "Prevention and treatment of cardiovascular diseases, specialized consultation." },
-        price: "350 MDL", duration: "60 min",
-    },
-    {
-        category: "Laborator",
-        ro: { title: "Analize Medicale",       desc: "Laborator modern cu rezultate rapide și precise disponibile online.",            det: "Analize sânge, urină, teste hormonale, markeri tumorali și biochimie." },
-        ru: { title: "Медицинские анализы",    desc: "Современная лаборатория с быстрыми и точными результатами онлайн.",             det: "Анализы крови, мочи, гормональные тесты, онкомаркеры и биохимия." },
-        en: { title: "Medical Lab Tests",      desc: "Modern laboratory with fast, precise results available online.",                 det: "Blood, urine, hormonal tests, tumor markers and biochemistry." },
-        price: "150 MDL", duration: "30 min",
-    },
-    {
-        category: "Generala",
-        ro: { title: "Medicine de Familie",    desc: "Îngrijire medicală continuă și personalizată pentru întreaga familie.",          det: "Medic de familie, vaccinări, consultații pediatrice și geriatrice." },
-        ru: { title: "Семейная медицина",      desc: "Непрерывная и персонализированная медицинская помощь для всей семьи.",          det: "Семейный врач, вакцинация, педиатрические и гериатрические консультации." },
-        en: { title: "Family Medicine",        desc: "Continuous and personalized medical care for the whole family.",                  det: "Family doctor, vaccinations, pediatric and geriatric consultations." },
-        price: "200 MDL", duration: "40 min",
-    },
-    {
-        category: "Specialitate",
-        ro: { title: "Ortopedie",             desc: "Diagnostic și tratament afecțiuni osteo-articulare și traumatologie.",           det: "Traumatologie, recuperare medicală, infiltrații articulare." },
-        ru: { title: "Ортопедия",             desc: "Диагностика и лечение костно-суставных заболеваний и травм.",                   det: "Травматология, медицинская реабилитация, суставные инъекции." },
-        en: { title: "Orthopedics",           desc: "Diagnosis and treatment of bone-joint conditions and traumatology.",             det: "Traumatology, medical rehabilitation, joint infiltrations." },
-        price: "400 MDL", duration: "60 min",
-    },
-    {
-        category: "Specialitate",
-        ro: { title: "Oftalmologie",          desc: "Consultații oftalmologice complete și teste de vedere avansate.",               det: "Control vedere, diagnostic glaucom, tratament cataractă și retinopatie." },
-        ru: { title: "Офтальмология",         desc: "Полные офтальмологические консультации и расширенные тесты зрения.",           det: "Проверка зрения, диагностика глаукомы, лечение катаракты и ретинопатии." },
-        en: { title: "Ophthalmology",         desc: "Complete ophthalmologic consultations and advanced vision tests.",              det: "Vision check, glaucoma diagnosis, cataract and retinopathy treatment." },
-        price: "300 MDL", duration: "45 min",
-    },
-    {
-        category: "Specialitate",
-        ro: { title: "Neurologie",            desc: "Evaluare neurologică și tratament afecțiuni ale sistemului nervos.",            det: "Migrene, vertij, neuropatii periferice, diagnostic AVC." },
-        ru: { title: "Неврология",            desc: "Неврологическая оценка и лечение заболеваний нервной системы.",                det: "Мигрень, головокружение, периферические нейропатии, диагностика инсульта." },
-        en: { title: "Neurology",             desc: "Neurological evaluation and treatment of nervous system conditions.",           det: "Migraines, vertigo, peripheral neuropathies, stroke diagnosis." },
-        price: "380 MDL", duration: "60 min",
-    },
-    {
-        category: "Specialitate",
-        ro: { title: "Endocrinologie",        desc: "Diagnostic și tratament afecțiuni hormonale și metabolice.",                   det: "Diabet, afecțiuni tiroidiene, tulburări metabolice și suprarenale." },
-        ru: { title: "Эндокринология",        desc: "Диагностика и лечение гормональных и метаболических заболеваний.",            det: "Диабет, заболевания щитовидной железы, метаболические и надпочечниковые нарушения." },
-        en: { title: "Endocrinology",         desc: "Diagnosis and treatment of hormonal and metabolic conditions.",                 det: "Diabetes, thyroid disorders, metabolic and adrenal disorders." },
-        price: "350 MDL", duration: "50 min",
-    },
-    {
-        category: "Imagistica",
-        ro: { title: "Ecografie",             desc: "Ecografie abdominală, cardiacă și musculo-scheletală de înaltă rezoluție.",    det: "Aparat ecograf performant, rezultate imediate cu raport detaliat." },
-        ru: { title: "УЗИ",                   desc: "Брюшное, сердечное и мышечно-скелетное УЗИ высокого разрешения.",             det: "Современный аппарат УЗИ, немедленные результаты с подробным отчётом." },
-        en: { title: "Ultrasound",            desc: "Abdominal, cardiac and musculoskeletal ultrasound of high resolution.",        det: "High-performance ultrasound machine, immediate results with detailed report." },
-        price: "280 MDL", duration: "30 min",
-    },
-];
-
+import { useApi } from "../../api/context";
 import type { Language } from "../../context/LanguageContext";
+
+// ─── Tipuri ───────────────────────────────────────────────────────────────────
+
+interface ServiceAPI {
+    id: number;
+    serviceName: string;
+    servicePrice: number;
+    serviceDescription: string;
+    serviceDuration: number;
+    category: number;
+}
+
+interface Service {
+    category: string;
+    ro: { title: string; desc: string };
+    ru: { title: string; desc: string };
+    en: { title: string; desc: string };
+    price: string;
+    duration: string;
+}
+
+// ─── Mapări ───────────────────────────────────────────────────────────────────
+
+const CATEGORY_MAP: Record<number, string> = {
+    0: "Generala",
+    1: "Specialitate",
+    2: "Laborator",
+    3: "Imagistica",
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 const MedicalServices = () => {
     const { t, language } = useLanguage();
     const navigate = useNavigate();
+    const api = useApi();
     const lang = language as Language;
 
+    const [services, setServices] = useState<Service[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        api.get<ServiceAPI[]>("/api/service/list")
+            .then((data) => {
+                if (data && data.length > 0) {
+                    setServices(data.map((s) => ({
+                        category: CATEGORY_MAP[s.category] ?? "Generala",
+                        ro: { title: s.serviceName, desc: s.serviceDescription },
+                        ru: { title: s.serviceName, desc: s.serviceDescription },
+                        en: { title: s.serviceName, desc: s.serviceDescription },
+                        price: `${s.servicePrice} MDL`,
+                        duration: `${s.serviceDuration} min`,
+                    })));
+                } else {
+                    setServices([]);
+                }
+            })
+            .catch(() => setServices([]))
+            .finally(() => setLoading(false));
+    }, []);
+
     const categories = [
-        { key: "Toate",       label: t.msCatAll },
-        { key: "Generala",    label: t.msCatGeneral },
-        { key: "Specialitate",label: t.msCatSpec },
-        { key: "Laborator",   label: t.msCatLab },
-        { key: "Imagistica",  label: t.msCatImaging },
+        { key: "Toate",        label: t.msCatAll },
+        { key: "Generala",     label: t.msCatGeneral },
+        { key: "Specialitate", label: t.msCatSpec },
+        { key: "Laborator",    label: t.msCatLab },
+        { key: "Imagistica",   label: t.msCatImaging },
     ];
 
     const [activeCategoryKey, setActiveCategoryKey] = useState("Toate");
@@ -104,28 +92,28 @@ const MedicalServices = () => {
         return () => clearInterval(interval);
     }, []);
 
-    const filtered = servicesData.filter((s) => {
+    const filtered = services.filter((s) => {
         const matchCat = activeCategoryKey === "Toate" || s.category === activeCategoryKey;
         const q = searchQuery.toLowerCase().trim();
         if (!q) return matchCat;
 
-        // Map category keys to their multilingual aliases for searching
         const catAliases: Record<string, string[]> = {
-            "Generala":    ["generala", "generală", "general", "общая", "общей", t.msCatGeneralaAlias.toLowerCase()],
-            "Specialitate":["specialitate", "specialty", "специальность", t.msCatSpecAlias.toLowerCase()],
-            "Laborator":   ["laborator", "laboratory", "лаборатория", "лаборатор", t.msCatLabAlias.toLowerCase()],
-            "Imagistica":  ["imagistica", "imagistică", "imaging", "визуализация", t.msCatImagAlias.toLowerCase()],
+            "Generala":     ["generala", "generală", "general", "общая"],
+            "Specialitate": ["specialitate", "specialty", "специальность"],
+            "Laborator":    ["laborator", "laboratory", "лаборатория"],
+            "Imagistica":   ["imagistica", "imagistică", "imaging", "визуализация"],
         };
 
-        // Check if query matches this service's category in any language
-        const catMatchesSearch = catAliases[s.category]?.some(alias => alias.includes(q) || q.includes(alias)) ?? false;
+        const catMatchesSearch = catAliases[s.category]?.some(
+            alias => alias.includes(q) || q.includes(alias)
+        ) ?? false;
 
-        // Search across all 3 languages
         const matchSearch =
             catMatchesSearch ||
             s.ro.title.toLowerCase().includes(q) || s.ro.desc.toLowerCase().includes(q) ||
             s.ru.title.toLowerCase().includes(q) || s.ru.desc.toLowerCase().includes(q) ||
             s.en.title.toLowerCase().includes(q) || s.en.desc.toLowerCase().includes(q);
+
         return matchCat && matchSearch;
     });
 
@@ -133,7 +121,6 @@ const MedicalServices = () => {
 
     return (
         <div className="ms-page">
-
             <Navbar />
 
             <section className="ms-hero">
@@ -160,7 +147,7 @@ const MedicalServices = () => {
 
                     <div className="ms-hero-stats-box">
                         <div className="ms-hero-stat">
-                            <span className="ms-stat-number">9+</span>
+                            <span className="ms-stat-number">{services.length}+</span>
                             <span className="ms-stat-label">{t.msSpecialties}</span>
                         </div>
                         <div className="ms-stat-divider"></div>
@@ -208,11 +195,15 @@ const MedicalServices = () => {
                             {activeCategoryKey === "Toate" ? t.msAllServices : activeCategoryLabel}
                         </h2>
                         <p className="ms-section-subtitle">
-                            {filtered.length} {filtered.length === 1 ? t.msFound1 : t.msFoundMany}
+                            {loading ? "Se încarcă..." : `${filtered.length} ${filtered.length === 1 ? t.msFound1 : t.msFoundMany}`}
                         </p>
                     </div>
 
-                    {filtered.length === 0 ? (
+                    {loading ? (
+                        <div className="ms-empty-state">
+                            <p style={{ fontSize: "16px", color: "#999" }}>Se încarcă serviciile...</p>
+                        </div>
+                    ) : filtered.length === 0 ? (
                         <div className="ms-empty-state">
                             <div className="ms-empty-icon">🔍</div>
                             <h3>{t.msNoResults}</h3>
@@ -224,7 +215,9 @@ const MedicalServices = () => {
                                 const localized = service[lang] ?? service.ro;
                                 return (
                                     <div key={index} className="ms-service-card">
-                                        <div className="ms-service-cat-badge">{activeCategoryLabel !== t.msCatAll ? activeCategoryLabel : categories.find(c => c.key === service.category)?.label}</div>
+                                        <div className="ms-service-cat-badge">
+                                            {categories.find(c => c.key === service.category)?.label ?? service.category}
+                                        </div>
                                         <h3 className="ms-service-title">{localized.title}</h3>
                                         <p className="ms-service-description">{localized.desc}</p>
                                         <div className="ms-service-meta">
@@ -247,7 +240,6 @@ const MedicalServices = () => {
             </section>
 
             <Footer />
-
         </div>
     );
 };
