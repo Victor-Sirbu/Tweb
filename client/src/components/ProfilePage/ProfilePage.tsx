@@ -37,6 +37,7 @@ interface PatientAPI {
     dateOfBirth?: string;
     sex?: string;
     status?: number;
+    createdAt?: string;
 }
 
 interface Programare {
@@ -147,6 +148,7 @@ const ProfilePage = () => {
     const api = useApi();
     const { userId, userEmail } = useAuth();
 
+
     // Rotatie imagini
     useEffect(() => {
         const interval = setInterval(() => setCurrentImage((prev) => (prev + 1) % images.length), 3000);
@@ -159,6 +161,7 @@ const ProfilePage = () => {
     const [telefon, setTelefon] = useState("");
     const [dataNasterii, setDataNasterii] = useState("");
     const [sex, setSex] = useState("");
+
 
     const [numeCompletTemp, setNumeCompletTemp] = useState("");
     const [emailTemp, setEmailTemp] = useState("");
@@ -180,6 +183,7 @@ const ProfilePage = () => {
                 setTelefon(data.phone ?? "");
                 setDataNasterii(data.dateOfBirth?.split("T")[0] ?? "");
                 setSex(data.sex ?? "");
+
 
                 setNumeCompletTemp(numeIntreg);
                 setEmailTemp(data.email ?? "");
@@ -424,7 +428,6 @@ const ProfilePage = () => {
                                 <div className="stat-box"><span className="stat-number">{programari.length}</span><span className="stat-label">{t.profApptsLabel}</span></div>
                                 <div className="stat-box"><span className="stat-number">{analize.length}</span><span className="stat-label">{t.profResultsLabel}</span></div>
                                 <div className="stat-box"><span className="stat-number">{[...new Set(programari.map(p => p.doctor))].length}</span><span className="stat-label">{t.profDoctorsLabel}</span></div>
-                                <div className="stat-box"><span className="stat-number">2</span><span className="stat-label">{t.profYearsLabel}</span></div>
                             </div>
                         </div>
                     </aside>

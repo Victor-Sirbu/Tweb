@@ -7,10 +7,24 @@ import { useNotifications, type Notification } from "../../context/NotificationC
 export default function NotificationsPage() {
     const { t, language } = useLanguage();
     const navigate = useNavigate();
-    const { notifications, unreadCount, setNotifications, markAllRead, deleteNotification, updateLanguage } = useNotifications();
+    const {
+        notifications,
+        unreadCount,
+        loading,
+        markAllRead,
+        markOneRead,
+        deleteNotification,
+        updateLanguage,
+        fetchNotifications,
+    } = useNotifications();
+
     const [filtru, setFiltru] = useState("all");
     const [selected, setSelected] = useState<Notification | null>(null);
 
+    // Fetch la montare
+    useEffect(() => {
+        fetchNotifications();
+    }, [fetchNotifications]);
 
     useEffect(() => {
         updateLanguage(language);
@@ -22,9 +36,11 @@ export default function NotificationsPage() {
         return true;
     });
 
-    const handleClick = (n: Notification) => {
+    const handleClick = async (n: Notification) => {
         setSelected(n);
-        setNotifications(notifications.map((item) => (item.id === n.id ? { ...item, read: true } : item)));
+        if (!n.read) {
+            await markOneRead(n.id);
+        }
     };
 
     const deleteNotif = (id: number) => {
@@ -92,14 +108,17 @@ export default function NotificationsPage() {
             </div>
 
             <div className="notif-list">
-                {filtered.length === 0 && (
+                {loading ? (
+                    <div className="empty-state">
+                        <p className="empty-text">Se încarcă notificările...</p>
+                    </div>
+                ) : filtered.length === 0 ? (
                     <div className="empty-state">
                         <div className="empty-icon">🔔</div>
                         <p className="empty-text">{t.notifEmpty}</p>
                     </div>
-                )}
-                {filtered.map((n) => {
-                    return (
+                ) : (
+                    filtered.map((n) => (
                         <div
                             key={n.id}
                             data-type={n.type}
@@ -117,8 +136,8 @@ export default function NotificationsPage() {
                                 </div>
                             </div>
                         </div>
-                    );
-                })}
+                    ))
+                )}
             </div>
 
             {selected && (
