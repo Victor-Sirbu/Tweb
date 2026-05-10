@@ -456,6 +456,13 @@ const AdminDashboard: React.FC = () => {
                               <td><span className={`status-badge ${patient.status.toLowerCase()}`}>{patient.status === 'Active' ? t.adminActive : t.adminInactive}</span></td>
                               <td>
                                 <div className="action-buttons">
+                                  <button className="btn-action btn-create" onClick={() => {
+                                    setEditingPatient(null);
+                                    setPatientFormData({ name: '', age: '', phone: '', email: '', status: 'Active' });
+                                    setShowPatientModal(true);
+                                  }}>
+                                    {language === 'ru' ? 'Создать' : language === 'en' ? 'Create' : 'Creează'}
+                                  </button>
                                   <button className="btn-action btn-edit" onClick={() => handleEditPatient(patient)}>{t.adminEdit}</button>
                                   <button className="btn-action btn-delete" onClick={() => handleDeletePatient(patient.id)}>{t.adminDelete}</button>
                                 </div>
@@ -498,6 +505,13 @@ const AdminDashboard: React.FC = () => {
                               <td><span className={`status-badge ${doctor.status.toLowerCase()}`}>{doctor.status === 'Active' ? t.adminActive : t.adminInactive}</span></td>
                               <td>
                                 <div className="action-buttons">
+                                  <button className="btn-action btn-create" onClick={() => {
+                                    setEditingDoctor(null);
+                                    setDoctorFormData({ name: '', specialization: '', phone: '', email: '', status: 'Active' });
+                                    setShowDoctorModal(true);
+                                  }}>
+                                    {language === 'ru' ? 'Создать' : language === 'en' ? 'Create' : 'Creează'}
+                                  </button>
                                   <button className="btn-action btn-edit" onClick={() => handleEditDoctor(doctor)}>{t.adminEdit}</button>
                                   <button className="btn-action btn-delete" onClick={() => handleDeleteDoctor(doctor.id)}>{t.adminDelete}</button>
                                 </div>
