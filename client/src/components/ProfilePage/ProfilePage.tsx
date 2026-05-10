@@ -148,7 +148,6 @@ const ProfilePage = () => {
     const api = useApi();
     const { userId, userEmail } = useAuth();
 
-
     // Rotatie imagini
     useEffect(() => {
         const interval = setInterval(() => setCurrentImage((prev) => (prev + 1) % images.length), 3000);
@@ -161,7 +160,6 @@ const ProfilePage = () => {
     const [telefon, setTelefon] = useState("");
     const [dataNasterii, setDataNasterii] = useState("");
     const [sex, setSex] = useState("");
-
 
     const [numeCompletTemp, setNumeCompletTemp] = useState("");
     const [emailTemp, setEmailTemp] = useState("");
@@ -183,7 +181,6 @@ const ProfilePage = () => {
                 setTelefon(data.phone ?? "");
                 setDataNasterii(data.dateOfBirth?.split("T")[0] ?? "");
                 setSex(data.sex ?? "");
-
 
                 setNumeCompletTemp(numeIntreg);
                 setEmailTemp(data.email ?? "");
@@ -280,6 +277,77 @@ const ProfilePage = () => {
             setTimeout(() => setShowSuccessMsg(false), 3000);
         } catch (err) {
             console.error("Eroare la salvare:", err);
+        }
+    };
+
+    // ── Recenzie ──
+    const [reviewRating, setReviewRating] = useState(5);
+    const [reviewText, setReviewText] = useState("");
+    const [reviewSending, setReviewSending] = useState(false);
+    const [reviewSuccess, setReviewSuccess] = useState(false);
+    const [reviewError, setReviewError] = useState("");
+
+    // Verifică dacă userul poate lăsa recenzie (o dată pe lună)
+    const [poateLasaRecenzie, setPoateLasaRecenzie] = useState(() => {
+        const ultima = localStorage.getItem(`review_${userId ?? ""}`);
+        if (!ultima) return true;
+        const zile = (new Date().getTime() - new Date(ultima).getTime()) / (1000 * 60 * 60 * 24);
+        return zile >= 30;
+    });
+
+    const [zileRamaseGlobal, setZileRamaseGlobal] = useState(() => {
+        const ultima = localStorage.getItem(`review_${userId ?? ""}`);
+        if (!ultima) return 0;
+        const zile = (new Date().getTime() - new Date(ultima).getTime()) / (1000 * 60 * 60 * 24);
+        return Math.ceil(30 - zile);
+    });
+
+    const trimiteRecenzie = async () => {
+        // Verificare limită - o recenzie pe lună
+        const ultimaRecenzie = localStorage.getItem(`review_${userId}`);
+        if (ultimaRecenzie) {
+            const data = new Date(ultimaRecenzie);
+            const zileleTrecute = (new Date().getTime() - data.getTime()) / (1000 * 60 * 60 * 24);
+            if (zileleTrecute < 30) {
+                const zileRamase = Math.ceil(30 - zileleTrecute);
+                setReviewError(
+                    language === "ru"
+                        ? `Вы можете оставить отзыв раз в месяц. Осталось ${zileRamase} дней.`
+                        : language === "en"
+                            ? `You can leave a review once a month. ${zileRamase} days remaining.`
+                            : `Poți lăsa o recenzie o dată pe lună. Mai ai ${zileRamase} zile.`
+                );
+                return;
+            }
+        }
+
+        if (!reviewText.trim()) {
+            setReviewError("Te rugăm să scrii o recenzie.");
+            return;
+        }
+
+        setReviewSending(true);
+        setReviewError("");
+
+        try {
+            await api.post<void>("/api/reviews/create", {
+                authorName: numeComplet || "Anonim",
+                reviewText: reviewText.trim(),
+                rating: reviewRating,
+                isVerifiedPatient: true,
+            });
+            //  Salvează data DOAR după succes
+            localStorage.setItem(`review_${userId}`, new Date().toISOString());
+            setPoateLasaRecenzie(false);
+            setZileRamaseGlobal(30);
+            setReviewSuccess(true);
+            setReviewText("");
+            setReviewRating(5);
+            setTimeout(() => setReviewSuccess(false), 4000);
+        } catch {
+            setReviewError("Eroare la trimiterea recenziei. Încearcă din nou.");
+        } finally {
+            setReviewSending(false);
         }
     };
 
@@ -384,10 +452,12 @@ const ProfilePage = () => {
                                     </div>
                                 </div>
                             </div>
-                        ) : !loadingProgramari && (
+                        ) : (
                             <div className="hero-next-appointment">
                                 <div className="hero-appointment-label">{t.profNextAppt}</div>
-                                <p style={{ color: "#fff", marginTop: "8px" }}>—</p>
+                                <p style={{ color: "#fff", marginTop: "8px" }}>
+                                    {loadingProgramari ? "Se încarcă..." : "—"}
+                                </p>
                             </div>
                         )}
                     </div>
@@ -424,7 +494,7 @@ const ProfilePage = () => {
 
                         <div className="sidebar-card stats-card">
                             <h3 className="sidebar-card-title">{t.profStats}</h3>
-                            <div className="stats-grid">
+                            <div className="stats-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
                                 <div className="stat-box"><span className="stat-number">{programari.length}</span><span className="stat-label">{t.profApptsLabel}</span></div>
                                 <div className="stat-box"><span className="stat-number">{analize.length}</span><span className="stat-label">{t.profResultsLabel}</span></div>
                                 <div className="stat-box"><span className="stat-number">{[...new Set(programari.map(p => p.doctor))].length}</span><span className="stat-label">{t.profDoctorsLabel}</span></div>
@@ -436,6 +506,9 @@ const ProfilePage = () => {
                         <div className="tabs-container">
                             <button className={`tab-btn ${activeTab === "programari" ? "tab-active" : ""}`} onClick={() => setActiveTab("programari")}>{t.profTabAppts}</button>
                             <button className={`tab-btn ${activeTab === "analize" ? "tab-active" : ""}`} onClick={() => setActiveTab("analize")}>{t.profTabResults}</button>
+                            <button className={`tab-btn ${activeTab === "recenzie" ? "tab-active" : ""}`} onClick={() => setActiveTab("recenzie")}>
+                                {language === "ru" ? "Отзыв" : language === "en" ? "Review" : "Recenzie"}
+                            </button>
                             <button className={`tab-btn ${activeTab === "setari" ? "tab-active" : ""}`} onClick={() => setActiveTab("setari")}>{t.profTabSettings}</button>
                         </div>
 
@@ -499,6 +572,125 @@ const ProfilePage = () => {
                                             </div>
                                         </div>
                                     ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === "recenzie" && (
+                            <div className="tab-content">
+                                <div className="content-header">
+                                    <h2 className="content-title">
+                                        {language === "ru" ? "Оставить отзыв" : language === "en" ? "Leave a Review" : "Lasă o Recenzie"}
+                                    </h2>
+                                </div>
+
+                                <div style={{ maxWidth: "600px" }}>
+                                    {/* Avertisment dacă nu poate lăsa recenzie */}
+                                    {!poateLasaRecenzie && (
+                                        <div style={{
+                                            padding: "12px 16px",
+                                            background: "#fff8e1",
+                                            border: "2px solid #f59e0b",
+                                            borderRadius: "10px",
+                                            color: "#92400e",
+                                            fontSize: "14px",
+                                            fontWeight: "600",
+                                            marginBottom: "20px"
+                                        }}>
+                                            ⚠️ {language === "ru"
+                                            ? `Вы уже оставили отзыв в этом месяце. Следующий возможен через ${zileRamaseGlobal} дней.`
+                                            : language === "en"
+                                                ? `You already left a review this month. Next available in ${zileRamaseGlobal} days.`
+                                                : `Ai lăsat deja o recenzie luna aceasta. Poți lăsa alta peste ${zileRamaseGlobal} zile.`}
+                                        </div>
+                                    )}
+
+                                    <p style={{ color: "#666", marginBottom: "24px", fontSize: "14px" }}>
+                                        {language === "ru"
+                                            ? "Поделитесь своим опытом и помогите другим пациентам."
+                                            : language === "en"
+                                                ? "Share your experience and help other patients."
+                                                : "Împărtășește experiența ta și ajută alți pacienți."}
+                                    </p>
+
+                                    {/* Rating */}
+                                    <div className="form-group">
+                                        <label className="form-label">
+                                            {language === "ru" ? "Оценка" : language === "en" ? "Rating" : "Evaluare"}
+                                        </label>
+                                        <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <button
+                                                    key={star}
+                                                    onClick={() => !poateLasaRecenzie ? null : setReviewRating(star)}
+                                                    disabled={!poateLasaRecenzie}
+                                                    style={{
+                                                        background: "none",
+                                                        border: "none",
+                                                        fontSize: "32px",
+                                                        cursor: poateLasaRecenzie ? "pointer" : "not-allowed",
+                                                        color: star <= reviewRating ? "#f59e0b" : "#d1d5db",
+                                                        transition: "color 0.2s",
+                                                        padding: "0 2px",
+                                                    }}
+                                                >
+                                                    ★
+                                                </button>
+                                            ))}
+                                            <span style={{ alignSelf: "center", fontSize: "14px", color: "#666", marginLeft: "8px" }}>
+                                                {reviewRating}/5
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Text */}
+                                    <div className="form-group">
+                                        <label className="form-label">
+                                            {language === "ru" ? "Ваш отзыв" : language === "en" ? "Your review" : "Recenzia ta"}
+                                        </label>
+                                        <textarea
+                                            className="form-input"
+                                            rows={5}
+                                            disabled={!poateLasaRecenzie}
+                                            style={{
+                                                resize: "vertical",
+                                                fontFamily: "inherit",
+                                                opacity: poateLasaRecenzie ? 1 : 0.5,
+                                            }}
+                                            placeholder={
+                                                language === "ru"
+                                                    ? "Descrieți experiența dumneavoastră..."
+                                                    : language === "en"
+                                                        ? "Describe your experience..."
+                                                        : "Descrie experiența ta..."
+                                            }
+                                            value={reviewText}
+                                            onChange={(e) => setReviewText(e.target.value)}
+                                        />
+                                    </div>
+
+                                    {reviewError && (
+                                        <p style={{ color: "#e53e3e", fontSize: "14px", marginBottom: "12px" }}>{reviewError}</p>
+                                    )}
+                                    {reviewSuccess && (
+                                        <div className="success-msg" style={{ marginBottom: "12px" }}>
+                                            {language === "ru"
+                                                ? "Отзыв отправлен! Спасибо!"
+                                                : language === "en"
+                                                    ? "Review submitted! Thank you!"
+                                                    : "Recenzia a fost trimisă! Mulțumim!"}
+                                        </div>
+                                    )}
+
+                                    <button
+                                        className="outline-btn"
+                                        onClick={trimiteRecenzie}
+                                        disabled={reviewSending || !poateLasaRecenzie}
+                                    >
+                                        {reviewSending
+                                            ? "Se trimite..."
+                                            : (language === "ru" ? "Trimite отзыв" : language === "en" ? "Submit Review" : "Trimite Recenzia")}
+                                    </button>
                                 </div>
                             </div>
                         )}

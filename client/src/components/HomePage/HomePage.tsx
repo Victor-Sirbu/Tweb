@@ -4,33 +4,125 @@ import Navbar from "../../shared/Navbar/Navbar";
 import HeroSlider from "../../shared/HeroSlider/HeroSlider";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
+import { useState, useEffect } from "react";
+import { useApi } from "../../api/context";
+
+interface MedicAPI {
+    id: number;
+    firstName: string;
+    lastName: string;
+    specialty: number;
+}
+
+interface ReviewAPI {
+    id: number;
+    authorName: string;
+    reviewText: string;
+    rating: number;
+    createdAt: string;
+    isVerifiedPatient: boolean;
+}
+
+const SPECIALITY_MAP: Record<number, string> = {
+    0: "Cardiologie",
+    1: "Pediatrie",
+    2: "Neurologie",
+    3: "Dermatologie",
+    4: "Oftalmologie",
+    5: "Stomatologie",
+    6: "Chirurgie",
+    7: "Ortopedie",
+};
+
+const getInitials = (firstName: string, lastName: string) =>
+    `${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.toUpperCase();
+
+const formatReviewDate = (createdAt: string) => {
+    const date = new Date(createdAt);
+    return date.toLocaleDateString("ro-RO", { month: "long", year: "numeric" });
+};
 
 const HomePage = () => {
     const { t } = useLanguage();
     const navigate = useNavigate();
+    const api = useApi();
 
-    const doctors = [
-        { name: "Dr. Tatiana Cobzac",  specialty: t.specInterna,   experience: t.exp15, education: "USMF Nicolae Testemițanu, Chișinău", initials: "TC" },
-        { name: "Dr. Vasile Munteanu", specialty: t.specCardio,     experience: t.exp12, education: "USMF Nicolae Testemițanu, Chișinău", initials: "VM" },
-        { name: "Dr. Natalia Botnari", specialty: t.specPediatrie,  experience: t.exp10, education: "USMF Nicolae Testemițanu, Chișinău", initials: "NB" },
-        { name: "Dr. Andrei Leahu",    specialty: t.specOrtoped,    experience: t.exp18, education: "UMF Carol Davila București",         initials: "AL" },
-    ];
+    // ── Medici cu fade ──
+    const [medici, setMedici] = useState<MedicAPI[]>([]);
+    const [medicPage, setMedicPage] = useState(0);
+    const [medicFading, setMedicFading] = useState(false);
+    const MEDICI_PER_PAGE = 4;
 
-    const testimonials = [
-        { name: "Tatiana Cojocaru", rating: 5, text: t.testi1, initials: "TC", date: "Ianuarie 2026" },
-        { name: "Vasile Rusu",      rating: 5, text: t.testi2, initials: "VR", date: "Decembrie 2025" },
-        { name: "Elena Ciobanu",    rating: 5, text: t.testi3, initials: "EC", date: "Februarie 2026" },
-        { name: "Dumitru Moraru",   rating: 5, text: t.testi4, initials: "DM", date: "Ianuarie 2026" },
-    ];
+    useEffect(() => {
+        api.get<MedicAPI[]>("/api/medic/list")
+            .then(setMedici)
+            .catch(() => setMedici([]));
+    }, []);
+
+    const totalMediciPages = Math.ceil(medici.length / MEDICI_PER_PAGE);
+
+    useEffect(() => {
+        if (medici.length <= MEDICI_PER_PAGE) return;
+        const timer = setInterval(() => {
+            goToMedicPage((medicPage + 1) % totalMediciPages);
+        }, 4000);
+        return () => clearInterval(timer);
+    }, [medici, medicPage, totalMediciPages]);
+
+    const goToMedicPage = (page: number) => {
+        setMedicFading(true);
+        setTimeout(() => {
+            setMedicPage(page);
+            setMedicFading(false);
+        }, 400);
+    };
+
+    const visibleMedici = medici.slice(
+        medicPage * MEDICI_PER_PAGE,
+        medicPage * MEDICI_PER_PAGE + MEDICI_PER_PAGE
+    );
+
+    // ── Reviews cu fade ──
+    const [reviews, setReviews] = useState<ReviewAPI[]>([]);
+    const [reviewPage, setReviewPage] = useState(0);
+    const [reviewFading, setReviewFading] = useState(false);
+    const REVIEWS_PER_PAGE = 4;
+
+    useEffect(() => {
+        api.get<ReviewAPI[]>("/api/reviews/list")
+            .then(setReviews)
+            .catch(() => setReviews([]));
+    }, []);
+
+    const totalReviewPages = Math.ceil(reviews.length / REVIEWS_PER_PAGE);
+
+    useEffect(() => {
+        if (reviews.length <= REVIEWS_PER_PAGE) return;
+        const timer = setInterval(() => {
+            goToReviewPage((reviewPage + 1) % totalReviewPages);
+        }, 5000);
+        return () => clearInterval(timer);
+    }, [reviews, reviewPage, totalReviewPages]);
+
+    const goToReviewPage = (page: number) => {
+        setReviewFading(true);
+        setTimeout(() => {
+            setReviewPage(page);
+            setReviewFading(false);
+        }, 400);
+    };
+
+    const visibleReviews = reviews.slice(
+        reviewPage * REVIEWS_PER_PAGE,
+        reviewPage * REVIEWS_PER_PAGE + REVIEWS_PER_PAGE
+    );
 
     return (
         <div className="homepage">
-
             <Navbar />
-
             <HeroSlider />
 
-
+            {/* Features */}
             <section className="features-section">
                 <div className="features-header">
                     <span className="features-label">{t.featuresLabel}</span>
@@ -45,7 +137,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-
+            {/* Medici */}
             <section id="echipa" className="team-section">
                 <div className="section-container">
                     <div className="section-header">
@@ -53,23 +145,45 @@ const HomePage = () => {
                         <h2 className="section-title">{t.teamTitle}</h2>
                         <p className="section-subtitle">{t.teamSubtitle}</p>
                     </div>
-                    <div className="team-grid">
-                        {doctors.map((doctor, index) => (
-                            <div key={index} className="doctor-card">
-                                <div className="doctor-avatar">{doctor.initials}</div>
-                                <h3 className="doctor-name">{doctor.name}</h3>
-                                <p className="doctor-specialty">{doctor.specialty}</p>
-                                <div className="doctor-info">
-                                    <p className="doctor-experience">{doctor.experience}</p>
-                                    <p className="doctor-education">{doctor.education}</p>
-                                </div>
+
+                    {medici.length === 0 ? (
+                        <p style={{ textAlign: "center", color: "#999" }}>Se încarcă medicii...</p>
+                    ) : (
+                        <>
+                            <div className={`team-grid ${medicFading ? "team-fading" : ""}`}>
+                                {visibleMedici.map((medic, idx) => (
+                                    <div key={`${medic.id}-${idx}`} className="doctor-card">
+                                        <div className="doctor-avatar">
+                                            {getInitials(medic.firstName, medic.lastName)}
+                                        </div>
+                                        <div className="doctor-details">
+                                            <h3 className="doctor-name">
+                                                Dr. {medic.firstName} {medic.lastName}
+                                            </h3>
+                                            <p className="doctor-specialty">
+                                                {SPECIALITY_MAP[medic.specialty] ?? "Specialist"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
+                            {totalMediciPages > 1 && (
+                                <div className="slideshow-dots">
+                                    {Array.from({ length: totalMediciPages }).map((_, i) => (
+                                        <button
+                                            key={i}
+                                            className={`slideshow-dot ${medicPage === i ? "slideshow-dot--active" : ""}`}
+                                            onClick={() => goToMedicPage(i)}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             </section>
 
-
+            {/* Cum funcționează */}
             <section className="how-it-works-section">
                 <div className="section-container">
                     <div className="section-header">
@@ -99,7 +213,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-
+            {/* Reviews */}
             <section id="testimoniale" className="testimonials-section">
                 <div className="section-container">
                     <div className="section-header">
@@ -107,30 +221,58 @@ const HomePage = () => {
                         <h2 className="section-title">{t.testiTitle}</h2>
                         <p className="section-subtitle">{t.testiSubtitle}</p>
                     </div>
-                    <div className="testimonials-grid">
-                        {testimonials.map((testimonial, index) => (
-                            <div key={index} className="testimonial-card">
-                                <div className="testimonial-header">
-                                    <div className="testimonial-avatar">{testimonial.initials}</div>
-                                    <div className="testimonial-info">
-                                        <p className="testimonial-name">{testimonial.name}</p>
-                                        <p className="testimonial-date">{testimonial.date}</p>
-                                    </div>
-                                </div>
-                                <div className="testimonial-rating">
-                                    {[...Array(testimonial.rating)].map((_, i) => (
-                                        <span key={i} className="star">★</span>
+
+                    {reviews.length === 0 ? (
+                        <p style={{ textAlign: "center", color: "#fff", opacity: 0.7 }}>Nu există recenzii încă.</p>
+                    ) : (
+                        <>
+                            <div className={`testimonials-grid ${reviewFading ? "testimonials-fading" : ""}`}>
+                                {visibleReviews.map((review, idx) => {
+                                    const initials = review.authorName
+                                        .split(" ")
+                                        .map((w) => w[0])
+                                        .join("")
+                                        .substring(0, 2)
+                                        .toUpperCase();
+                                    return (
+                                        <div key={`${review.id}-${idx}`} className="testimonial-card">
+                                            <div className="testimonial-header">
+                                                <div className="testimonial-avatar">{initials}</div>
+                                                <div className="testimonial-info">
+                                                    <p className="testimonial-name">{review.authorName}</p>
+                                                    <p className="testimonial-date">{formatReviewDate(review.createdAt)}</p>
+                                                </div>
+                                            </div>
+                                            <div className="testimonial-rating">
+                                                {[...Array(review.rating)].map((_, i) => (
+                                                    <span key={i} className="star">★</span>
+                                                ))}
+                                            </div>
+                                            <p className="testimonial-text">"{review.reviewText}"</p>
+                                            {review.isVerifiedPatient && (
+                                                <div className="testimonial-verified">✓ {t.verifiedPatient}</div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            {totalReviewPages > 1 && (
+                                <div className="slideshow-dots">
+                                    {Array.from({ length: totalReviewPages }).map((_, i) => (
+                                        <button
+                                            key={i}
+                                            className={`slideshow-dot ${reviewPage === i ? "slideshow-dot--active" : ""}`}
+                                            onClick={() => goToReviewPage(i)}
+                                        />
                                     ))}
                                 </div>
-                                <p className="testimonial-text">"{testimonial.text}"</p>
-                                <div className="testimonial-verified">✓ {t.verifiedPatient}</div>
-                            </div>
-                        ))}
-                    </div>
+                            )}
+                        </>
+                    )}
                 </div>
             </section>
 
-
+            {/* CTA */}
             <section className="cta-section">
                 <div className="cta-container">
                     <div className="cta-content">
@@ -155,7 +297,6 @@ const HomePage = () => {
             </section>
 
             <Footer />
-
         </div>
     );
 };
