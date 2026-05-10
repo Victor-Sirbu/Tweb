@@ -11,6 +11,33 @@ import { useLanguage } from "../../context/LanguageContext";
 import { translateSpecialization } from "../../utils/translateSpecialization";
 import { useNavigate } from "react-router-dom";
 import testPdf from "../../assets/test-result.pdf";
+import { useApi } from "../../api/context";
+import { useAuth } from "../../context/AuthContext";
+
+// Tipuri
+
+interface AppointmentAPI {
+    patientName: string;
+    phone: string;
+    email: string;
+    doctorName: string;
+    serviceName: string;
+    reasonForVisit: string;
+    appointmentTime: string;
+    appointmentDate: string;
+    status?: string;
+}
+
+interface PatientAPI {
+    id?: number;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    dateOfBirth?: string;
+    sex?: string;
+    status?: number;
+}
 
 interface Programare {
     id: number;
@@ -22,6 +49,8 @@ interface Programare {
     initials: string;
 }
 
+// Calendar
+
 const LUNI_RO = ["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
 const LUNI_RU = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
 const LUNI_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -30,6 +59,10 @@ const ZILE_RU = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 const ZILE_EN = ["Mo","Tu","We","Th","Fr","Sa","Su"];
 
 const parseDate = (dateStr: string) => {
+    if (dateStr.includes("-")) {
+        const [an, luna, zi] = dateStr.split("-").map(Number);
+        return new Date(an, luna - 1, zi);
+    }
     const months: Record<string, number> = {
         "Ianuarie": 0, "Februarie": 1, "Martie": 2, "Aprilie": 3,
         "Mai": 4, "Iunie": 5, "Iulie": 6, "August": 7,
@@ -37,6 +70,15 @@ const parseDate = (dateStr: string) => {
     };
     const parts = dateStr.split(" ");
     return new Date(parseInt(parts[2]), months[parts[1]] ?? 0, parseInt(parts[0]));
+};
+
+const formatDateDisplay = (dateStr: string, language: string): string => {
+    const LUNI = language === "ru" ? LUNI_RU : language === "en" ? LUNI_EN : LUNI_RO;
+    if (dateStr.includes("-")) {
+        const [an, luna, zi] = dateStr.split("-").map(Number);
+        return `${zi} ${LUNI[luna - 1]} ${an}`;
+    }
+    return dateStr;
 };
 
 const MiniCalendar = ({ programari, language }: { programari: Programare[], language: string }) => {
@@ -94,53 +136,154 @@ const MiniCalendar = ({ programari, language }: { programari: Programare[], lang
     );
 };
 
+// ProfilePage
+
 const ProfilePage = () => {
     const { t, language } = useLanguage();
     const [activeTab, setActiveTab] = useState("programari");
     const images = [heroBg1, heroBg2, heroBg3, heroBg4, heroBg5];
     const [currentImage, setCurrentImage] = useState(0);
     const navigate = useNavigate();
+    const api = useApi();
+    const { userId, userEmail } = useAuth();
 
+    // Rotatie imagini
     useEffect(() => {
         const interval = setInterval(() => setCurrentImage((prev) => (prev + 1) % images.length), 3000);
         return () => clearInterval(interval);
     }, []);
 
-    const [numeComplet, setNumeComplet] = useState("Ion Popescu");
-    const [email, setEmail] = useState("ion.popescu@email.com");
-    const [telefon, setTelefon] = useState("+373 69 123 456");
-    const [dataNasterii, setDataNasterii] = useState("1985-03-15");
-    const [oras, setOras] = useState("Chisinau, Moldova");
-    const formatData = (data: string) => { const [an, luna, zi] = data.split("-"); return `${zi}-${luna}-${an}`; };
+    // Date pacient
+    const [numeComplet, setNumeComplet] = useState("");
+    const [email, setEmail] = useState("");
+    const [telefon, setTelefon] = useState("");
+    const [dataNasterii, setDataNasterii] = useState("");
+    const [sex, setSex] = useState("");
 
-    const [showSuccessMsg, setShowSuccessMsg] = useState(false);
-    const [showCancelModal, setShowCancelModal] = useState(false);
-    const [programareDeAnulat, setProgramareDeAnulat] = useState<number | null>(null);
+    const [numeCompletTemp, setNumeCompletTemp] = useState("");
+    const [emailTemp, setEmailTemp] = useState("");
+    const [telefonTemp, setTelefonTemp] = useState("");
+    const [dataNasteriiTemp, setDataNasteriiTemp] = useState("");
+    const [sexTemp, setSexTemp] = useState("");
 
-    const [numeCompletTemp, setNumeCompletTemp] = useState("Ion Popescu");
-    const [emailTemp, setEmailTemp] = useState("ion.popescu@email.com");
-    const [telefonTemp, setTelefonTemp] = useState("+373 69 123 456");
-    const [dataNasteriiTemp, setDataNasteriiTemp] = useState("1985-03-15");
-    const [orasTemp, setOrasTemp] = useState("Chisinau, Moldova");
+    const [loadingProfile, setLoadingProfile] = useState(true);
 
-    const salveazaModificarile = () => {
-        setNumeComplet(numeCompletTemp); setEmail(emailTemp); setTelefon(telefonTemp);
-        setDataNasterii(dataNasteriiTemp); setOras(orasTemp);
-        setShowSuccessMsg(true); setTimeout(() => setShowSuccessMsg(false), 3000);
+    useEffect(() => {
+        if (!userId) return;
+        const fetchPatient = async () => {
+            try {
+                const data = await api.get<PatientAPI>(`/api/patients/${userId}`);
+                const numeIntreg = `${data.firstName ?? ""} ${data.lastName ?? ""}`.trim();
+
+                setNumeComplet(numeIntreg);
+                setEmail(data.email ?? "");
+                setTelefon(data.phone ?? "");
+                setDataNasterii(data.dateOfBirth?.split("T")[0] ?? "");
+                setSex(data.sex ?? "");
+
+                setNumeCompletTemp(numeIntreg);
+                setEmailTemp(data.email ?? "");
+                setTelefonTemp(data.phone ?? "");
+                setDataNasteriiTemp(data.dateOfBirth?.split("T")[0] ?? "");
+                setSexTemp(data.sex ?? "");
+            } catch (err) {
+                console.error("Eroare la încărcarea profilului:", err);
+            } finally {
+                setLoadingProfile(false);
+            }
+        };
+        fetchPatient();
+    }, [userId]);
+
+    // Programări din API după email
+    const [programari, setProgramari] = useState<Programare[]>([]);
+    const [loadingProgramari, setLoadingProgramari] = useState(true);
+
+    useEffect(() => {
+        if (!userEmail) return;
+        const fetchProgramari = async () => {
+            try {
+                const data = await api.get<AppointmentAPI[]>(`/api/appointment/byEmail/${userEmail}`);
+                const mapped: Programare[] = data.map((a, index) => {
+                    const initials = a.doctorName
+                        .split(" ")
+                        .filter((w) => w !== "Dr." && w !== "dr.")
+                        .map((w) => w[0])
+                        .join("")
+                        .substring(0, 2)
+                        .toUpperCase();
+                    return {
+                        id: index + 1,
+                        doctor: a.doctorName,
+                        specialty: a.serviceName,
+                        date: a.appointmentDate,
+                        time: a.appointmentTime,
+                        status: mapStatus(a.status),
+                        initials,
+                    };
+                });
+                setProgramari(mapped);
+            } catch (err) {
+                console.error("Eroare la încărcarea programărilor:", err);
+            } finally {
+                setLoadingProgramari(false);
+            }
+        };
+        fetchProgramari();
+    }, [userEmail]);
+
+    const mapStatus = (status?: string): string => {
+        if (!status) return "in asteptare";
+        const s = status.toLowerCase();
+        if (s === "confirmed" || s === "confirmat") return "confirmat";
+        if (s === "completed" || s === "finalizat") return "finalizat";
+        return "in asteptare";
     };
 
-    const [programari, setProgramari] = useState([
-        { id: 1, doctor: "Dr. Tatiana Cobzac",  specialty: "Medicina Interna", date: "25 Februarie 2026", time: "10:30", status: "confirmat",   initials: "TC" },
-        { id: 2, doctor: "Dr. Vasile Munteanu",  specialty: "Cardiologie",      date: "10 Martie 2026",   time: "14:00", status: "in asteptare", initials: "VM" },
-        { id: 3, doctor: "Dr. Andrei Leahu",     specialty: "Ortopedie",        date: "15 Ianuarie 2026", time: "09:00", status: "finalizat",    initials: "AL" },
-    ]);
-
+    // Analize (statice)
     const analize = [
         { id: 1, name: "Hemoleucograma completa", date: "10 Ianuarie 2026", status: "disponibil", doctor: "Dr. Tatiana Cobzac" },
         { id: 2, name: "Profil lipidic",          date: "10 Ianuarie 2026", status: "disponibil", doctor: "Dr. Vasile Munteanu" },
         { id: 3, name: "Glicemie a jeun",         date: "05 Decembrie 2025", status: "disponibil", doctor: "Dr. Tatiana Cobzac" },
     ];
 
+    const formatData = (data: string) => {
+        if (!data) return "";
+        const [an, luna, zi] = data.split("-");
+        return `${zi}-${luna}-${an}`;
+    };
+
+    // Salvare profil
+    const [showSuccessMsg, setShowSuccessMsg] = useState(false);
+
+    const salveazaModificarile = async () => {
+        try {
+            const [fn, ...rest] = numeCompletTemp.split(" ");
+            await api.put<void>(`/api/patients/Update/${userId}`, {
+                firstName: fn,
+                lastName: rest.join(" "),
+                email: emailTemp,
+                phone: telefonTemp,
+                dateOfBirth: dataNasteriiTemp,
+                sex: sexTemp,
+            });
+            setNumeComplet(numeCompletTemp);
+            setEmail(emailTemp);
+            setTelefon(telefonTemp);
+            setDataNasterii(dataNasteriiTemp);
+            setSex(sexTemp);
+            setShowSuccessMsg(true);
+            setTimeout(() => setShowSuccessMsg(false), 3000);
+        } catch (err) {
+            console.error("Eroare la salvare:", err);
+        }
+    };
+
+    // Modal anulare
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [programareDeAnulat, setProgramareDeAnulat] = useState<number | null>(null);
+
+    // Status helpers
     const getStatusClass = (status: string) => {
         switch (status) {
             case "confirmat":    return "status-confirmed";
@@ -179,6 +322,13 @@ const ProfilePage = () => {
             ? ["Appointment reminder (SMS)", "Appointment reminder (Email)", "Lab results available", "MediCare offers & news"]
             : ["Reminder programări (SMS)", "Reminder programări (Email)", "Rezultate analize disponibile", "Oferte și noutăți MediCare"];
 
+    const getInitials = (name: string) =>
+        name.split(" ").map((w) => w[0]).join("").substring(0, 2).toUpperCase();
+
+    const urmatoarea = programari
+        .filter((p) => parseDate(p.date) >= new Date())
+        .sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime())[0];
+
     return (
         <div className="profile-page">
             <Navbar />
@@ -190,7 +340,11 @@ const ProfilePage = () => {
                         <p className="modal-text">{t.profCancelConfirm}</p>
                         <div className="modal-buttons">
                             <button className="modal-btn-cancel" onClick={() => setShowCancelModal(false)}>{t.profCancelNo}</button>
-                            <button className="modal-btn-confirm" onClick={() => { setProgramari(programari.filter(p => p.id !== programareDeAnulat)); setShowCancelModal(false); setProgramareDeAnulat(null); }}>{t.profCancelYes}</button>
+                            <button className="modal-btn-confirm" onClick={() => {
+                                setProgramari(programari.filter(p => p.id !== programareDeAnulat));
+                                setShowCancelModal(false);
+                                setProgramareDeAnulat(null);
+                            }}>{t.profCancelYes}</button>
                         </div>
                     </div>
                 </div>
@@ -205,25 +359,33 @@ const ProfilePage = () => {
                     <div className="profile-hero-left">
                         <div className="profile-hero-badge">{t.profMyAccount}</div>
                         <h1 className="profile-hero-title">
-                            {t.profWelcome}, <span className="hero-highlight">{numeComplet}</span>
+                            {t.profWelcome}, <span className="hero-highlight">{numeComplet || "..."}</span>
                         </h1>
                         <p className="profile-hero-subtitle">{t.profSubtitle}</p>
-                        <div className="hero-next-appointment">
-                            <div className="hero-appointment-label">{t.profNextAppt}</div>
-                            <div className="hero-appointment-details">
-                                <div className="hero-appointment-doctor">
-                                    <div className="hero-doctor-avatar">TC</div>
-                                    <div>
-                                        <p className="hero-doctor-name">Dr. Tatiana Cobzac</p>
-                                        <p className="hero-doctor-specialty">Medicina Interna</p>
+
+                        {urmatoarea ? (
+                            <div className="hero-next-appointment">
+                                <div className="hero-appointment-label">{t.profNextAppt}</div>
+                                <div className="hero-appointment-details">
+                                    <div className="hero-appointment-doctor">
+                                        <div className="hero-doctor-avatar">{urmatoarea.initials}</div>
+                                        <div>
+                                            <p className="hero-doctor-name">{urmatoarea.doctor}</p>
+                                            <p className="hero-doctor-specialty">{translateSpecialization(urmatoarea.specialty, language)}</p>
+                                        </div>
+                                    </div>
+                                    <div className="hero-appointment-time">
+                                        <p className="hero-appointment-date">{formatDateDisplay(urmatoarea.date, language)}</p>
+                                        <p className="hero-appointment-hour">{t.profHour} {urmatoarea.time}</p>
                                     </div>
                                 </div>
-                                <div className="hero-appointment-time">
-                                    <p className="hero-appointment-date">25 Februarie 2026</p>
-                                    <p className="hero-appointment-hour">{t.profHour} 10:30</p>
-                                </div>
                             </div>
-                        </div>
+                        ) : !loadingProgramari && (
+                            <div className="hero-next-appointment">
+                                <div className="hero-appointment-label">{t.profNextAppt}</div>
+                                <p style={{ color: "#fff", marginTop: "8px" }}>—</p>
+                            </div>
+                        )}
                     </div>
                     <div className="profile-hero-right">
                         <MiniCalendar programari={programari} language={language} />
@@ -235,7 +397,7 @@ const ProfilePage = () => {
                 <div className="profile-layout">
                     <aside className="profile-sidebar">
                         <div className="sidebar-card avatar-card">
-                            <div className="profile-avatar">IP</div>
+                            <div className="profile-avatar">{getInitials(numeComplet)}</div>
                             <h2 className="profile-name">{numeComplet}</h2>
                             <p className="profile-role">{t.profPatient}</p>
                             <div className="profile-badge-verified">{t.profVerified}</div>
@@ -243,13 +405,17 @@ const ProfilePage = () => {
 
                         <div className="sidebar-card info-card">
                             <h3 className="sidebar-card-title">{t.profPersonalData}</h3>
-                            <ul className="info-list">
-                                <li className="info-item"><span className="info-label">{t.profNameLabel}</span><span>{numeComplet}</span></li>
-                                <li className="info-item"><span className="info-label">{t.profEmailLabel}</span><span>{email}</span></li>
-                                <li className="info-item"><span className="info-label">{t.profPhoneLabel}</span><span>{telefon}</span></li>
-                                <li className="info-item"><span className="info-label">{t.profBornLabel}</span><span>{formatData(dataNasterii)}</span></li>
-                                <li className="info-item"><span className="info-label">{t.profCityLabel}</span><span>{oras}</span></li>
-                            </ul>
+                            {loadingProfile ? (
+                                <p style={{ padding: "8px", opacity: 0.6 }}>Se încarcă...</p>
+                            ) : (
+                                <ul className="info-list">
+                                    <li className="info-item"><span className="info-label">{t.profNameLabel}</span><span>{numeComplet}</span></li>
+                                    <li className="info-item"><span className="info-label">{t.profEmailLabel}</span><span>{email}</span></li>
+                                    <li className="info-item"><span className="info-label">{t.profPhoneLabel}</span><span>{telefon}</span></li>
+                                    <li className="info-item"><span className="info-label">{t.profBornLabel}</span><span>{formatData(dataNasterii)}</span></li>
+                                    <li className="info-item"><span className="info-label">Sex:</span><span>{sex}</span></li>
+                                </ul>
+                            )}
                         </div>
 
                         <div className="sidebar-card stats-card">
@@ -276,29 +442,35 @@ const ProfilePage = () => {
                                     <h2 className="content-title">{t.profTabAppts}</h2>
                                     <button className="navbar-btn" onClick={() => navigate("/appointments")}>{t.profNewAppt}</button>
                                 </div>
-                                <div className="appointments-list">
-                                    {programari.map((p) => (
-                                        <div key={p.id} className="appointment-card">
-                                            <div className="appointment-left">
-                                                <div className="doctor-avatar-sm">{p.initials}</div>
-                                                <div className="appointment-info">
-                                                    <h3 className="appointment-doctor">{p.doctor}</h3>
-                                                    <p className="appointment-specialty">{translateSpecialization(p.specialty, language)}</p>
+                                {loadingProgramari ? (
+                                    <p style={{ padding: "16px", opacity: 0.6 }}>Se încarcă programările...</p>
+                                ) : programari.length === 0 ? (
+                                    <p style={{ padding: "16px", opacity: 0.6 }}>Nu ai programări.</p>
+                                ) : (
+                                    <div className="appointments-list">
+                                        {programari.map((p) => (
+                                            <div key={p.id} className="appointment-card">
+                                                <div className="appointment-left">
+                                                    <div className="doctor-avatar-sm">{p.initials}</div>
+                                                    <div className="appointment-info">
+                                                        <h3 className="appointment-doctor">{p.doctor}</h3>
+                                                        <p className="appointment-specialty">{translateSpecialization(p.specialty, language)}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="appointment-center">
+                                                    <div className="appointment-date"><span>{t.profDateLabel} {formatDateDisplay(p.date, language)}</span></div>
+                                                    <div className="appointment-time"><span>{t.profHour}: {p.time}</span></div>
+                                                </div>
+                                                <div className="appointment-right">
+                                                    <span className={`status-badge ${getStatusClass(p.status)}`}>{getStatusLabel(p.status)}</span>
+                                                    {p.status !== "finalizat" && (
+                                                        <button className="cancel-btn" onClick={() => { setProgramareDeAnulat(p.id); setShowCancelModal(true); }}>{t.profCancelBtn}</button>
+                                                    )}
                                                 </div>
                                             </div>
-                                            <div className="appointment-center">
-                                                <div className="appointment-date"><span>{t.profDateLabel} {p.date}</span></div>
-                                                <div className="appointment-time"><span>{t.profHour}: {p.time}</span></div>
-                                            </div>
-                                            <div className="appointment-right">
-                                                <span className={`status-badge ${getStatusClass(p.status)}`}>{getStatusLabel(p.status)}</span>
-                                                {p.status !== "finalizat" && (
-                                                    <button className="cancel-btn" onClick={() => { setProgramareDeAnulat(p.id); setShowCancelModal(true); }}>{t.profCancelBtn}</button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -338,7 +510,7 @@ const ProfilePage = () => {
                                         <div className="form-group"><label className="form-label">{t.profEmail}</label><input className="form-input" type="email" value={emailTemp} onChange={(e) => setEmailTemp(e.target.value)} /></div>
                                         <div className="form-group"><label className="form-label">{t.profPhone}</label><input className="form-input" type="tel" value={telefonTemp} onChange={(e) => setTelefonTemp(e.target.value)} /></div>
                                         <div className="form-group"><label className="form-label">{t.profBirthdate}</label><input className="form-input" type="date" value={dataNasteriiTemp} onChange={(e) => setDataNasteriiTemp(e.target.value)} /></div>
-                                        <div className="form-group"><label className="form-label">{t.profCity}</label><input className="form-input" type="text" value={orasTemp} onChange={(e) => setOrasTemp(e.target.value)} /></div>
+                                        <div className="form-group"><label className="form-label">Sex</label><input className="form-input" type="text" value={sexTemp} onChange={(e) => setSexTemp(e.target.value)} /></div>
                                         <button className="outline-btn" onClick={salveazaModificarile}>{t.profSave}</button>
                                         {showSuccessMsg && <div className="success-msg">{t.profSaved}</div>}
                                     </div>
