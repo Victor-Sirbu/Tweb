@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import Navbar from '../../shared/Navbar/Navbar';
 import Footer from '../../shared/Footer/Footer';
 import ReactDOM from 'react-dom';
+import { useApi } from '../../api/context';
 
 interface Doctor {
   id: number;
@@ -21,6 +22,19 @@ interface Appointment {
   date: string;
   time: string;
   reason: string;
+  status: 'confirmed' | 'pending' | 'canceled';
+}
+
+interface AppointmentDTO {
+  id: number;
+  patientName: string;
+  phone: string;
+  email: string;
+  doctorName: string;
+  serviceName: string;
+  reasonForVisit: string;
+  appointmentTime: string;
+  appointmentDate: string;
   status: 'confirmed' | 'pending' | 'canceled';
 }
 
@@ -63,9 +77,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ options, value, onChange, p
       const target = e.target as Node;
       const clickedInsideToggle = ref.current && ref.current.contains(target);
       const clickedInsideMenu = menuRef.current && menuRef.current.contains(target);
-      if (!clickedInsideToggle && !clickedInsideMenu) {
-        setOpen(false);
-      }
+      if (!clickedInsideToggle && !clickedInsideMenu) setOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -83,9 +95,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ options, value, onChange, p
   }, [open]);
 
   const handleToggle = () => {
-    if (!open) {
-      calculatePosition();
-    }
+    if (!open) calculatePosition();
     setOpen(!open);
   };
 
@@ -93,11 +103,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ options, value, onChange, p
 
   return (
       <div className="custom-select-wrapper" ref={ref}>
-        <div
-            className={`custom-select-toggle ${open ? 'open' : ''}`}
-            onClick={handleToggle}
-            ref={toggleRef}
-        >
+        <div className={`custom-select-toggle ${open ? 'open' : ''}`} onClick={handleToggle} ref={toggleRef}>
           <span className={selected ? '' : 'placeholder'}>{selected ? selected.label : placeholder}</span>
           <span className="custom-select-arrow">▾</span>
         </div>
@@ -122,6 +128,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ options, value, onChange, p
 
 const AppointmentsPage: React.FC = () => {
   const { t } = useLanguage();
+  const api = useApi();
 
   const [formData, setFormData] = useState({
     patientName: '',
@@ -136,6 +143,9 @@ const AppointmentsPage: React.FC = () => {
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [loadingAppointments, setLoadingAppointments] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const doctors: Doctor[] = [
     { id: 1, name: 'Dr. Ion Ionescu', specializationKey: 'apptSpecCardio' },
@@ -156,9 +166,40 @@ const AppointmentsPage: React.FC = () => {
     '12:00', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'
   ];
 
+  const mapDtoToAppointment = (dto: AppointmentDTO): Appointment => ({
+    id: dto.id,
+    patientName: dto.patientName,
+    phone: dto.phone,
+    email: dto.email,
+    doctor: dto.doctorName,
+    specialization: dto.serviceName,
+    date: dto.appointmentDate,
+    time: dto.appointmentTime,
+    reason: dto.reasonForVisit,
+    status: dto.status,
+  });
+
+  const fetchAppointmentsByEmail = async (email: string) => {
+    if (!email || !email.includes('@')) return;
+    setLoadingAppointments(true);
+    setApiError(null);
+    try {
+      const data = await api.get<AppointmentDTO[]>(`/api/appointment/byEmail/${encodeURIComponent(email)}`);
+      setAppointments(data.map(mapDtoToAppointment));
+    } catch {
+      // erorile globale sunt gestionate in AxiosProvider
+    } finally {
+      setLoadingAppointments(false);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleEmailBlur = () => {
+    void fetchAppointmentsByEmail(formData.email);
   };
 
   const handleDoctorChange = (doctorId: string) => {
@@ -182,29 +223,37 @@ const AppointmentsPage: React.FC = () => {
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // POST /api/appointment/create
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     const selectedDoctor = doctors.find(d => d.id === parseInt(formData.doctorId));
 
-    const newAppointment: Appointment = {
-      id: Date.now(),
+    const payload = {
       patientName: formData.patientName,
       phone: formData.phone,
       email: formData.email,
-      doctor: selectedDoctor?.name || '',
-      specialization: formData.specialization,
-      date: formData.date,
-      time: formData.time,
-      reason: formData.reason,
-      status: 'pending'
+      doctorName: selectedDoctor?.name ?? '',
+      serviceName: formData.specialization,
+      reasonForVisit: formData.reason,
+      appointmentTime: formData.time + ':00',
+      appointmentDate: formData.date,
     };
 
-    setAppointments(prev => [...prev, newAppointment]);
-    setFormData({ patientName: '', phone: '', email: '', doctorId: '', specialization: '', date: '', time: '', reason: '' });
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+    setSubmitting(true);
+    setApiError(null);
+    try {
+      await api.post<string>('/api/appointment/create', payload);
+      await fetchAppointmentsByEmail(formData.email);
+      setFormData({ patientName: '', phone: '', email: '', doctorId: '', specialization: '', date: '', time: '', reason: '' });
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch {
+      setApiError('A apărut o eroare la salvarea programării. Încearcă din nou.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const getStatusLabel = (status: string) => {
@@ -217,9 +266,16 @@ const AppointmentsPage: React.FC = () => {
   const getMinDate = () => new Date().toISOString().split('T')[0];
   const getMaxDate = () => { const d = new Date(); d.setMonth(d.getMonth() + 3); return d.toISOString().split('T')[0]; };
 
-  const handleCancelAppointment = (id: number) => {
-    if (window.confirm(t.apptCancelConfirm)) {
-      setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, status: 'canceled' as const } : apt));
+  // PATCH /api/appointment/{id}/status
+  const handleCancelAppointment = async (id: number) => {
+    if (!window.confirm(t.apptCancelConfirm)) return;
+    try {
+      await api.patch(`/api/appointment/${id}/status`, { status: 2 });
+      setAppointments(prev =>
+          prev.map(apt => apt.id === id ? { ...apt, status: 'canceled' as const } : apt)
+      );
+    } catch {
+      setApiError('Nu s-a putut anula programarea. Încearcă din nou.');
     }
   };
 
@@ -249,6 +305,10 @@ const AppointmentsPage: React.FC = () => {
                 <div className="success-message">{t.apptSuccess}</div>
             )}
 
+            {apiError && (
+                <div className="error-message" style={{ color: 'red', marginBottom: '1rem' }}>{apiError}</div>
+            )}
+
             <div className="form-card">
               <h2 className="section-title">{t.apptFormTitle}</h2>
               <form onSubmit={handleSubmit} className="appointment-form">
@@ -265,7 +325,14 @@ const AppointmentsPage: React.FC = () => {
 
                 <div className="form-group">
                   <label>{t.apptEmail}</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} required />
+                  <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      onBlur={handleEmailBlur}
+                      required
+                  />
                 </div>
 
                 <div className="form-row">
@@ -310,11 +377,17 @@ const AppointmentsPage: React.FC = () => {
                   <textarea name="reason" value={formData.reason} onChange={handleInputChange} rows={4} required />
                 </div>
 
-                <button type="submit" className="submit-btn">{t.apptSubmit}</button>
+                <button type="submit" className="submit-btn" disabled={submitting}>
+                  {submitting ? 'Se trimite...' : t.apptSubmit}
+                </button>
               </form>
             </div>
 
-            {appointments.length > 0 && (
+            {loadingAppointments && (
+                <p style={{ textAlign: 'center', margin: '1rem 0' }}>Se încarcă programările...</p>
+            )}
+
+            {!loadingAppointments && appointments.length > 0 && (
                 <div className="appointments-list-card">
                   <h2 className="section-title">{t.apptMyList}</h2>
                   <div className="appointments-grid">
