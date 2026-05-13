@@ -37,10 +37,29 @@ interface Appointment {
   status: 'Confirmed' | 'Pending';
 }
 
+interface Review {
+  id: number;
+  patientName: string;
+  doctorName: string;
+  rating: number;
+  comment: string;
+  date: string;
+  status: 'Approved' | 'Pending' | 'Rejected';
+}
+
+interface MedicalService {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  duration: string;
+  status: 'Active' | 'Inactive';
+}
+
 const AdminDashboard: React.FC = () => {
   const { t, language } = useLanguage();
   const { notifications, setNotifications } = useNotifications();
-  const [activeSection, setActiveSection] = useState<'statistici' | 'programari' | 'pacienti' | 'medici' | 'notificari'>('pacienti');
+  const [activeSection, setActiveSection] = useState<'statistici' | 'programari' | 'pacienti' | 'medici' | 'notificari' | 'recenzii' | 'servicii'>('pacienti');
   const [patients, setPatients] = useState<Patient[]>([
     { id: 1, name: 'Maria Popescu', age: 34, phone: '0721234567', email: 'maria.popescu@email.com', lastVisit: '2024-02-15', status: 'Active', avatar: 'MP' },
     { id: 2, name: 'Ion Ionescu', age: 45, phone: '0732345678', email: 'ion.ionescu@email.com', lastVisit: '2024-02-10', status: 'Active', avatar: 'II' },
@@ -97,6 +116,26 @@ const AdminDashboard: React.FC = () => {
     timestamp: string;
   }>>([]);
   const [expandedHistoryIds, setExpandedHistoryIds] = useState<number[]>([]);
+
+  // Reviews state
+  const [reviews, setReviews] = useState<Review[]>([
+    { id: 1, patientName: 'Maria Popescu', doctorName: 'Dr. Ion Ionescu', rating: 5, comment: 'Excelent medic, foarte profesionist!', date: '2024-02-15', status: 'Approved' },
+    { id: 2, patientName: 'Ion Ionescu', doctorName: 'Dr. Ana Vasilescu', rating: 4, comment: 'Bună experiență', date: '2024-02-10', status: 'Approved' },
+    { id: 3, patientName: 'Ana Vasilescu', doctorName: 'Dr. George Popescu', rating: 5, comment: 'Recomand cu încredere', date: '2024-01-20', status: 'Pending' },
+  ]);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [reviewFormData, setReviewFormData] = useState({ patientName: '', doctorName: '', rating: 5, comment: '', date: '', status: 'Pending' as 'Approved' | 'Pending' | 'Rejected' });
+
+  // Medical Services state
+  const [medicalServices, setMedicalServices] = useState<MedicalService[]>([
+    { id: 1, name: 'Consultație Cardiologie', description: 'Consultație completă cardiologică', price: 200, duration: '30 min', status: 'Active' },
+    { id: 2, name: 'Consultație Pediatrie', description: 'Consultație pediatrică generală', price: 150, duration: '20 min', status: 'Active' },
+    { id: 3, name: 'Consultație Medicină Generală', description: 'Consultație de medicină generală', price: 120, duration: '15 min', status: 'Active' },
+  ]);
+  const [showServiceModal, setShowServiceModal] = useState(false);
+  const [editingService, setEditingService] = useState<MedicalService | null>(null);
+  const [serviceFormData, setServiceFormData] = useState({ name: '', description: '', price: '', duration: '', status: 'Active' as 'Active' | 'Inactive' });
 
   const getAvatar = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase();
 
@@ -240,6 +279,50 @@ const AdminDashboard: React.FC = () => {
     );
   };
 
+  // Review handlers
+  const handleEditReview = (review: Review) => {
+    setEditingReview(review);
+    setReviewFormData({ patientName: review.patientName, doctorName: review.doctorName, rating: review.rating, comment: review.comment, date: review.date, status: review.status });
+    setShowReviewModal(true);
+  };
+  const handleDeleteReview = (id: number) => {
+    if (window.confirm('Sigur doriți să ștergeți această recenzie?'))
+      setReviews(reviews.filter(r => r.id !== id));
+  };
+  const handleReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingReview) {
+      setReviews(reviews.map(r => r.id === editingReview.id ? { ...r, patientName: reviewFormData.patientName, doctorName: reviewFormData.doctorName, rating: reviewFormData.rating, comment: reviewFormData.comment, date: reviewFormData.date, status: reviewFormData.status } : r));
+    } else {
+      const newReview: Review = { id: Math.max(...reviews.map(r => r.id)) + 1, patientName: reviewFormData.patientName, doctorName: reviewFormData.doctorName, rating: reviewFormData.rating, comment: reviewFormData.comment, date: reviewFormData.date || new Date().toISOString().split('T')[0], status: reviewFormData.status };
+      setReviews([...reviews, newReview]);
+    }
+    setShowReviewModal(false);
+    setEditingReview(null);
+  };
+
+  // Medical Service handlers
+  const handleEditService = (service: MedicalService) => {
+    setEditingService(service);
+    setServiceFormData({ name: service.name, description: service.description, price: service.price.toString(), duration: service.duration, status: service.status });
+    setShowServiceModal(true);
+  };
+  const handleDeleteService = (id: number) => {
+    if (window.confirm('Sigur doriți să ștergeți acest serviciu medical?'))
+      setMedicalServices(medicalServices.filter(s => s.id !== id));
+  };
+  const handleServiceSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingService) {
+      setMedicalServices(medicalServices.map(s => s.id === editingService.id ? { ...s, name: serviceFormData.name, description: serviceFormData.description, price: parseFloat(serviceFormData.price), duration: serviceFormData.duration, status: serviceFormData.status } : s));
+    } else {
+      const newService: MedicalService = { id: Math.max(...medicalServices.map(s => s.id)) + 1, name: serviceFormData.name, description: serviceFormData.description, price: parseFloat(serviceFormData.price), duration: serviceFormData.duration, status: serviceFormData.status };
+      setMedicalServices([...medicalServices, newService]);
+    }
+    setShowServiceModal(false);
+    setEditingService(null);
+  };
+
 
 
   const statCards = [
@@ -319,6 +402,12 @@ const AdminDashboard: React.FC = () => {
               <a href="#" className={`nav-item ${activeSection === 'medici' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('medici'); }}>{t.adminDoctors}</a>
               <a href="#" className={`nav-item ${activeSection === 'notificari' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('notificari'); }}>
                 {language === 'ru' ? 'Уведомления' : language === 'en' ? 'Notifications' : 'Notificări'}
+              </a>
+              <a href="#" className={`nav-item ${activeSection === 'recenzii' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('recenzii'); }}>
+                {language === 'ru' ? 'Отзывы' : language === 'en' ? 'Reviews' : 'Recenzii'}
+              </a>
+              <a href="#" className={`nav-item ${activeSection === 'servicii' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('servicii'); }}>
+                {language === 'ru' ? 'Медицинские услуги' : language === 'en' ? 'Medical Services' : 'Servicii Medicale'}
               </a>
             </nav>
           </aside>
@@ -456,6 +545,13 @@ const AdminDashboard: React.FC = () => {
                               <td><span className={`status-badge ${patient.status.toLowerCase()}`}>{patient.status === 'Active' ? t.adminActive : t.adminInactive}</span></td>
                               <td>
                                 <div className="action-buttons">
+                                  <button className="btn-action btn-create" onClick={() => {
+                                    setEditingPatient(null);
+                                    setPatientFormData({ name: '', age: '', phone: '', email: '', status: 'Active' });
+                                    setShowPatientModal(true);
+                                  }}>
+                                    {language === 'ru' ? 'Создать' : language === 'en' ? 'Create' : 'Creează'}
+                                  </button>
                                   <button className="btn-action btn-edit" onClick={() => handleEditPatient(patient)}>{t.adminEdit}</button>
                                   <button className="btn-action btn-delete" onClick={() => handleDeletePatient(patient.id)}>{t.adminDelete}</button>
                                 </div>
@@ -498,8 +594,109 @@ const AdminDashboard: React.FC = () => {
                               <td><span className={`status-badge ${doctor.status.toLowerCase()}`}>{doctor.status === 'Active' ? t.adminActive : t.adminInactive}</span></td>
                               <td>
                                 <div className="action-buttons">
+                                  <button className="btn-action btn-create" onClick={() => {
+                                    setEditingDoctor(null);
+                                    setDoctorFormData({ name: '', specialization: '', phone: '', email: '', status: 'Active' });
+                                    setShowDoctorModal(true);
+                                  }}>
+                                    {language === 'ru' ? 'Создать' : language === 'en' ? 'Create' : 'Creează'}
+                                  </button>
                                   <button className="btn-action btn-edit" onClick={() => handleEditDoctor(doctor)}>{t.adminEdit}</button>
                                   <button className="btn-action btn-delete" onClick={() => handleDeleteDoctor(doctor.id)}>{t.adminDelete}</button>
+                                </div>
+                              </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+              )}
+
+              {activeSection === 'recenzii' && (
+                  <div className="section-content">
+                    <div className="table-container">
+                      <table className="patients-table">
+                        <thead>
+                        <tr>
+                          <th>{language === 'ru' ? 'Пациент' : language === 'en' ? 'Patient' : 'Pacient'}</th>
+                          <th>{language === 'ru' ? 'Врач' : language === 'en' ? 'Doctor' : 'Medic'}</th>
+                          <th>{language === 'ru' ? 'Рейтинг' : language === 'en' ? 'Rating' : 'Rating'}</th>
+                          <th>{language === 'ru' ? 'Комментарий' : language === 'en' ? 'Comment' : 'Comentariu'}</th>
+                          <th>{language === 'ru' ? 'Дата' : language === 'en' ? 'Date' : 'Data'}</th>
+                          <th>{t.adminStatus}</th>
+                          <th>{t.adminActions}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {reviews.map(review => (
+                            <tr key={review.id}>
+                              <td>{review.patientName}</td>
+                              <td>{review.doctorName}</td>
+                              <td>{'⭐'.repeat(review.rating)}</td>
+                              <td>{review.comment}</td>
+                              <td>{review.date}</td>
+                              <td>
+                                <span className={`status-badge ${review.status === 'Approved' ? 'active' : review.status === 'Pending' ? 'inactive' : 'inactive'}`}>
+                                  {review.status === 'Approved' ? (language === 'ru' ? 'Одобрено' : language === 'en' ? 'Approved' : 'Aprobat') :
+                                   review.status === 'Pending' ? (language === 'ru' ? 'В ожидании' : language === 'en' ? 'Pending' : 'În așteptare') :
+                                   (language === 'ru' ? 'Отклонено' : language === 'en' ? 'Rejected' : 'Respins')}
+                                </span>
+                              </td>
+                              <td>
+                                <div className="action-buttons">
+                                  <button className="btn-action btn-create" onClick={() => {
+                                    setEditingReview(null);
+                                    setReviewFormData({ patientName: '', doctorName: '', rating: 5, comment: '', date: '', status: 'Pending' });
+                                    setShowReviewModal(true);
+                                  }}>
+                                    {language === 'ru' ? 'Создать' : language === 'en' ? 'Create' : 'Creează'}
+                                  </button>
+                                  <button className="btn-action btn-edit" onClick={() => handleEditReview(review)}>{t.adminEdit}</button>
+                                  <button className="btn-action btn-delete" onClick={() => handleDeleteReview(review.id)}>{t.adminDelete}</button>
+                                </div>
+                              </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+              )}
+
+              {activeSection === 'servicii' && (
+                  <div className="section-content">
+                    <div className="table-container">
+                      <table className="patients-table">
+                        <thead>
+                        <tr>
+                          <th>{language === 'ru' ? 'Название' : language === 'en' ? 'Name' : 'Nume'}</th>
+                          <th>{language === 'ru' ? 'Описание' : language === 'en' ? 'Description' : 'Descriere'}</th>
+                          <th>{language === 'ru' ? 'Цена' : language === 'en' ? 'Price' : 'Preț'}</th>
+                          <th>{language === 'ru' ? 'Продолжительность' : language === 'en' ? 'Duration' : 'Durată'}</th>
+                          <th>{t.adminStatus}</th>
+                          <th>{t.adminActions}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {medicalServices.map(service => (
+                            <tr key={service.id}>
+                              <td>{service.name}</td>
+                              <td>{service.description}</td>
+                              <td>{service.price} {language === 'ru' ? 'руб.' : language === 'en' ? 'RON' : 'RON'}</td>
+                              <td>{service.duration}</td>
+                              <td><span className={`status-badge ${service.status.toLowerCase()}`}>{service.status === 'Active' ? t.adminActive : t.adminInactive}</span></td>
+                              <td>
+                                <div className="action-buttons">
+                                  <button className="btn-action btn-create" onClick={() => {
+                                    setEditingService(null);
+                                    setServiceFormData({ name: '', description: '', price: '', duration: '', status: 'Active' });
+                                    setShowServiceModal(true);
+                                  }}>
+                                    {language === 'ru' ? 'Создать' : language === 'en' ? 'Create' : 'Creează'}
+                                  </button>
+                                  <button className="btn-action btn-edit" onClick={() => handleEditService(service)}>{t.adminEdit}</button>
+                                  <button className="btn-action btn-delete" onClick={() => handleDeleteService(service.id)}>{t.adminDelete}</button>
                                 </div>
                               </td>
                             </tr>
@@ -807,6 +1004,101 @@ const AdminDashboard: React.FC = () => {
                   <div className="modal-actions">
                     <button type="button" className="btn-cancel" onClick={() => setShowAppointmentModal(false)}>{t.adminCancel}</button>
                     <button type="submit" className="btn-submit">{editingAppointment ? t.adminUpdate : t.adminAdd}</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+        )}
+
+        {/* ── MODAL RECENZIE ── */}
+        {showReviewModal && (
+            <div className="modal-overlay" onClick={() => setShowReviewModal(false)}>
+              <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h2>{editingReview ? (language === 'ru' ? 'Редактировать отзыв' : language === 'en' ? 'Edit Review' : 'Editează Recenzie') : (language === 'ru' ? 'Добавить отзыв' : language === 'en' ? 'Add Review' : 'Adaugă Recenzie')}</h2>
+                  <button className="modal-close" onClick={() => setShowReviewModal(false)}>&times;</button>
+                </div>
+                <form onSubmit={handleReviewSubmit}>
+                  <div className="form-row">
+                    <div className="form-group"><label>{language === 'ru' ? 'Пациент' : language === 'en' ? 'Patient' : 'Pacient'}</label><input type="text" required value={reviewFormData.patientName} onChange={(e) => setReviewFormData({ ...reviewFormData, patientName: e.target.value })} /></div>
+                    <div className="form-group"><label>{language === 'ru' ? 'Врач' : language === 'en' ? 'Doctor' : 'Medic'}</label><input type="text" required value={reviewFormData.doctorName} onChange={(e) => setReviewFormData({ ...reviewFormData, doctorName: e.target.value })} /></div>
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group"><label>{language === 'ru' ? 'Рейтинг (1-5)' : language === 'en' ? 'Rating (1-5)' : 'Rating (1-5)'}</label><input type="number" min="1" max="5" required value={reviewFormData.rating} onChange={(e) => setReviewFormData({ ...reviewFormData, rating: parseInt(e.target.value) })} /></div>
+                    <div className="form-group"><label>{language === 'ru' ? 'Дата' : language === 'en' ? 'Date' : 'Data'}</label><input type="date" required value={reviewFormData.date} onChange={(e) => setReviewFormData({ ...reviewFormData, date: e.target.value })} /></div>
+                  </div>
+                  <div className="form-group"><label>{language === 'ru' ? 'Комментарий' : language === 'en' ? 'Comment' : 'Comentariu'}</label><textarea rows={4} required value={reviewFormData.comment} onChange={(e) => setReviewFormData({ ...reviewFormData, comment: e.target.value })} style={{width: '100%', padding: '8px 10px', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.9rem'}} /></div>
+                  <div className="form-group">
+                    <label>{t.adminStatus}</label>
+                    <div className="custom-dropdown">
+                      <button type="button" className="dropdown-toggle" onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}>
+                        {reviewFormData.status === 'Approved' ? (language === 'ru' ? 'Одобрено' : language === 'en' ? 'Approved' : 'Aprobat') : reviewFormData.status === 'Pending' ? (language === 'ru' ? 'В ожидании' : language === 'en' ? 'Pending' : 'În așteptare') : (language === 'ru' ? 'Отклонено' : language === 'en' ? 'Rejected' : 'Respins')}
+                        <span className="dropdown-arrow">▾</span>
+                      </button>
+                      {statusDropdownOpen && (
+                          <div className="dropdown-menu">
+                            {(['Approved', 'Pending', 'Rejected'] as const).map((option) => (
+                                <div
+                                    key={option}
+                                    className={`dropdown-item ${reviewFormData.status === option ? 'selected' : ''}`}
+                                    onClick={() => { setReviewFormData({ ...reviewFormData, status: option }); setStatusDropdownOpen(false); }}
+                                >
+                                  {option === 'Approved' ? (language === 'ru' ? 'Одобрено' : language === 'en' ? 'Approved' : 'Aprobat') : option === 'Pending' ? (language === 'ru' ? 'В ожидании' : language === 'en' ? 'Pending' : 'În așteptare') : (language === 'ru' ? 'Отклонено' : language === 'en' ? 'Rejected' : 'Respins')}
+                                </div>
+                            ))}
+                          </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="modal-actions">
+                    <button type="button" className="btn-cancel" onClick={() => setShowReviewModal(false)}>{t.adminCancel}</button>
+                    <button type="submit" className="btn-submit">{editingReview ? t.adminUpdate : t.adminAdd}</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+        )}
+
+        {/* ── MODAL SERVICIU MEDICAL ── */}
+        {showServiceModal && (
+            <div className="modal-overlay" onClick={() => setShowServiceModal(false)}>
+              <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h2>{editingService ? (language === 'ru' ? 'Редактировать услугу' : language === 'en' ? 'Edit Service' : 'Editează Serviciu') : (language === 'ru' ? 'Добавить услугу' : language === 'en' ? 'Add Service' : 'Adaugă Serviciu')}</h2>
+                  <button className="modal-close" onClick={() => setShowServiceModal(false)}>&times;</button>
+                </div>
+                <form onSubmit={handleServiceSubmit}>
+                  <div className="form-group"><label>{language === 'ru' ? 'Название' : language === 'en' ? 'Name' : 'Nume'}</label><input type="text" required value={serviceFormData.name} onChange={(e) => setServiceFormData({ ...serviceFormData, name: e.target.value })} /></div>
+                  <div className="form-group"><label>{language === 'ru' ? 'Описание' : language === 'en' ? 'Description' : 'Descriere'}</label><textarea rows={3} required value={serviceFormData.description} onChange={(e) => setServiceFormData({ ...serviceFormData, description: e.target.value })} style={{width: '100%', padding: '8px 10px', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.9rem'}} /></div>
+                  <div className="form-row">
+                    <div className="form-group"><label>{language === 'ru' ? 'Цена (RON)' : language === 'en' ? 'Price (RON)' : 'Preț (RON)'}</label><input type="number" min="0" step="0.01" required value={serviceFormData.price} onChange={(e) => setServiceFormData({ ...serviceFormData, price: e.target.value })} /></div>
+                    <div className="form-group"><label>{language === 'ru' ? 'Продолжительность' : language === 'en' ? 'Duration' : 'Durată'}</label><input type="text" required placeholder="ex: 30 min" value={serviceFormData.duration} onChange={(e) => setServiceFormData({ ...serviceFormData, duration: e.target.value })} /></div>
+                  </div>
+                  <div className="form-group">
+                    <label>{t.adminStatus}</label>
+                    <div className="custom-dropdown">
+                      <button type="button" className="dropdown-toggle" onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}>
+                        {serviceFormData.status === 'Active' ? t.adminActive : t.adminInactive}
+                        <span className="dropdown-arrow">▾</span>
+                      </button>
+                      {statusDropdownOpen && (
+                          <div className="dropdown-menu">
+                            {(['Active', 'Inactive'] as const).map((option) => (
+                                <div
+                                    key={option}
+                                    className={`dropdown-item ${serviceFormData.status === option ? 'selected' : ''}`}
+                                    onClick={() => { setServiceFormData({ ...serviceFormData, status: option }); setStatusDropdownOpen(false); }}
+                                >
+                                  {option === 'Active' ? t.adminActive : t.adminInactive}
+                                </div>
+                            ))}
+                          </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="modal-actions">
+                    <button type="button" className="btn-cancel" onClick={() => setShowServiceModal(false)}>{t.adminCancel}</button>
+                    <button type="submit" className="btn-submit">{editingService ? t.adminUpdate : t.adminAdd}</button>
                   </div>
                 </form>
               </div>

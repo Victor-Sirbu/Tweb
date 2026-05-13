@@ -275,6 +275,18 @@
   transform: translateY(-1px);
 }
 
+.btn-create {
+  background-color: #10b981 !important;
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.btn-create:hover {
+  background-color: #059669 !important;
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+  transform: translateY(-1px);
+}
+
 .btn-delete {
   background-color: #ef4444 !important;
   color: white !important;
