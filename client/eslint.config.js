@@ -19,5 +19,18 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // Permite variabile cu prefix _ sa fie nedefinite (ex: catch (_e))
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+      // Permite blocuri catch goale cu comentariu
+      'no-empty': ['error', { allowEmptyCatch: true }],
+    },
   },
 ])

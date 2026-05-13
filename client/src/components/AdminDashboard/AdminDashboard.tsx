@@ -6,6 +6,8 @@ import AdminNavbar from '../../shared/AdminNavbar/AdminNavbar';
 import Footer from '../../shared/Footer/Footer';
 import { translateSpecialization } from '../../utils/translateSpecialization';
 import { useApi } from '../../api/context';
+import { useAuth } from '../../context/AuthContext';
+import { useAudit } from '../../context/AuditContext';
 
 // ─── Tipuri API ────────────────────────────────────────────────────────────────
 
@@ -267,6 +269,21 @@ type Section = 'statistici' | 'programari' | 'pacienti' | 'medici' | 'notificari
 const AdminDashboard: React.FC = () => {
   const { t, language } = useLanguage();
   const api = useApi();
+  const { user } = useAuth();
+  const { logAction } = useAudit();
+
+  const adminName = user?.name ?? 'Admin';
+  const adminRole = 'Administrator';
+
+  const log = useCallback((
+      action: string,
+      actionType: 'edit' | 'delete' | 'modify' | 'create' | 'login',
+      target: string,
+      targetType: 'patient' | 'appointment' | 'record' | 'user' | 'system' | 'medic' | 'service' | 'review' | 'notification' | 'news',
+      details: string
+  ) => {
+    logAction({ action, actionType, target, targetType, details, adminName, adminRole });
+  }, [logAction, adminName, adminRole]);
 
   const lbl = (ro: string, ru: string, en: string) =>
       language === 'ru' ? ru : language === 'en' ? en : ro;
@@ -324,8 +341,10 @@ const AdminDashboard: React.FC = () => {
     try {
       if (editingPatient) {
         await api.put(`/api/patients/Update/${editingPatient.id}`, patientFormData);
+        log('Editare pacient', 'edit', `${patientFormData.firstName} ${patientFormData.lastName}`, 'patient', `Datele pacientului au fost actualizate.`);
       } else {
         await api.post('/api/patients/Create', patientFormData);
+        log('Creare pacient', 'create', `${patientFormData.firstName} ${patientFormData.lastName}`, 'patient', `Pacient nou adăugat în sistem.`);
       }
       setShowPatientModal(false);
       setEditingPatient(null);
@@ -337,9 +356,11 @@ const AdminDashboard: React.FC = () => {
 
   const handleDeletePatient = async (id: number) => {
     if (!window.confirm(lbl('Sigur doriți să ștergeți?', 'Удалить?', 'Delete?'))) return;
+    const patient = patients.find(p => p.id === id);
     try {
       await api.delete(`/api/patients/${id}`);
       setPatients(prev => prev.map(p => p.id === id ? { ...p, isDeleted: true } : p));
+      log('Ștergere pacient', 'delete', `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`, 'patient', `Pacientul a fost marcat ca șters.`);
     } catch {
       alert(lbl('Eroare la ștergere', 'Ошибка удаления', 'Delete error'));
     }
@@ -376,16 +397,13 @@ const AdminDashboard: React.FC = () => {
   const handleSaveDoctor = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Backend-ul asteapta "speciality" in MedicCreateDto
-      const payload = {
-        firstName: doctorFormData.firstName,
-        lastName: doctorFormData.lastName,
-        speciality: doctorFormData.specialty,
-      };
+      const payload = { firstName: doctorFormData.firstName, lastName: doctorFormData.lastName, speciality: doctorFormData.specialty };
       if (editingDoctor) {
         await api.put(`/api/medic/update/${editingDoctor.id}`, payload);
+        log('Editare medic', 'edit', `${doctorFormData.firstName} ${doctorFormData.lastName}`, 'medic', `Datele medicului au fost actualizate.`);
       } else {
         await api.post('/api/medic/Create', payload);
+        log('Creare medic', 'create', `${doctorFormData.firstName} ${doctorFormData.lastName}`, 'medic', `Medic nou adăugat în sistem.`);
       }
       setShowDoctorModal(false);
       setEditingDoctor(null);
@@ -397,9 +415,11 @@ const AdminDashboard: React.FC = () => {
 
   const handleDeleteDoctor = async (id: number) => {
     if (!window.confirm(lbl('Sigur doriți să ștergeți?', 'Удалить?', 'Delete?'))) return;
+    const doctor = doctors.find(d => d.id === id);
     try {
       await api.delete(`/api/medic/${id}`);
       setDoctors(prev => prev.filter(d => d.id !== id));
+      log('Ștergere medic', 'delete', `${doctor?.firstName ?? ''} ${doctor?.lastName ?? ''}`, 'medic', `Medicul a fost șters din sistem.`);
     } catch {
       alert(lbl('Eroare la ștergere', 'Ошибка удаления', 'Delete error'));
     }
@@ -442,27 +462,22 @@ const AdminDashboard: React.FC = () => {
     const timeValue = apptFormData.appointmentTime.length === 5
         ? `${apptFormData.appointmentTime}:00`
         : apptFormData.appointmentTime;
-
     const payload = {
-      patientName: apptFormData.patientName,
-      phone: apptFormData.phone,
-      email: apptFormData.email,
-      doctorName: apptFormData.doctorName,
-      serviceName: apptFormData.serviceName,
-      reasonForVisit: apptFormData.reasonForVisit,
-      appointmentTime: timeValue,
+      patientName: apptFormData.patientName, phone: apptFormData.phone, email: apptFormData.email,
+      doctorName: apptFormData.doctorName, serviceName: apptFormData.serviceName,
+      reasonForVisit: apptFormData.reasonForVisit, appointmentTime: timeValue,
       appointmentDate: apptFormData.appointmentDate,
     };
-
     try {
       if (editingAppt) {
         await api.put(`/api/appointment/update/${editingAppt.id}`, payload);
-        // Dacă s-a schimbat statusul, trimitem si PATCH separat
         if (apptFormData.status !== editingAppt.status) {
           await api.patch(`/api/appointment/${editingAppt.id}/status`, { status: apptFormData.status });
         }
+        log('Editare programare', 'edit', `${apptFormData.patientName} — ${apptFormData.doctorName}`, 'appointment', `Programarea din ${apptFormData.appointmentDate} a fost actualizată.`);
       } else {
         await api.post('/api/appointment/create', payload);
+        log('Creare programare', 'create', `${apptFormData.patientName} — ${apptFormData.doctorName}`, 'appointment', `Programare nouă creată pentru ${apptFormData.appointmentDate}.`);
       }
       setShowApptModal(false);
       setEditingAppt(null);
@@ -474,9 +489,11 @@ const AdminDashboard: React.FC = () => {
 
   const handleDeleteAppt = async (id: number) => {
     if (!window.confirm(lbl('Sigur doriți să ștergeți?', 'Удалить?', 'Delete?'))) return;
+    const appt = appointments.find(a => a.id === id);
     try {
       await api.delete(`/api/appointment/${id}`);
       setAppointments(prev => prev.filter(a => a.id !== id));
+      log('Ștergere programare', 'delete', `${appt?.patientName ?? ''} — ${appt?.doctorName ?? ''}`, 'appointment', `Programarea a fost ștearsă.`);
     } catch {
       alert(lbl('Eroare la ștergere', 'Ошибка удаления', 'Delete error'));
     }
@@ -517,14 +534,10 @@ const AdminDashboard: React.FC = () => {
   const handleSaveReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingReview) return;
-    // Trimitem si authorName ca sa nu cada validarea [Required] din DTO
-    const payload = {
-      authorName: editingReview.authorName,
-      reviewText: reviewFormData.reviewText,
-      rating: reviewFormData.rating,
-    };
+    const payload = { authorName: editingReview.authorName, reviewText: reviewFormData.reviewText, rating: reviewFormData.rating };
     try {
       await api.put(`/api/reviews/update/${editingReview.id}`, payload);
+      log('Editare recenzie', 'edit', editingReview.authorName, 'review', `Rating actualizat la ${reviewFormData.rating}/5.`);
       setShowReviewModal(false);
       setEditingReview(null);
       await fetchReviews();
@@ -535,9 +548,11 @@ const AdminDashboard: React.FC = () => {
 
   const handleDeleteReview = async (id: number) => {
     if (!window.confirm(lbl('Sigur doriți să ștergeți?', 'Удалить?', 'Delete?'))) return;
+    const review = reviews.find(r => r.id === id);
     try {
       await api.delete(`/api/reviews/${id}`);
       setReviews(prev => prev.filter(r => r.id !== id));
+      log('Ștergere recenzie', 'delete', review?.authorName ?? '', 'review', `Recenzia a fost ștearsă.`);
     } catch {
       alert(lbl('Eroare la ștergere', 'Ошибка удаления', 'Delete error'));
     }
@@ -583,8 +598,10 @@ const AdminDashboard: React.FC = () => {
     try {
       if (editingService) {
         await api.put(`/api/service/update/${editingService.id}`, payload);
+        log('Editare serviciu', 'edit', serviceFormData.serviceName, 'service', `Serviciul medical a fost actualizat.`);
       } else {
         await api.post('/api/service/create', payload);
+        log('Creare serviciu', 'create', serviceFormData.serviceName, 'service', `Serviciu medical nou adăugat.`);
       }
       setShowServiceModal(false);
       setEditingService(null);
@@ -596,9 +613,11 @@ const AdminDashboard: React.FC = () => {
 
   const handleDeleteService = async (id: number) => {
     if (!window.confirm(lbl('Sigur doriți să ștergeți?', 'Удалить?', 'Delete?'))) return;
+    const service = services.find(s => s.id === id);
     try {
       await api.delete(`/api/service/${id}`);
       setServices(prev => prev.map(s => s.id === id ? { ...s, isDeleted: true } : s));
+      log('Ștergere serviciu', 'delete', service?.serviceName ?? '', 'service', `Serviciul medical a fost șters.`);
     } catch {
       alert(lbl('Eroare la ștergere', 'Ошибка удаления', 'Delete error'));
     }
@@ -611,8 +630,16 @@ const AdminDashboard: React.FC = () => {
   const [notifPatientSearch, setNotifPatientSearch] = useState('');
   const [notifFormData, setNotifFormData]           = useState({ title: '', message: '' });
   const [notifHistory, setNotifHistory]             = useState<Array<{
-    id: number; patientNames: string[]; title: string; message: string; timestamp: string;
-  }>>([]);
+    id: number; patientNames: string[]; title: string; message: string; timestamp: string; ts: number;
+  }>>(() => {
+    try {
+      const raw = localStorage.getItem('notif_history');
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      return parsed.filter((e: { ts: number }) => e.ts > cutoff);
+    } catch { return []; }
+  });
   const [expandedNotifIds, setExpandedNotifIds] = useState<number[]>([]);
 
   useEffect(() => {
@@ -661,13 +688,20 @@ const AdminDashboard: React.FC = () => {
       const names = notifPatients
           .filter(p => selectedPatientIds.includes(p.id))
           .map(p => `${p.firstName} ${p.lastName}`);
-      setNotifHistory(prev => [{
+      const newNotifEntry = {
         id: Date.now(),
         patientNames: names,
         title: notifFormData.title,
         message: notifFormData.message,
         timestamp: new Date().toLocaleString(),
-      }, ...prev]);
+        ts: Date.now(),
+      };
+      setNotifHistory(prev => {
+        const updated = [newNotifEntry, ...prev];
+        try { localStorage.setItem('notif_history', JSON.stringify(updated)); } catch { /* storage full - intentionally empty */ }
+        return updated;
+      });
+      log('Trimitere notificare', 'create', names.join(', '), 'notification', `Notificare "${notifFormData.title}" trimisă la ${names.length} pacienți.`);
       setNotifFormData({ title: '', message: '' });
       setSelectedPatientIds([]);
       alert(lbl(`Trimis la ${names.length} pacienți`, `Отправлено ${names.length} пациентам`, `Sent to ${names.length} patients`));
@@ -685,8 +719,16 @@ const AdminDashboard: React.FC = () => {
     name: '', description: '', type: 'ServiciuNou' as NewsType,
   });
   const [newsHistory, setNewsHistory] = useState<Array<{
-    id: number; patientNames: string[]; name: string; description: string; type: NewsType; timestamp: string;
-  }>>([]);
+    id: number; patientNames: string[]; name: string; description: string; type: NewsType; timestamp: string; ts: number;
+  }>>(() => {
+    try {
+      const raw = localStorage.getItem('news_history');
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      return parsed.filter((e: { ts: number }) => e.ts > cutoff);
+    } catch { return []; }
+  });
   const [expandedNewsIds, setExpandedNewsIds] = useState<number[]>([]);
 
   useEffect(() => {
@@ -731,14 +773,21 @@ const AdminDashboard: React.FC = () => {
       const names = newsPatients
           .filter(p => newsSelectedIds.includes(p.id))
           .map(p => `${p.firstName} ${p.lastName}`);
-      setNewsHistory(prev => [{
+      const newNewsEntry = {
         id: Date.now(),
         patientNames: names,
         name: newsFormData.name,
         description: newsFormData.description,
         type: newsFormData.type,
         timestamp: new Date().toLocaleString(),
-      }, ...prev]);
+        ts: Date.now(),
+      };
+      setNewsHistory(prev => {
+        const updated = [newNewsEntry, ...prev];
+        try { localStorage.setItem('news_history', JSON.stringify(updated)); } catch { /* storage full - intentionally empty */ }
+        return updated;
+      });
+      log('Publicare noutate', 'create', newsFormData.name, 'news', `Noutate de tip "${newsTypeLabel(newsFormData.type)}" publicată.`);
       setNewsFormData({ name: '', description: '', type: 'ServiciuNou' });
       setNewsSelectedIds([]);
       alert(lbl('Noutate publicată!', 'Новость опубликована!', 'News published!'));

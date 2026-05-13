@@ -96,7 +96,6 @@ const AdminNavbar = () => {
                             </div>
                         )}
                     </div>
-                    <div className="admin-role-badge">Super Admin</div>
                     <button className="admin-navbar-btn" onClick={handleExit}>
                         {t.adminNavExitAdmin}
                     </button>
