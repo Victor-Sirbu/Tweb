@@ -1,335 +1,758 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import ReactDOM from 'react-dom';
 import './AdminDashboard.css';
 import { useLanguage } from '../../context/LanguageContext';
 import AdminNavbar from '../../shared/AdminNavbar/AdminNavbar';
 import Footer from '../../shared/Footer/Footer';
-import { getSpecializationLabel, translateSpecialization } from '../../utils/translateSpecialization';
-import { useNotifications } from '../../context/NotificationContext';
-import type { Notification } from '../../context/NotificationContext';
+import { translateSpecialization } from '../../utils/translateSpecialization';
+import { useApi } from '../../api/context';
 
-interface Patient {
+// ─── Tipuri API ────────────────────────────────────────────────────────────────
+
+interface PatientAPI {
   id: number;
-  name: string;
-  age: number;
-  phone: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  sex: string;
   email: string;
-  lastVisit: string;
-  status: 'Active' | 'Inactive';
-  avatar: string;
+  phone: string;
+  isDeleted: boolean;
 }
 
-interface Doctor {
+interface DoctorAPI {
   id: number;
-  name: string;
-  specialization: string;
-  phone: string;
-  email: string;
-  status: 'Active' | 'Inactive';
-  avatar: string;
+  firstName: string;
+  lastName: string;
+  specialty: number;
+  isDeleted: boolean;
 }
 
-interface Appointment {
+interface AppointmentAPI {
   id: number;
-  date: string;
-  time: string;
+  appointmentDate: string;
+  appointmentTime: string;
   patientName: string;
   doctorName: string;
-  status: 'Confirmed' | 'Pending';
+  status: number;
+  phone?: string;
+  email?: string;
+  serviceName?: string;
+  reasonForVisit?: string;
 }
 
-interface Review {
+interface ReviewAPI {
   id: number;
-  patientName: string;
-  doctorName: string;
+  authorName: string;
+  reviewText: string;
   rating: number;
-  comment: string;
-  date: string;
-  status: 'Approved' | 'Pending' | 'Rejected';
+  createdAt: string;
 }
 
-interface MedicalService {
+interface ServiceAPI {
   id: number;
-  name: string;
-  description: string;
-  price: number;
-  duration: string;
-  status: 'Active' | 'Inactive';
+  serviceName: string;
+  serviceDescription: string;
+  servicePrice: number;
+  serviceDuration: number;
+  category: number;
+  isDeleted: boolean;
 }
+
+// ─── Mapări constante ──────────────────────────────────────────────────────────
+
+const SPECIALITY_MAP: Record<number, string> = {
+  0: 'Cardiologie',
+  1: 'Pediatrie',
+  2: 'Neurologie',
+  3: 'Dermatologie',
+  4: 'Oftalmologie',
+  5: 'Stomatologie',
+  6: 'Chirurgie',
+  7: 'Ortopedie',
+  8: 'Ginecologie',
+  9: 'Urologie',
+  10: 'Psihiatrie',
+  11: 'Medicina Generala',
+};
+
+type NewsType = 'ServiciuNou' | 'Promotie' | 'MedicNou' | 'ActualizarePret';
+
+const NEWS_TYPE_NUM: Record<NewsType, number> = {
+  ServiciuNou: 0,
+  Promotie: 1,
+  MedicNou: 2,
+  ActualizarePret: 3,
+};
+
+const NEWS_TYPE_LABELS: Record<NewsType, { ro: string; ru: string; en: string }> = {
+  ServiciuNou:     { ro: 'Serviciu nou',    ru: 'Новая услуга',    en: 'New service'   },
+  Promotie:        { ro: 'Promoție',         ru: 'Акция',           en: 'Promotion'     },
+  MedicNou:        { ro: 'Medic nou',        ru: 'Новый врач',      en: 'New doctor'    },
+  ActualizarePret: { ro: 'Actualizare preț', ru: 'Обновление цены', en: 'Price update'  },
+};
+
+// ─── Componenta PatientPicker ──────────────────────────────────────────────────
+
+interface PatientPickerProps {
+  filtered: PatientAPI[];
+  selected: number[];
+  onToggle: (id: number) => void;
+  onToggleAll: () => void;
+  allSel: boolean;
+  search: string;
+  onSearch: (v: string) => void;
+  title: string;
+  count: number;
+  language: string;
+  getAvatar: (firstName: string, lastName: string) => string;
+}
+
+const PatientPicker: React.FC<PatientPickerProps> = ({
+                                                       filtered, selected, onToggle, onToggleAll, allSel,
+                                                       search, onSearch, title, count, language, getAvatar,
+                                                     }) => {
+  const lbl = (ro: string, ru: string, en: string) =>
+      language === 'ru' ? ru : language === 'en' ? en : ro;
+
+  return (
+      <div className="patients-selection-panel">
+        <div className="panel-header">
+          <h3>{title}</h3>
+          <span className="selected-count">
+          {count} {lbl('selectați', 'выбрано', 'selected')}
+        </span>
+        </div>
+        <div className="search-patient-box">
+          <input
+              type="text"
+              className="search-patient-input"
+              placeholder={lbl('Caută după nume...', 'Поиск...', 'Search...')}
+              value={search}
+              onChange={e => onSearch(e.target.value)}
+          />
+        </div>
+        <button
+            type="button"
+            className={`btn-select-all ${allSel ? 'btn-select-all--active' : ''}`}
+            onClick={onToggleAll}
+        >
+          {allSel
+              ? lbl('✓ Deselectează toți', '✓ Снять все', '✓ Deselect all')
+              : lbl('Selectează toți', 'Выбрать всех', 'Select all')}
+        </button>
+        <div className="patients-list">
+          {filtered.map(p => (
+              <div
+                  key={p.id}
+                  className={`patient-select-card ${selected.includes(p.id) ? 'selected' : ''}`}
+                  onClick={() => onToggle(p.id)}
+              >
+                <input type="checkbox" checked={selected.includes(p.id)} onChange={() => {}} />
+                <div className="patient-avatar">{getAvatar(p.firstName, p.lastName)}</div>
+                <div className="patient-details">
+                  <span className="patient-name">{p.firstName} {p.lastName}</span>
+                  <span className="patient-email">{p.email}</span>
+                </div>
+              </div>
+          ))}
+        </div>
+      </div>
+  );
+};
+
+// ─── Custom Select reutilizabil ────────────────────────────────────────────────
+
+interface SelectOption { value: string; label: string; }
+
+interface CustomSelectProps {
+  options: SelectOption[];
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+  required?: boolean;
+}
+
+const CustomSelect: React.FC<CustomSelectProps> = ({ options, value, onChange, placeholder, required }) => {
+  const [open, setOpen] = useState(false);
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
+  const ref = React.useRef<HTMLDivElement>(null);
+  const btnRef = React.useRef<HTMLButtonElement>(null);
+
+  const menuRef = React.useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && ref.current.contains(e.target as Node)) return;
+      if (menuRef.current && menuRef.current.contains(e.target as Node)) return;
+      setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleToggle = () => {
+    if (!btnRef.current) return;
+    const rect = btnRef.current.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const menuMaxH = 260;
+
+    if (spaceBelow >= menuMaxH) {
+      setMenuStyle({
+        position: 'fixed',
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+        zIndex: 999999,
+        background: 'white',
+        border: '1.5px solid #e2e8f0',
+        borderRadius: '12px',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+        maxHeight: `${menuMaxH}px`,
+        overflowY: 'auto',
+      });
+    } else {
+      setMenuStyle({
+        position: 'fixed',
+        bottom: window.innerHeight - rect.top + 4,
+        left: rect.left,
+        width: rect.width,
+        zIndex: 999999,
+        background: 'white',
+        border: '1.5px solid #e2e8f0',
+        borderRadius: '12px',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+        maxHeight: `${menuMaxH}px`,
+        overflowY: 'auto',
+      });
+    }
+    setOpen(v => !v);
+  };
+
+  const selected = options.find(o => o.value === value);
+
+  return (
+      <div className="modal-custom-dropdown" ref={ref}>
+        <button
+            type="button"
+            ref={btnRef}
+            className={`modal-custom-toggle ${open ? 'open' : ''} ${required && !value ? 'required-empty' : ''}`}
+            onClick={handleToggle}
+        >
+          <span className={selected ? '' : 'placeholder-text'}>{selected ? selected.label : (placeholder ?? '-- Alege --')}</span>
+          <span className="modal-dropdown-arrow">▾</span>
+        </button>
+        {open && ReactDOM.createPortal(
+            <div style={menuStyle} ref={menuRef}>
+              {options.map(opt => (
+                  <div
+                      key={opt.value}
+                      className={`modal-custom-item ${opt.value === value ? 'selected' : ''}`}
+                      onClick={() => { onChange(opt.value); setOpen(false); }}
+                  >
+                    {opt.label}
+                  </div>
+              ))}
+            </div>,
+            document.body
+        )}
+      </div>
+  );
+};
+
+
+
+type Section = 'statistici' | 'programari' | 'pacienti' | 'medici' | 'notificari' | 'noutati' | 'recenzii' | 'servicii';
 
 const AdminDashboard: React.FC = () => {
   const { t, language } = useLanguage();
-  const { notifications, setNotifications } = useNotifications();
-  const [activeSection, setActiveSection] = useState<'statistici' | 'programari' | 'pacienti' | 'medici' | 'notificari' | 'recenzii' | 'servicii'>('pacienti');
-  const [patients, setPatients] = useState<Patient[]>([
-    { id: 1, name: 'Maria Popescu', age: 34, phone: '0721234567', email: 'maria.popescu@email.com', lastVisit: '2024-02-15', status: 'Active', avatar: 'MP' },
-    { id: 2, name: 'Ion Ionescu', age: 45, phone: '0732345678', email: 'ion.ionescu@email.com', lastVisit: '2024-02-10', status: 'Active', avatar: 'II' },
-    { id: 3, name: 'Ana Vasilescu', age: 28, phone: '0743456789', email: 'ana.vasilescu@email.com', lastVisit: '2024-01-20', status: 'Inactive', avatar: 'AV' },
-    { id: 4, name: 'Victor Gudima', age: 21, phone: '067759305', email: 'victor.gudima@isa.utm.md', lastVisit: '2026-02-18', status: 'Active', avatar: 'VG' },
-    { id: 5, name: 'George Mihai', age: 52, phone: '0754567890', email: 'george.mihai@email.com', lastVisit: '2024-02-18', status: 'Active', avatar: 'GM' },
-  ]);
+  const api = useApi();
 
-  const [doctors, setDoctors] = useState<Doctor[]>([
-    { id: 1, name: 'Dr. Ion Ionescu', specialization: 'Cardiologie', phone: '0721111111', email: 'dr.ionescu@cabinet.ro', status: 'Active', avatar: 'II' },
-    { id: 2, name: 'Dr. Ana Vasilescu', specialization: 'Pediatrie', phone: '0722222222', email: 'dr.vasilescu@cabinet.ro', status: 'Active', avatar: 'AV' },
-    { id: 3, name: 'Dr. George Popescu', specialization: 'Medicină Generală', phone: '0723333333', email: 'dr.popescu@cabinet.ro', status: 'Active', avatar: 'GP' },
-  ]);
+  const lbl = (ro: string, ru: string, en: string) =>
+      language === 'ru' ? ru : language === 'en' ? en : ro;
 
-  const [appointments, setAppointments] = useState<Appointment[]>([
-    { id: 1, date: '2026-02-19', time: '10:00', patientName: 'Maria Popescu', doctorName: 'Dr. Ionescu', status: 'Confirmed' },
-    { id: 2, date: '2026-02-19', time: '11:30', patientName: 'Ion Ionescu', doctorName: 'Dr. Vasilescu', status: 'Confirmed' },
-    { id: 3, date: '2026-02-19', time: '14:00', patientName: 'Ana Vasilescu', doctorName: 'Dr. Popescu', status: 'Pending' },
-  ]);
+  const newsTypeLabel = (type: NewsType) =>
+      NEWS_TYPE_LABELS[type][language as 'ro' | 'ru' | 'en'] ?? NEWS_TYPE_LABELS[type].ro;
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Inactive'>('All');
+  const getAvatar = (firstName: string, lastName: string) =>
+      `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase();
 
-  // Patient modal
+  const [activeSection, setActiveSection] = useState<Section>('statistici');
+
+  // ── Pacienți ────────────────────────────────────────────────────────────────
+
+  const [patients, setPatients]                 = useState<PatientAPI[]>([]);
+  const [loadingPatients, setLoadingPatients]   = useState(false);
+  const [searchTerm, setSearchTerm]             = useState('');
+  const [statusFilter, setStatusFilter]         = useState<'All' | 'Active' | 'Inactive'>('All');
+  const [dropdownOpen, setDropdownOpen]         = useState(false);
   const [showPatientModal, setShowPatientModal] = useState(false);
-  const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
-  const [patientFormData, setPatientFormData] = useState({ name: '', age: '', phone: '', email: '', status: 'Active' as 'Active' | 'Inactive' });
+  const [editingPatient, setEditingPatient]     = useState<PatientAPI | null>(null);
+  const [patientFormData, setPatientFormData]   = useState({
+    firstName: '', lastName: '', dateOfBirth: '', sex: '', email: '', phone: '',
+  });
 
-  // Doctor modal
+  const fetchPatients = useCallback(async () => {
+    setLoadingPatients(true);
+    try {
+      const d = await api.get<PatientAPI[]>('/api/patients/list');
+      setPatients(d ?? []);
+    } catch {
+      setPatients([]);
+    } finally {
+      setLoadingPatients(false);
+    }
+  }, [api]);
+
+  useEffect(() => {
+    if (activeSection === 'pacienti' || activeSection === 'statistici') {
+      void fetchPatients();
+    }
+  }, [activeSection, fetchPatients]);
+
+  const filteredPatients = patients.filter(p => {
+    const name = `${p.firstName} ${p.lastName}`.toLowerCase();
+    const matchSearch = name.includes(searchTerm.toLowerCase());
+    const matchStatus =
+        statusFilter === 'All' ||
+        (statusFilter === 'Active' ? !p.isDeleted : p.isDeleted);
+    return matchSearch && matchStatus;
+  });
+
+  const handleSavePatient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingPatient) {
+        await api.put(`/api/patients/Update/${editingPatient.id}`, patientFormData);
+      } else {
+        await api.post('/api/patients/Create', patientFormData);
+      }
+      setShowPatientModal(false);
+      setEditingPatient(null);
+      await fetchPatients();
+    } catch {
+      alert(lbl('Eroare la salvare', 'Ошибка', 'Error saving'));
+    }
+  };
+
+  const handleDeletePatient = async (id: number) => {
+    if (!window.confirm(lbl('Sigur doriți să ștergeți?', 'Удалить?', 'Delete?'))) return;
+    try {
+      await api.delete(`/api/patients/${id}`);
+      setPatients(prev => prev.map(p => p.id === id ? { ...p, isDeleted: true } : p));
+    } catch {
+      alert(lbl('Eroare la ștergere', 'Ошибка удаления', 'Delete error'));
+    }
+  };
+
+  // ── Medici ──────────────────────────────────────────────────────────────────
+
+  const [doctors, setDoctors]               = useState<DoctorAPI[]>([]);
+  const [loadingDoctors, setLoadingDoctors] = useState(false);
   const [showDoctorModal, setShowDoctorModal] = useState(false);
-  const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
-  const [doctorFormData, setDoctorFormData] = useState({ name: '', specialization: '', phone: '', email: '', status: 'Active' as 'Active' | 'Inactive' });
-
-  // Appointment modal
-  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
-  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
-  const [appointmentFormData, setAppointmentFormData] = useState({ date: '', time: '', patientName: '', doctorName: '', status: 'Confirmed' as 'Confirmed' | 'Pending' });
-
-  // Notification state
-  const [selectedPatients, setSelectedPatients] = useState<number[]>([]);
-  const [patientSearchTerm, setPatientSearchTerm] = useState('');
-  const [notificationFormData, setNotificationFormData] = useState({
-    title: '',
-    message: ''
-  });
-  const [notificationHistory, setNotificationHistory] = useState<Array<{
-    id: number;
-    adminName: string;
-    patientNames: string[];
-    title: string;
-    message: string;
-    timestamp: string;
-  }>>([]);
-  const [expandedHistoryIds, setExpandedHistoryIds] = useState<number[]>([]);
-
-  // Reviews state
-  const [reviews, setReviews] = useState<Review[]>([
-    { id: 1, patientName: 'Maria Popescu', doctorName: 'Dr. Ion Ionescu', rating: 5, comment: 'Excelent medic, foarte profesionist!', date: '2024-02-15', status: 'Approved' },
-    { id: 2, patientName: 'Ion Ionescu', doctorName: 'Dr. Ana Vasilescu', rating: 4, comment: 'Bună experiență', date: '2024-02-10', status: 'Approved' },
-    { id: 3, patientName: 'Ana Vasilescu', doctorName: 'Dr. George Popescu', rating: 5, comment: 'Recomand cu încredere', date: '2024-01-20', status: 'Pending' },
-  ]);
-  const [showReviewModal, setShowReviewModal] = useState(false);
-  const [editingReview, setEditingReview] = useState<Review | null>(null);
-  const [reviewFormData, setReviewFormData] = useState({ patientName: '', doctorName: '', rating: 5, comment: '', date: '', status: 'Pending' as 'Approved' | 'Pending' | 'Rejected' });
-
-  // Medical Services state
-  const [medicalServices, setMedicalServices] = useState<MedicalService[]>([
-    { id: 1, name: 'Consultație Cardiologie', description: 'Consultație completă cardiologică', price: 200, duration: '30 min', status: 'Active' },
-    { id: 2, name: 'Consultație Pediatrie', description: 'Consultație pediatrică generală', price: 150, duration: '20 min', status: 'Active' },
-    { id: 3, name: 'Consultație Medicină Generală', description: 'Consultație de medicină generală', price: 120, duration: '15 min', status: 'Active' },
-  ]);
-  const [showServiceModal, setShowServiceModal] = useState(false);
-  const [editingService, setEditingService] = useState<MedicalService | null>(null);
-  const [serviceFormData, setServiceFormData] = useState({ name: '', description: '', price: '', duration: '', status: 'Active' as 'Active' | 'Inactive' });
-
-  const getAvatar = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase();
-
-  const filteredPatients = patients.filter(patient => {
-    const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || patient.status === statusFilter;
-    return matchesSearch && matchesStatus;
+  const [editingDoctor, setEditingDoctor]     = useState<DoctorAPI | null>(null);
+  const [doctorFormData, setDoctorFormData]   = useState({
+    firstName: '', lastName: '', specialty: 0,
   });
 
-  // Patient handlers
-  const handleEditPatient = (patient: Patient) => {
-    setEditingPatient(patient);
-    setPatientFormData({ name: patient.name, age: patient.age.toString(), phone: patient.phone, email: patient.email, status: patient.status });
-    setShowPatientModal(true);
-  };
-  const handleDeletePatient = (id: number) => {
-    if (window.confirm('Sigur doriți să ștergeți acest pacient?'))
-      setPatients(patients.filter(p => p.id !== id));
-  };
-  const handlePatientSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingPatient) {
-      setPatients(patients.map(p => p.id === editingPatient.id ? { ...p, name: patientFormData.name, age: parseInt(patientFormData.age), phone: patientFormData.phone, email: patientFormData.email, status: patientFormData.status, avatar: getAvatar(patientFormData.name) } : p));
-    } else {
-      const newPatient: Patient = { id: Math.max(...patients.map(p => p.id)) + 1, name: patientFormData.name, age: parseInt(patientFormData.age), phone: patientFormData.phone, email: patientFormData.email, lastVisit: new Date().toISOString().split('T')[0], status: patientFormData.status, avatar: getAvatar(patientFormData.name) };
-      setPatients([...patients, newPatient]);
+  const fetchDoctors = useCallback(async () => {
+    setLoadingDoctors(true);
+    try {
+      const d = await api.get<DoctorAPI[]>('/api/medic/list');
+      setDoctors(d ?? []);
+    } catch {
+      setDoctors([]);
+    } finally {
+      setLoadingDoctors(false);
     }
-    setShowPatientModal(false);
-    setEditingPatient(null);
-  };
+  }, [api]);
 
-  // Doctor handlers
-  const handleEditDoctor = (doctor: Doctor) => {
-    setEditingDoctor(doctor);
-    setDoctorFormData({ name: doctor.name, specialization: doctor.specialization, phone: doctor.phone, email: doctor.email, status: doctor.status });
-    setShowDoctorModal(true);
-  };
-  const handleDeleteDoctor = (id: number) => {
-    if (window.confirm('Sigur doriți să ștergeți acest medic?'))
-      setDoctors(doctors.filter(d => d.id !== id));
-  };
-  const handleDoctorSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingDoctor) {
-      setDoctors(doctors.map(d => d.id === editingDoctor.id ? { ...d, name: doctorFormData.name, specialization: doctorFormData.specialization, phone: doctorFormData.phone, email: doctorFormData.email, status: doctorFormData.status, avatar: getAvatar(doctorFormData.name) } : d));
-    } else {
-      const newDoctor: Doctor = { id: Math.max(...doctors.map(d => d.id)) + 1, name: doctorFormData.name, specialization: doctorFormData.specialization, phone: doctorFormData.phone, email: doctorFormData.email, status: doctorFormData.status, avatar: getAvatar(doctorFormData.name) };
-      setDoctors([...doctors, newDoctor]);
+  useEffect(() => {
+    if (activeSection === 'medici' || activeSection === 'statistici' || activeSection === 'programari') {
+      void fetchDoctors();
     }
-    setShowDoctorModal(false);
-    setEditingDoctor(null);
-  };
+  }, [activeSection, fetchDoctors]);
 
-  // Appointment handlers
-  const handleEditAppointment = (appointment: Appointment) => {
-    setEditingAppointment(appointment);
-    setAppointmentFormData({ date: appointment.date, time: appointment.time, patientName: appointment.patientName, doctorName: appointment.doctorName, status: appointment.status });
-    setShowAppointmentModal(true);
-  };
-  const handleDeleteAppointment = (id: number) => {
-    if (window.confirm('Sigur doriți să ștergeți această programare?'))
-      setAppointments(appointments.filter(a => a.id !== id));
-  };
-  const handleAppointmentSubmit = (e: React.FormEvent) => {
+  const handleSaveDoctor = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingAppointment) {
-      setAppointments(appointments.map(a => a.id === editingAppointment.id ? { ...a, date: appointmentFormData.date, time: appointmentFormData.time, patientName: appointmentFormData.patientName, doctorName: appointmentFormData.doctorName, status: appointmentFormData.status } : a));
-    } else {
-      const newAppointment: Appointment = { id: Math.max(...appointments.map(a => a.id)) + 1, date: appointmentFormData.date, time: appointmentFormData.time, patientName: appointmentFormData.patientName, doctorName: appointmentFormData.doctorName, status: appointmentFormData.status };
-      setAppointments([...appointments, newAppointment]);
-    }
-    setShowAppointmentModal(false);
-    setEditingAppointment(null);
-  };
-
-  // Notification handlers
-  const togglePatientSelection = (patientId: number) => {
-    setSelectedPatients(prev =>
-      prev.includes(patientId) ? prev.filter(id => id !== patientId) : [...prev, patientId]
-    );
-  };
-
-  const handleSendNotification = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedPatients.length === 0) {
-      alert(language === 'ru' ? 'Выберите хотя бы одного пациента' : language === 'en' ? 'Select at least one patient' : 'Selectați cel puțin un pacient');
-      return;
-    }
-
-
-    const timeStr = language === 'ru' ? 'Только что' : language === 'en' ? 'Just now' : 'Acum';
-
-    const newNotifications: Notification[] = selectedPatients.map(patientId => {
-      return {
-        id: Math.max(...notifications.map(n => n.id), 0) + patientId,
-        type: 'sistem',
-        title: notificationFormData.title,
-        message: notificationFormData.message,
-        time: timeStr,
-        read: false
+    try {
+      // Backend-ul asteapta "speciality" in MedicCreateDto
+      const payload = {
+        firstName: doctorFormData.firstName,
+        lastName: doctorFormData.lastName,
+        speciality: doctorFormData.specialty,
       };
-    });
+      if (editingDoctor) {
+        await api.put(`/api/medic/update/${editingDoctor.id}`, payload);
+      } else {
+        await api.post('/api/medic/Create', payload);
+      }
+      setShowDoctorModal(false);
+      setEditingDoctor(null);
+      await fetchDoctors();
+    } catch {
+      alert(lbl('Eroare la salvare', 'Ошибка', 'Error saving'));
+    }
+  };
 
-    setNotifications([...newNotifications, ...notifications]);
+  const handleDeleteDoctor = async (id: number) => {
+    if (!window.confirm(lbl('Sigur doriți să ștergeți?', 'Удалить?', 'Delete?'))) return;
+    try {
+      await api.delete(`/api/medic/${id}`);
+      setDoctors(prev => prev.filter(d => d.id !== id));
+    } catch {
+      alert(lbl('Eroare la ștergere', 'Ошибка удаления', 'Delete error'));
+    }
+  };
 
-    // Add to history
-    const selectedPatientNames = patients
-      .filter(p => selectedPatients.includes(p.id))
-      .map(p => p.name);
+  // ── Programări ──────────────────────────────────────────────────────────────
 
-    const historyEntry = {
-      id: Date.now(),
-      adminName: 'Admin',
-      patientNames: selectedPatientNames,
-      title: notificationFormData.title,
-      message: notificationFormData.message,
-      timestamp: new Date().toLocaleString(language === 'ru' ? 'ru-RU' : language === 'en' ? 'en-US' : 'ro-RO')
+  const [appointments, setAppointments]     = useState<AppointmentAPI[]>([]);
+  const [loadingAppts, setLoadingAppts]     = useState(false);
+  const [showApptModal, setShowApptModal]   = useState(false);
+  const [editingAppt, setEditingAppt]       = useState<AppointmentAPI | null>(null);
+  const [apptFormData, setApptFormData]     = useState({
+    patientName: '', phone: '', email: '',
+    doctorName: '', serviceName: '', reasonForVisit: '',
+    appointmentTime: '', appointmentDate: '',
+    status: 0,
+  });
+  const [apptSpecialityFilter, setApptSpecialityFilter] = useState<number | ''>('');
+
+  const fetchAppointments = useCallback(async () => {
+    setLoadingAppts(true);
+    try {
+      const d = await api.get<AppointmentAPI[]>('/api/appointment/list');
+      setAppointments(d ?? []);
+    } catch {
+      setAppointments([]);
+    } finally {
+      setLoadingAppts(false);
+    }
+  }, [api]);
+
+  useEffect(() => {
+    if (activeSection === 'programari' || activeSection === 'statistici') {
+      void fetchAppointments();
+    }
+  }, [activeSection, fetchAppointments]);
+
+  const handleSaveAppt = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const timeValue = apptFormData.appointmentTime.length === 5
+        ? `${apptFormData.appointmentTime}:00`
+        : apptFormData.appointmentTime;
+
+    const payload = {
+      patientName: apptFormData.patientName,
+      phone: apptFormData.phone,
+      email: apptFormData.email,
+      doctorName: apptFormData.doctorName,
+      serviceName: apptFormData.serviceName,
+      reasonForVisit: apptFormData.reasonForVisit,
+      appointmentTime: timeValue,
+      appointmentDate: apptFormData.appointmentDate,
     };
 
-    setNotificationHistory([historyEntry, ...notificationHistory]);
-
-    // Reset form
-    setNotificationFormData({ title: '', message: '' });
-    setSelectedPatients([]);
-
-    alert(language === 'ru' ? `Уведомление отправлено ${selectedPatients.length} пациентам` :
-          language === 'en' ? `Notification sent to ${selectedPatients.length} patients` :
-          `Notificare trimisă la ${selectedPatients.length} pacienți`);
+    try {
+      if (editingAppt) {
+        await api.put(`/api/appointment/update/${editingAppt.id}`, payload);
+        // Dacă s-a schimbat statusul, trimitem si PATCH separat
+        if (apptFormData.status !== editingAppt.status) {
+          await api.patch(`/api/appointment/${editingAppt.id}/status`, { status: apptFormData.status });
+        }
+      } else {
+        await api.post('/api/appointment/create', payload);
+      }
+      setShowApptModal(false);
+      setEditingAppt(null);
+      await fetchAppointments();
+    } catch {
+      alert(lbl('Eroare la salvare', 'Ошибка', 'Error saving'));
+    }
   };
 
-  const filteredPatientsForNotification = patients.filter(patient => {
-    if (patient.status !== 'Active') return false;
-    const searchLower = patientSearchTerm.toLowerCase();
-    return patient.name.toLowerCase().includes(searchLower) ||
-           patient.email.toLowerCase().includes(searchLower);
+  const handleDeleteAppt = async (id: number) => {
+    if (!window.confirm(lbl('Sigur doriți să ștergeți?', 'Удалить?', 'Delete?'))) return;
+    try {
+      await api.delete(`/api/appointment/${id}`);
+      setAppointments(prev => prev.filter(a => a.id !== id));
+    } catch {
+      alert(lbl('Eroare la ștergere', 'Ошибка удаления', 'Delete error'));
+    }
+  };
+
+  const apptStatusLabel = (s: number) => {
+    if (s === 0) return lbl('În așteptare', 'В ожидании', 'Pending');
+    if (s === 1) return lbl('Confirmat', 'Подтверждён', 'Confirmed');
+    return lbl('Anulat', 'Отменён', 'Cancelled');
+  };
+
+  // ── Recenzii ────────────────────────────────────────────────────────────────
+
+  const [reviews, setReviews]               = useState<ReviewAPI[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [editingReview, setEditingReview]     = useState<ReviewAPI | null>(null);
+  const [reviewFormData, setReviewFormData]   = useState({ reviewText: '', rating: 5 });
+
+  const fetchReviews = useCallback(async () => {
+    setLoadingReviews(true);
+    try {
+      const d = await api.get<ReviewAPI[]>('/api/reviews/list');
+      setReviews(d ?? []);
+    } catch {
+      setReviews([]);
+    } finally {
+      setLoadingReviews(false);
+    }
+  }, [api]);
+
+  useEffect(() => {
+    if (activeSection === 'recenzii') {
+      void fetchReviews();
+    }
+  }, [activeSection, fetchReviews]);
+
+  const handleSaveReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingReview) return;
+    // Trimitem si authorName ca sa nu cada validarea [Required] din DTO
+    const payload = {
+      authorName: editingReview.authorName,
+      reviewText: reviewFormData.reviewText,
+      rating: reviewFormData.rating,
+    };
+    try {
+      await api.put(`/api/reviews/update/${editingReview.id}`, payload);
+      setShowReviewModal(false);
+      setEditingReview(null);
+      await fetchReviews();
+    } catch {
+      alert(lbl('Eroare la salvare', 'Ошибка', 'Error saving'));
+    }
+  };
+
+  const handleDeleteReview = async (id: number) => {
+    if (!window.confirm(lbl('Sigur doriți să ștergeți?', 'Удалить?', 'Delete?'))) return;
+    try {
+      await api.delete(`/api/reviews/${id}`);
+      setReviews(prev => prev.filter(r => r.id !== id));
+    } catch {
+      alert(lbl('Eroare la ștergere', 'Ошибка удаления', 'Delete error'));
+    }
+  };
+
+  // ── Servicii ────────────────────────────────────────────────────────────────
+
+  const [services, setServices]               = useState<ServiceAPI[]>([]);
+  const [loadingServices, setLoadingServices] = useState(false);
+  const [showServiceModal, setShowServiceModal] = useState(false);
+  const [editingService, setEditingService]     = useState<ServiceAPI | null>(null);
+  const [serviceFormData, setServiceFormData]   = useState({
+    serviceName: '', serviceDescription: '', servicePrice: '', serviceDuration: '', category: 0,
   });
 
-  const toggleHistoryDetails = (id: number) => {
-    setExpandedHistoryIds(prev =>
-      prev.includes(id) ? prev.filter(historyId => historyId !== id) : [...prev, id]
+  const fetchServices = useCallback(async () => {
+    setLoadingServices(true);
+    try {
+      const d = await api.get<ServiceAPI[]>('/api/service/list');
+      setServices(d ?? []);
+    } catch {
+      setServices([]);
+    } finally {
+      setLoadingServices(false);
+    }
+  }, [api]);
+
+  useEffect(() => {
+    if (activeSection === 'servicii') {
+      void fetchServices();
+    }
+  }, [activeSection, fetchServices]);
+
+  const handleSaveService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const payload = {
+      serviceName: serviceFormData.serviceName,
+      serviceDescription: serviceFormData.serviceDescription,
+      servicePrice: parseFloat(serviceFormData.servicePrice),
+      serviceDuration: parseInt(serviceFormData.serviceDuration),
+      category: serviceFormData.category,
+    };
+    try {
+      if (editingService) {
+        await api.put(`/api/service/update/${editingService.id}`, payload);
+      } else {
+        await api.post('/api/service/create', payload);
+      }
+      setShowServiceModal(false);
+      setEditingService(null);
+      await fetchServices();
+    } catch {
+      alert(lbl('Eroare la salvare', 'Ошибка', 'Error saving'));
+    }
+  };
+
+  const handleDeleteService = async (id: number) => {
+    if (!window.confirm(lbl('Sigur doriți să ștergeți?', 'Удалить?', 'Delete?'))) return;
+    try {
+      await api.delete(`/api/service/${id}`);
+      setServices(prev => prev.map(s => s.id === id ? { ...s, isDeleted: true } : s));
+    } catch {
+      alert(lbl('Eroare la ștergere', 'Ошибка удаления', 'Delete error'));
+    }
+  };
+
+  // ── Notificări ──────────────────────────────────────────────────────────────
+
+  const [notifPatients, setNotifPatients]           = useState<PatientAPI[]>([]);
+  const [selectedPatientIds, setSelectedPatientIds] = useState<number[]>([]);
+  const [notifPatientSearch, setNotifPatientSearch] = useState('');
+  const [notifFormData, setNotifFormData]           = useState({ title: '', message: '' });
+  const [notifHistory, setNotifHistory]             = useState<Array<{
+    id: number; patientNames: string[]; title: string; message: string; timestamp: string;
+  }>>([]);
+  const [expandedNotifIds, setExpandedNotifIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (activeSection !== 'notificari') return;
+    api.get<PatientAPI[]>('/api/patients/list')
+        .then(d => setNotifPatients((d ?? []).filter(p => !p.isDeleted)))
+        .catch(() => setNotifPatients([]));
+  }, [activeSection, api]);
+
+  const filteredNotifPatients = notifPatients.filter(p => {
+    const name = `${p.firstName} ${p.lastName}`.toLowerCase();
+    return (
+        name.includes(notifPatientSearch.toLowerCase()) ||
+        p.email.toLowerCase().includes(notifPatientSearch.toLowerCase())
     );
-  };
+  });
 
-  // Review handlers
-  const handleEditReview = (review: Review) => {
-    setEditingReview(review);
-    setReviewFormData({ patientName: review.patientName, doctorName: review.doctorName, rating: review.rating, comment: review.comment, date: review.date, status: review.status });
-    setShowReviewModal(true);
-  };
-  const handleDeleteReview = (id: number) => {
-    if (window.confirm('Sigur doriți să ștergeți această recenzie?'))
-      setReviews(reviews.filter(r => r.id !== id));
-  };
-  const handleReviewSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingReview) {
-      setReviews(reviews.map(r => r.id === editingReview.id ? { ...r, patientName: reviewFormData.patientName, doctorName: reviewFormData.doctorName, rating: reviewFormData.rating, comment: reviewFormData.comment, date: reviewFormData.date, status: reviewFormData.status } : r));
+  const allNotifSelected =
+      filteredNotifPatients.length > 0 &&
+      filteredNotifPatients.every(p => selectedPatientIds.includes(p.id));
+
+  const toggleSelectAllNotif = () => {
+    if (allNotifSelected) {
+      setSelectedPatientIds(prev => prev.filter(id => !filteredNotifPatients.some(p => p.id === id)));
     } else {
-      const newReview: Review = { id: Math.max(...reviews.map(r => r.id)) + 1, patientName: reviewFormData.patientName, doctorName: reviewFormData.doctorName, rating: reviewFormData.rating, comment: reviewFormData.comment, date: reviewFormData.date || new Date().toISOString().split('T')[0], status: reviewFormData.status };
-      setReviews([...reviews, newReview]);
+      setSelectedPatientIds(prev => [...new Set([...prev, ...filteredNotifPatients.map(p => p.id)])]);
     }
-    setShowReviewModal(false);
-    setEditingReview(null);
   };
 
-  // Medical Service handlers
-  const handleEditService = (service: MedicalService) => {
-    setEditingService(service);
-    setServiceFormData({ name: service.name, description: service.description, price: service.price.toString(), duration: service.duration, status: service.status });
-    setShowServiceModal(true);
-  };
-  const handleDeleteService = (id: number) => {
-    if (window.confirm('Sigur doriți să ștergeți acest serviciu medical?'))
-      setMedicalServices(medicalServices.filter(s => s.id !== id));
-  };
-  const handleServiceSubmit = (e: React.FormEvent) => {
+  const handleSendNotification = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingService) {
-      setMedicalServices(medicalServices.map(s => s.id === editingService.id ? { ...s, name: serviceFormData.name, description: serviceFormData.description, price: parseFloat(serviceFormData.price), duration: serviceFormData.duration, status: serviceFormData.status } : s));
-    } else {
-      const newService: MedicalService = { id: Math.max(...medicalServices.map(s => s.id)) + 1, name: serviceFormData.name, description: serviceFormData.description, price: parseFloat(serviceFormData.price), duration: serviceFormData.duration, status: serviceFormData.status };
-      setMedicalServices([...medicalServices, newService]);
+    if (selectedPatientIds.length === 0) {
+      alert(lbl('Selectați cel puțin un pacient', 'Выберите пациента', 'Select a patient'));
+      return;
     }
-    setShowServiceModal(false);
-    setEditingService(null);
+    try {
+      await Promise.all(
+          selectedPatientIds.map(userId =>
+              api.post('/api/notification/create', {
+                userId,
+                title: notifFormData.title,
+                message: notifFormData.message,
+              })
+          )
+      );
+      const names = notifPatients
+          .filter(p => selectedPatientIds.includes(p.id))
+          .map(p => `${p.firstName} ${p.lastName}`);
+      setNotifHistory(prev => [{
+        id: Date.now(),
+        patientNames: names,
+        title: notifFormData.title,
+        message: notifFormData.message,
+        timestamp: new Date().toLocaleString(),
+      }, ...prev]);
+      setNotifFormData({ title: '', message: '' });
+      setSelectedPatientIds([]);
+      alert(lbl(`Trimis la ${names.length} pacienți`, `Отправлено ${names.length} пациентам`, `Sent to ${names.length} patients`));
+    } catch {
+      alert(lbl('Eroare la trimitere', 'Ошибка отправки', 'Send error'));
+    }
   };
 
+  // ── Noutăți ─────────────────────────────────────────────────────────────────
 
+  const [newsPatients, setNewsPatients]       = useState<PatientAPI[]>([]);
+  const [newsSelectedIds, setNewsSelectedIds] = useState<number[]>([]);
+  const [newsPatientSearch, setNewsPatientSearch] = useState('');
+  const [newsFormData, setNewsFormData]       = useState({
+    name: '', description: '', type: 'ServiciuNou' as NewsType,
+  });
+  const [newsHistory, setNewsHistory] = useState<Array<{
+    id: number; patientNames: string[]; name: string; description: string; type: NewsType; timestamp: string;
+  }>>([]);
+  const [expandedNewsIds, setExpandedNewsIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (activeSection !== 'noutati') return;
+    api.get<PatientAPI[]>('/api/patients/list')
+        .then(d => setNewsPatients((d ?? []).filter(p => !p.isDeleted)))
+        .catch(() => setNewsPatients([]));
+  }, [activeSection, api]);
+
+  const filteredNewsPatients = newsPatients.filter(p => {
+    const name = `${p.firstName} ${p.lastName}`.toLowerCase();
+    return (
+        name.includes(newsPatientSearch.toLowerCase()) ||
+        p.email.toLowerCase().includes(newsPatientSearch.toLowerCase())
+    );
+  });
+
+  const allNewsSelected =
+      filteredNewsPatients.length > 0 &&
+      filteredNewsPatients.every(p => newsSelectedIds.includes(p.id));
+
+  const toggleSelectAllNews = () => {
+    if (allNewsSelected) {
+      setNewsSelectedIds(prev => prev.filter(id => !filteredNewsPatients.some(p => p.id === id)));
+    } else {
+      setNewsSelectedIds(prev => [...new Set([...prev, ...filteredNewsPatients.map(p => p.id)])]);
+    }
+  };
+
+  const handleSendNews = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newsSelectedIds.length === 0) {
+      alert(lbl('Selectați cel puțin un pacient', 'Выберите пациента', 'Select a patient'));
+      return;
+    }
+    try {
+      await api.post('/api/news/create', {
+        name: newsFormData.name,
+        description: newsFormData.description,
+        type: NEWS_TYPE_NUM[newsFormData.type],
+      });
+      const names = newsPatients
+          .filter(p => newsSelectedIds.includes(p.id))
+          .map(p => `${p.firstName} ${p.lastName}`);
+      setNewsHistory(prev => [{
+        id: Date.now(),
+        patientNames: names,
+        name: newsFormData.name,
+        description: newsFormData.description,
+        type: newsFormData.type,
+        timestamp: new Date().toLocaleString(),
+      }, ...prev]);
+      setNewsFormData({ name: '', description: '', type: 'ServiciuNou' });
+      setNewsSelectedIds([]);
+      alert(lbl('Noutate publicată!', 'Новость опубликована!', 'News published!'));
+    } catch {
+      alert(lbl('Eroare la publicare', 'Ошибка публикации', 'Publish error'));
+    }
+  };
+
+  // ── Statistici ──────────────────────────────────────────────────────────────
 
   const statCards = [
     {
       label: t.adminTotalPatients,
       value: patients.length,
-      badge: '+12%',
       color: '#3b82f6',
       bg: 'rgba(59,130,246,0.1)',
       bars: [40, 55, 45, 70, 60, 80, 100],
@@ -344,8 +767,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       label: t.adminActivePatients,
-      value: patients.filter(p => p.status === 'Active').length,
-      badge: `${Math.round((patients.filter(p => p.status === 'Active').length / patients.length) * 100)}%`,
+      value: patients.filter(p => !p.isDeleted).length,
       color: '#10b981',
       bg: 'rgba(16,185,129,0.1)',
       bars: [50, 65, 55, 75, 90, 80, 100],
@@ -358,8 +780,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       label: t.adminTodayAppts,
-      value: 3,
-      badge: 'Azi',
+      value: appointments.length,
       color: '#f59e0b',
       bg: 'rgba(245,158,11,0.1)',
       bars: [30, 80, 50, 40, 70, 60, 100],
@@ -374,8 +795,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       label: t.adminActiveDoctors,
-      value: 3,
-      badge: 'Activi',
+      value: doctors.filter(d => !d.isDeleted).length,
       color: '#8b5cf6',
       bg: 'rgba(139,92,246,0.1)',
       bars: [60, 60, 80, 80, 100, 100, 100],
@@ -388,35 +808,48 @@ const AdminDashboard: React.FC = () => {
     },
   ];
 
+  // ── Navigație sidebar ────────────────────────────────────────────────────────
+
+  const navItems: [Section, string][] = [
+    ['statistici', t.adminStats],
+    ['programari', t.adminAppts],
+    ['pacienti',   t.adminPatients],
+    ['medici',     t.adminDoctors],
+    ['notificari', lbl('Notificări', 'Уведомления', 'Notifications')],
+    ['noutati',    lbl('Noutăți', 'Новости', 'News')],
+    ['recenzii',   lbl('Recenzii', 'Отзывы', 'Reviews')],
+    ['servicii',   lbl('Servicii Medicale', 'Медицинские услуги', 'Medical Services')],
+  ];
+
+  // ── Render ───────────────────────────────────────────────────────────────────
+
   return (
       <div className="admin-page-wrapper">
         <AdminNavbar />
-
         <div className="admin-dashboard">
+
+          {/* Sidebar */}
           <aside className="sidebar">
             <div className="sidebar-header"></div>
             <nav className="sidebar-nav">
-              <a href="#" className={`nav-item ${activeSection === 'statistici' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('statistici'); }}>{t.adminStats}</a>
-              <a href="#" className={`nav-item ${activeSection === 'programari' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('programari'); }}>{t.adminAppts}</a>
-              <a href="#" className={`nav-item ${activeSection === 'pacienti' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('pacienti'); }}>{t.adminPatients}</a>
-              <a href="#" className={`nav-item ${activeSection === 'medici' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('medici'); }}>{t.adminDoctors}</a>
-              <a href="#" className={`nav-item ${activeSection === 'notificari' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('notificari'); }}>
-                {language === 'ru' ? 'Уведомления' : language === 'en' ? 'Notifications' : 'Notificări'}
-              </a>
-              <a href="#" className={`nav-item ${activeSection === 'recenzii' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('recenzii'); }}>
-                {language === 'ru' ? 'Отзывы' : language === 'en' ? 'Reviews' : 'Recenzii'}
-              </a>
-              <a href="#" className={`nav-item ${activeSection === 'servicii' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSection('servicii'); }}>
-                {language === 'ru' ? 'Медицинские услуги' : language === 'en' ? 'Medical Services' : 'Servicii Medicale'}
-              </a>
+              {navItems.map(([key, label]) => (
+                  <a
+                      key={key}
+                      href="#"
+                      className={`nav-item ${activeSection === key ? 'active' : ''}`}
+                      onClick={e => { e.preventDefault(); setActiveSection(key); }}
+                  >
+                    {label}
+                  </a>
+              ))}
             </nav>
           </aside>
 
+          {/* Main content */}
           <main className="main-content">
-
             <div className="content-wrapper">
 
-
+              {/* ── STATISTICI ── */}
               {activeSection === 'statistici' && (
                   <div className="section-content">
                     <div className="stats-grid">
@@ -426,16 +859,12 @@ const AdminDashboard: React.FC = () => {
                               <div className="stat-icon" style={{ background: card.bg, color: card.color }}>
                                 {card.icon}
                               </div>
-                              <span className="stat-badge">{card.badge}</span>
                             </div>
                             <p className="stat-number">{card.value}</p>
                             <p className="stat-label">{card.label}</p>
                             <div className="mini-bar">
                               {card.bars.map((h, j) => (
-                                  <span
-                                      key={j}
-                                      style={{ height: `${h}%`, background: card.color, opacity: j === card.bars.length - 1 ? 1 : 0.5 + j * 0.07 }}
-                                  />
+                                  <span key={j} style={{ height: `${h}%`, background: card.color, opacity: j === card.bars.length - 1 ? 1 : 0.5 + j * 0.07 }} />
                               ))}
                             </div>
                           </div>
@@ -444,465 +873,622 @@ const AdminDashboard: React.FC = () => {
                   </div>
               )}
 
-
+              {/* ── PROGRAMĂRI ── */}
               {activeSection === 'programari' && (
                   <div className="section-content">
-                    <div className="table-container">
-                      <table className="patients-table">
-                        <thead>
-                        <tr>
-                          <th>{t.adminApptDate}</th>
-                          <th>{t.adminApptTime}</th>
-                          <th>{t.adminName}</th>
-                          <th>{t.adminDoctors}</th>
-                          <th>{t.adminStatus}</th>
-                          <th>{t.adminActions}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {appointments.map(appointment => (
-                            <tr key={appointment.id}>
-                              <td>{appointment.date}</td>
-                              <td>{appointment.time}</td>
-                              <td>{appointment.patientName}</td>
-                              <td>{appointment.doctorName}</td>
-                              <td>
-                                <span className={`status-badge ${appointment.status === 'Confirmed' ? 'active' : 'inactive'}`}>
-                                  {appointment.status === 'Confirmed' ? t.adminApptConfirmed : t.adminApptPending}
-                                </span>
-                              </td>
-                              <td>
-                                <div className="action-buttons">
-                                  <button className="btn-action btn-edit" onClick={() => handleEditAppointment(appointment)}>{t.adminEdit}</button>
-                                  <button className="btn-action btn-delete" onClick={() => handleDeleteAppointment(appointment.id)}>{t.adminDelete}</button>
-                                </div>
-                              </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                      </table>
+                    <div className="section-top-bar">
+                      <h2 className="section-top-title">{t.adminAppts}</h2>
+                      <button className="btn-action btn-create" onClick={() => {
+                        setEditingAppt(null);
+                        setApptSpecialityFilter('');
+                        setApptFormData({ patientName: '', phone: '', email: '', doctorName: '', serviceName: '', reasonForVisit: '', appointmentTime: '', appointmentDate: '', status: 0 });
+                        setShowApptModal(true);
+                      }}>
+                        + {lbl('Adaugă Programare', 'Добавить запись', 'Add Appointment')}
+                      </button>
                     </div>
+                    {loadingAppts ? (
+                        <p>{lbl('Se încarcă...', 'Загрузка...', 'Loading...')}</p>
+                    ) : (
+                        <div className="table-container">
+                          <table className="patients-table">
+                            <thead>
+                            <tr>
+                              <th>{lbl('Data', 'Дата', 'Date')}</th>
+                              <th>{lbl('Ora', 'Время', 'Time')}</th>
+                              <th>{lbl('Pacient', 'Пациент', 'Patient')}</th>
+                              <th>{lbl('Medic', 'Врач', 'Doctor')}</th>
+                              <th>{t.adminStatus}</th>
+                              <th>{t.adminActions}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {appointments.map(a => (
+                                <tr key={a.id}>
+                                  <td>{a.appointmentDate}</td>
+                                  <td>{a.appointmentTime}</td>
+                                  <td>{a.patientName}</td>
+                                  <td>{a.doctorName}</td>
+                                  <td>
+                              <span className={`status-badge ${a.status === 1 ? 'active' : 'inactive'}`}>
+                                {apptStatusLabel(a.status)}
+                              </span>
+                                  </td>
+                                  <td>
+                                    <div className="action-buttons">
+                                      <button className="btn-action btn-edit" onClick={() => {
+                                        setEditingAppt(a);
+                                        setApptSpecialityFilter('');
+                                        setApptFormData({
+                                          patientName: a.patientName,
+                                          phone: a.phone ?? '',
+                                          email: a.email ?? '',
+                                          doctorName: a.doctorName,
+                                          serviceName: a.serviceName ?? '',
+                                          reasonForVisit: a.reasonForVisit ?? '',
+                                          appointmentTime: a.appointmentTime,
+                                          appointmentDate: a.appointmentDate,
+                                          status: a.status,
+                                        });
+                                        setShowApptModal(true);
+                                      }}>{t.adminEdit}</button>
+                                      <button className="btn-action btn-delete" onClick={() => handleDeleteAppt(a.id)}>
+                                        {t.adminDelete}
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                          </table>
+                        </div>
+                    )}
                   </div>
               )}
 
-
+              {/* ── PACIENȚI ── */}
               {activeSection === 'pacienti' && (
                   <>
-                    <div className="filters">
-                      <input
-                          type="text"
-                          className="search-input"
-                          placeholder={t.adminSearch}
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                      <div className="custom-dropdown">
-                        <button className="dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
-                          {statusFilter === 'All' ? t.adminAllPatients : statusFilter === 'Active' ? t.adminActive : t.adminInactive}
-                          <span className="dropdown-arrow">▾</span>
-                        </button>
-                        {dropdownOpen && (
-                            <div className="dropdown-menu">
-                              {(['All', 'Active', 'Inactive'] as const).map((option) => (
-                                  <div
-                                      key={option}
-                                      className={`dropdown-item ${statusFilter === option ? 'selected' : ''}`}
-                                      onClick={() => { setStatusFilter(option); setDropdownOpen(false); }}
-                                  >
-                                    {option === 'All' ? t.adminAllPatients : option === 'Active' ? t.adminActive : t.adminInactive}
-                                  </div>
-                              ))}
-                            </div>
-                        )}
+                    <div className="section-top-bar">
+                      <div className="filters">
+                        <input
+                            type="text"
+                            className="search-input"
+                            placeholder={t.adminSearch}
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                        />
+                        <div className="custom-dropdown">
+                          <button className="dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                            {statusFilter === 'All' ? t.adminAllPatients : statusFilter === 'Active' ? t.adminActive : t.adminInactive}
+                            <span className="dropdown-arrow">▾</span>
+                          </button>
+                          {dropdownOpen && (
+                              <div className="dropdown-menu">
+                                {(['All', 'Active', 'Inactive'] as const).map(opt => (
+                                    <div
+                                        key={opt}
+                                        className={`dropdown-item ${statusFilter === opt ? 'selected' : ''}`}
+                                        onClick={() => { setStatusFilter(opt); setDropdownOpen(false); }}
+                                    >
+                                      {opt === 'All' ? t.adminAllPatients : opt === 'Active' ? t.adminActive : t.adminInactive}
+                                    </div>
+                                ))}
+                              </div>
+                          )}
+                        </div>
                       </div>
+                      <button className="btn-action btn-create" onClick={() => {
+                        setEditingPatient(null);
+                        setPatientFormData({ firstName: '', lastName: '', dateOfBirth: '', sex: '', email: '', phone: '' });
+                        setShowPatientModal(true);
+                      }}>
+                        + {lbl('Adaugă Pacient', 'Добавить пациента', 'Add Patient')}
+                      </button>
                     </div>
-                    <div className="table-container">
-                      <table className="patients-table">
-                        <thead>
-                        <tr>
-                          <th>{t.adminName}</th>
-                          <th>{t.adminAge}</th>
-                          <th>{t.adminPhone}</th>
-                          <th>{t.adminEmail}</th>
-                          <th>{t.adminLastVisit}</th>
-                          <th>{t.adminStatus}</th>
-                          <th>{t.adminActions}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {filteredPatients.map(patient => (
-                            <tr key={patient.id}>
-                              <td>
-                                <div className="patient-info">
-                                  <div className="patient-avatar">{getAvatar(patient.name)}</div>
-                                  <span>{patient.name}</span>
-                                </div>
-                              </td>
-                              <td>{patient.age}</td>
-                              <td>{patient.phone}</td>
-                              <td>{patient.email}</td>
-                              <td>{patient.lastVisit}</td>
-                              <td><span className={`status-badge ${patient.status.toLowerCase()}`}>{patient.status === 'Active' ? t.adminActive : t.adminInactive}</span></td>
-                              <td>
-                                <div className="action-buttons">
-                                  <button className="btn-action btn-create" onClick={() => {
-                                    setEditingPatient(null);
-                                    setPatientFormData({ name: '', age: '', phone: '', email: '', status: 'Active' });
-                                    setShowPatientModal(true);
-                                  }}>
-                                    {language === 'ru' ? 'Создать' : language === 'en' ? 'Create' : 'Creează'}
-                                  </button>
-                                  <button className="btn-action btn-edit" onClick={() => handleEditPatient(patient)}>{t.adminEdit}</button>
-                                  <button className="btn-action btn-delete" onClick={() => handleDeletePatient(patient.id)}>{t.adminDelete}</button>
-                                </div>
-                              </td>
+                    {loadingPatients ? (
+                        <p>{lbl('Se încarcă...', 'Загрузка...', 'Loading...')}</p>
+                    ) : (
+                        <div className="table-container">
+                          <table className="patients-table">
+                            <thead>
+                            <tr>
+                              <th>{t.adminName}</th>
+                              <th>{t.adminPhone}</th>
+                              <th>{t.adminEmail}</th>
+                              <th>{t.adminStatus}</th>
+                              <th>{t.adminActions}</th>
                             </tr>
-                        ))}
-                        </tbody>
-                      </table>
-                    </div>
+                            </thead>
+                            <tbody>
+                            {filteredPatients.map(p => (
+                                <tr key={p.id}>
+                                  <td>
+                                    <div className="patient-info">
+                                      <div className="patient-avatar">{getAvatar(p.firstName, p.lastName)}</div>
+                                      <span>{p.firstName} {p.lastName}</span>
+                                    </div>
+                                  </td>
+                                  <td>{p.phone}</td>
+                                  <td>{p.email}</td>
+                                  <td>
+                              <span className={`status-badge ${p.isDeleted ? 'inactive' : 'active'}`}>
+                                {p.isDeleted ? t.adminInactive : t.adminActive}
+                              </span>
+                                  </td>
+                                  <td>
+                                    <div className="action-buttons">
+                                      <button className="btn-action btn-edit" onClick={() => {
+                                        setEditingPatient(p);
+                                        setPatientFormData({ firstName: p.firstName, lastName: p.lastName, dateOfBirth: p.dateOfBirth, sex: p.sex, email: p.email, phone: p.phone });
+                                        setShowPatientModal(true);
+                                      }}>{t.adminEdit}</button>
+                                      <button className="btn-action btn-delete" onClick={() => handleDeletePatient(p.id)}>
+                                        {t.adminDelete}
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                          </table>
+                        </div>
+                    )}
                   </>
               )}
 
-
+              {/* ── MEDICI ── */}
               {activeSection === 'medici' && (
                   <div className="section-content">
-                    <div className="table-container">
-                      <table className="patients-table">
-                        <thead>
-                        <tr>
-                          <th>{t.adminDoctors}</th>
-                          <th>{t.apptSpecialization ? t.apptSpecialization.replace(' *', '') : t.adminSpecCardio}</th>
-                          <th>{t.adminPhone}</th>
-                          <th>{t.adminEmail}</th>
-                          <th>{t.adminStatus}</th>
-                          <th>{t.adminActions}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {doctors.map(doctor => (
-                            <tr key={doctor.id}>
-                              <td>
-                                <div className="patient-info">
-                                  <div className="patient-avatar">{doctor.avatar}</div>
-                                  <span>{doctor.name}</span>
-                                </div>
-                              </td>
-                              <td>{translateSpecialization(doctor.specialization, language)}</td>
-                              <td>{doctor.phone}</td>
-                              <td>{doctor.email}</td>
-                              <td><span className={`status-badge ${doctor.status.toLowerCase()}`}>{doctor.status === 'Active' ? t.adminActive : t.adminInactive}</span></td>
-                              <td>
-                                <div className="action-buttons">
-                                  <button className="btn-action btn-create" onClick={() => {
-                                    setEditingDoctor(null);
-                                    setDoctorFormData({ name: '', specialization: '', phone: '', email: '', status: 'Active' });
-                                    setShowDoctorModal(true);
-                                  }}>
-                                    {language === 'ru' ? 'Создать' : language === 'en' ? 'Create' : 'Creează'}
-                                  </button>
-                                  <button className="btn-action btn-edit" onClick={() => handleEditDoctor(doctor)}>{t.adminEdit}</button>
-                                  <button className="btn-action btn-delete" onClick={() => handleDeleteDoctor(doctor.id)}>{t.adminDelete}</button>
-                                </div>
-                              </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                      </table>
+                    <div className="section-top-bar">
+                      <h2 className="section-top-title">{t.adminDoctors}</h2>
+                      <button className="btn-action btn-create" onClick={() => {
+                        setEditingDoctor(null);
+                        setDoctorFormData({ firstName: '', lastName: '', specialty: 0 });
+                        setShowDoctorModal(true);
+                      }}>
+                        + {lbl('Adaugă Medic', 'Добавить врача', 'Add Doctor')}
+                      </button>
                     </div>
+                    {loadingDoctors ? (
+                        <p>{lbl('Se încarcă...', 'Загрузка...', 'Loading...')}</p>
+                    ) : (
+                        <div className="table-container">
+                          <table className="patients-table">
+                            <thead>
+                            <tr>
+                              <th>{lbl('Medic', 'Врач', 'Doctor')}</th>
+                              <th>{lbl('Specialitate', 'Специальность', 'Speciality')}</th>
+                              <th>{t.adminStatus}</th>
+                              <th>{t.adminActions}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {doctors.map(d => (
+                                <tr key={d.id}>
+                                  <td>
+                                    <div className="patient-info">
+                                      <div className="patient-avatar">{getAvatar(d.firstName, d.lastName)}</div>
+                                      <span>{d.firstName} {d.lastName}</span>
+                                    </div>
+                                  </td>
+                                  <td>{translateSpecialization(SPECIALITY_MAP[d.specialty] ?? String(d.specialty), language)}</td>
+                                  <td>
+                              <span className={`status-badge ${d.isDeleted ? 'inactive' : 'active'}`}>
+                                {d.isDeleted ? t.adminInactive : t.adminActive}
+                              </span>
+                                  </td>
+                                  <td>
+                                    <div className="action-buttons">
+                                      <button className="btn-action btn-edit" onClick={() => {
+                                        setEditingDoctor(d);
+                                        setDoctorFormData({ firstName: d.firstName, lastName: d.lastName, specialty: d.specialty });
+                                        setShowDoctorModal(true);
+                                      }}>{t.adminEdit}</button>
+                                      <button className="btn-action btn-delete" onClick={() => handleDeleteDoctor(d.id)}>
+                                        {t.adminDelete}
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                          </table>
+                        </div>
+                    )}
                   </div>
               )}
 
-              {activeSection === 'recenzii' && (
-                  <div className="section-content">
-                    <div className="table-container">
-                      <table className="patients-table">
-                        <thead>
-                        <tr>
-                          <th>{language === 'ru' ? 'Пациент' : language === 'en' ? 'Patient' : 'Pacient'}</th>
-                          <th>{language === 'ru' ? 'Врач' : language === 'en' ? 'Doctor' : 'Medic'}</th>
-                          <th>{language === 'ru' ? 'Рейтинг' : language === 'en' ? 'Rating' : 'Rating'}</th>
-                          <th>{language === 'ru' ? 'Комментарий' : language === 'en' ? 'Comment' : 'Comentariu'}</th>
-                          <th>{language === 'ru' ? 'Дата' : language === 'en' ? 'Date' : 'Data'}</th>
-                          <th>{t.adminStatus}</th>
-                          <th>{t.adminActions}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {reviews.map(review => (
-                            <tr key={review.id}>
-                              <td>{review.patientName}</td>
-                              <td>{review.doctorName}</td>
-                              <td>{'⭐'.repeat(review.rating)}</td>
-                              <td>{review.comment}</td>
-                              <td>{review.date}</td>
-                              <td>
-                                <span className={`status-badge ${review.status === 'Approved' ? 'active' : review.status === 'Pending' ? 'inactive' : 'inactive'}`}>
-                                  {review.status === 'Approved' ? (language === 'ru' ? 'Одобрено' : language === 'en' ? 'Approved' : 'Aprobat') :
-                                   review.status === 'Pending' ? (language === 'ru' ? 'В ожидании' : language === 'en' ? 'Pending' : 'În așteptare') :
-                                   (language === 'ru' ? 'Отклонено' : language === 'en' ? 'Rejected' : 'Respins')}
-                                </span>
-                              </td>
-                              <td>
-                                <div className="action-buttons">
-                                  <button className="btn-action btn-create" onClick={() => {
-                                    setEditingReview(null);
-                                    setReviewFormData({ patientName: '', doctorName: '', rating: 5, comment: '', date: '', status: 'Pending' });
-                                    setShowReviewModal(true);
-                                  }}>
-                                    {language === 'ru' ? 'Создать' : language === 'en' ? 'Create' : 'Creează'}
-                                  </button>
-                                  <button className="btn-action btn-edit" onClick={() => handleEditReview(review)}>{t.adminEdit}</button>
-                                  <button className="btn-action btn-delete" onClick={() => handleDeleteReview(review.id)}>{t.adminDelete}</button>
-                                </div>
-                              </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-              )}
-
-              {activeSection === 'servicii' && (
-                  <div className="section-content">
-                    <div className="table-container">
-                      <table className="patients-table">
-                        <thead>
-                        <tr>
-                          <th>{language === 'ru' ? 'Название' : language === 'en' ? 'Name' : 'Nume'}</th>
-                          <th>{language === 'ru' ? 'Описание' : language === 'en' ? 'Description' : 'Descriere'}</th>
-                          <th>{language === 'ru' ? 'Цена' : language === 'en' ? 'Price' : 'Preț'}</th>
-                          <th>{language === 'ru' ? 'Продолжительность' : language === 'en' ? 'Duration' : 'Durată'}</th>
-                          <th>{t.adminStatus}</th>
-                          <th>{t.adminActions}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {medicalServices.map(service => (
-                            <tr key={service.id}>
-                              <td>{service.name}</td>
-                              <td>{service.description}</td>
-                              <td>{service.price} {language === 'ru' ? 'руб.' : language === 'en' ? 'RON' : 'RON'}</td>
-                              <td>{service.duration}</td>
-                              <td><span className={`status-badge ${service.status.toLowerCase()}`}>{service.status === 'Active' ? t.adminActive : t.adminInactive}</span></td>
-                              <td>
-                                <div className="action-buttons">
-                                  <button className="btn-action btn-create" onClick={() => {
-                                    setEditingService(null);
-                                    setServiceFormData({ name: '', description: '', price: '', duration: '', status: 'Active' });
-                                    setShowServiceModal(true);
-                                  }}>
-                                    {language === 'ru' ? 'Создать' : language === 'en' ? 'Create' : 'Creează'}
-                                  </button>
-                                  <button className="btn-action btn-edit" onClick={() => handleEditService(service)}>{t.adminEdit}</button>
-                                  <button className="btn-action btn-delete" onClick={() => handleDeleteService(service.id)}>{t.adminDelete}</button>
-                                </div>
-                              </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-              )}
-
+              {/* ── NOTIFICĂRI ── */}
               {activeSection === 'notificari' && (
                   <div className="section-content">
                     <div className="notifications-section">
                       <div className="notification-content-grid">
-                        {/* Left side - Patient selection */}
-                        <div className="patients-selection-panel">
-                          <div className="panel-header">
-                            <h3>{language === 'ru' ? 'Пациенты' : language === 'en' ? 'Patients' : 'Pacienți'}</h3>
-                            <span className="selected-count">
-                              {selectedPatients.length} {language === 'ru' ? 'выбрано' : language === 'en' ? 'selected' : 'selectați'}
-                            </span>
-                          </div>
-
-                          <div className="search-patient-box">
-                            <input
-                                type="text"
-                                className="search-patient-input"
-                                placeholder={language === 'ru' ? 'Поиск по имени или email...' : language === 'en' ? 'Search by name or email...' : 'Caută după nume sau email...'}
-                                value={patientSearchTerm}
-                                onChange={(e) => setPatientSearchTerm(e.target.value)}
-                            />
-                          </div>
-
-                          <div className="patients-list">
-                            {filteredPatientsForNotification.map(patient => (
-                                <div
-                                    key={patient.id}
-                                    className={`patient-select-card ${selectedPatients.includes(patient.id) ? 'selected' : ''}`}
-                                    onClick={() => togglePatientSelection(patient.id)}
-                                >
-                                  <input
-                                      type="checkbox"
-                                      checked={selectedPatients.includes(patient.id)}
-                                      onChange={() => {}}
-                                  />
-                                  <div className="patient-avatar">{patient.avatar}</div>
-                                  <div className="patient-details">
-                                    <span className="patient-name">{patient.name}</span>
-                                    <span className="patient-email">{patient.email}</span>
-                                  </div>
-                                </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Right side - Notification form */}
+                        <PatientPicker
+                            filtered={filteredNotifPatients}
+                            selected={selectedPatientIds}
+                            onToggle={id => setSelectedPatientIds(prev =>
+                                prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+                            )}
+                            onToggleAll={toggleSelectAllNotif}
+                            allSel={allNotifSelected}
+                            search={notifPatientSearch}
+                            onSearch={setNotifPatientSearch}
+                            title={lbl('Pacienți', 'Пациенты', 'Patients')}
+                            count={selectedPatientIds.length}
+                            language={language}
+                            getAvatar={getAvatar}
+                        />
                         <div className="notification-form-panel">
                           <form onSubmit={handleSendNotification}>
                             <div className="form-group">
                               <label>
-                                {language === 'ru' ? 'Заголовок' : language === 'en' ? 'Title' : 'Titlu'} *
-                                <span className="char-counter">
-                                  {notificationFormData.title.length}/50
-                                </span>
+                                {lbl('Titlu', 'Заголовок', 'Title')} *
+                                <span className="char-counter">{notifFormData.title.length}/50</span>
                               </label>
                               <input
-                                  type="text"
-                                  className="form-input"
-                                  required
-                                  maxLength={50}
-                                  placeholder={language === 'ru' ? 'Введите заголовок уведомления' : language === 'en' ? 'Enter notification title' : 'Introduceți titlul notificării'}
-                                  value={notificationFormData.title}
-                                  onChange={(e) => setNotificationFormData({ ...notificationFormData, title: e.target.value })}
+                                  type="text" className="form-input" required maxLength={50}
+                                  value={notifFormData.title}
+                                  onChange={e => setNotifFormData({ ...notifFormData, title: e.target.value })}
                               />
                             </div>
-
                             <div className="form-group">
                               <label>
-                                {language === 'ru' ? 'Сообщение' : language === 'en' ? 'Message' : 'Mesaj'} *
-                                <span className="char-counter">
-                                  {notificationFormData.message.length}/200
-                                </span>
+                                {lbl('Mesaj', 'Сообщение', 'Message')} *
+                                <span className="char-counter">{notifFormData.message.length}/200</span>
                               </label>
                               <textarea
-                                  className="form-textarea"
-                                  rows={6}
-                                  required
-                                  maxLength={200}
-                                  placeholder={language === 'ru' ? 'Введите текст уведомления' : language === 'en' ? 'Enter notification message' : 'Introduceți mesajul notificării'}
-                                  value={notificationFormData.message}
-                                  onChange={(e) => setNotificationFormData({ ...notificationFormData, message: e.target.value })}
+                                  className="form-textarea" rows={6} required maxLength={200}
+                                  value={notifFormData.message}
+                                  onChange={e => setNotifFormData({ ...notifFormData, message: e.target.value })}
                               />
                             </div>
-
                             <div className="form-actions">
                               <button type="submit" className="btn-send-notification">
-                                {language === 'ru' ? 'Отправить' : language === 'en' ? 'Send' : 'Trimite'}
+                                {lbl('Trimite', 'Отправить', 'Send')}
                               </button>
                             </div>
                           </form>
                         </div>
                       </div>
-
-                      {/* Notification History */}
                       <div className="notification-history-section">
                         <h3 className="history-title">
-                          {language === 'ru' ? 'История уведомлений' : language === 'en' ? 'Notification History' : 'Istoric Notificări'}
+                          {lbl('Istoric Notificări', 'История уведомлений', 'Notification History')}
                         </h3>
-
-                        {notificationHistory.length === 0 ? (
-                          <div className="history-empty">
-                            <p>{language === 'ru' ? 'История пуста' : language === 'en' ? 'No history yet' : 'Niciun istoric încă'}</p>
-                          </div>
+                        {notifHistory.length === 0 ? (
+                            <div className="history-empty">
+                              <p>{lbl('Niciun istoric', 'История пуста', 'No history')}</p>
+                            </div>
                         ) : (
-                          <div className="history-list">
-                            {notificationHistory.map(entry => {
-                              const isExpanded = expandedHistoryIds.includes(entry.id);
-                              return (
-                                <div key={entry.id} className="history-card">
-                                  <div className="history-header">
-                                    <div className="history-meta">
-                                      <span className="history-admin">
-                                        {language === 'ru' ? 'От' : language === 'en' ? 'From' : 'De la'}: <strong>{entry.adminName}</strong>
-                                      </span>
-                                      <span className="history-timestamp">{entry.timestamp}</span>
+                            <div className="history-list">
+                              {notifHistory.map(entry => {
+                                const isExp = expandedNotifIds.includes(entry.id);
+                                return (
+                                    <div key={entry.id} className="history-card">
+                                      <div className="history-header">
+                                        <div className="history-meta">
+                                          <strong>{entry.title}</strong>
+                                          <span className="history-timestamp">{entry.timestamp}</span>
+                                        </div>
+                                      </div>
+                                      <div className="history-recipients">
+                                        <span className="recipients-label">{lbl('Către', 'Кому', 'To')}:</span>
+                                        <div className="recipients-tags">
+                                          {entry.patientNames.map((n, i) => (
+                                              <span key={i} className="recipient-tag">{n}</span>
+                                          ))}
+                                        </div>
+                                      </div>
+                                      {isExp && (
+                                          <div className="history-content">
+                                            <p className="history-message">{entry.message}</p>
+                                          </div>
+                                      )}
+                                      <button className="btn-toggle-details" onClick={() =>
+                                          setExpandedNotifIds(prev =>
+                                              prev.includes(entry.id) ? prev.filter(x => x !== entry.id) : [...prev, entry.id]
+                                          )
+                                      }>
+                                        {isExp ? lbl('Ascunde', 'Скрыть', 'Hide') : lbl('Detalii', 'Детали', 'Details')}
+                                      </button>
                                     </div>
-                                  </div>
-
-                                  <div className="history-recipients">
-                                    <span className="recipients-label">
-                                      {language === 'ru' ? 'Кому' : language === 'en' ? 'To' : 'Către'}:
-                                    </span>
-                                    <div className="recipients-tags">
-                                      {entry.patientNames.map((name, idx) => (
-                                        <span key={idx} className="recipient-tag">{name}</span>
-                                      ))}
-                                    </div>
-                                  </div>
-
-                                  {isExpanded && (
-                                    <div className="history-content">
-                                      <h4 className="history-subject">{entry.title}</h4>
-                                      <p className="history-message">{entry.message}</p>
-                                    </div>
-                                  )}
-
-                                  <button
-                                    className="btn-toggle-details"
-                                    onClick={() => toggleHistoryDetails(entry.id)}
-                                  >
-                                    {isExpanded
-                                      ? (language === 'ru' ? 'Скрыть' : language === 'en' ? 'Hide' : 'Ascunde')
-                                      : (language === 'ru' ? 'Детали' : language === 'en' ? 'Details' : 'Detalii')
-                                    }
-                                  </button>
-                                </div>
-                              );
-                            })}
-                          </div>
+                                );
+                              })}
+                            </div>
                         )}
                       </div>
                     </div>
+                  </div>
+              )}
+
+              {/* ── NOUTĂȚI ── */}
+              {activeSection === 'noutati' && (
+                  <div className="section-content">
+                    <div className="notifications-section">
+                      <div className="notification-content-grid">
+                        <PatientPicker
+                            filtered={filteredNewsPatients}
+                            selected={newsSelectedIds}
+                            onToggle={id => setNewsSelectedIds(prev =>
+                                prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+                            )}
+                            onToggleAll={toggleSelectAllNews}
+                            allSel={allNewsSelected}
+                            search={newsPatientSearch}
+                            onSearch={setNewsPatientSearch}
+                            title={lbl('Destinatari', 'Получатели', 'Recipients')}
+                            count={newsSelectedIds.length}
+                            language={language}
+                            getAvatar={getAvatar}
+                        />
+                        <div className="notification-form-panel">
+                          <form onSubmit={handleSendNews}>
+                            <div className="form-group">
+                              <label>
+                                {lbl('Titlu', 'Заголовок', 'Title')} *
+                                <span className="char-counter">{newsFormData.name.length}/100</span>
+                              </label>
+                              <input
+                                  type="text" className="form-input" required maxLength={100}
+                                  value={newsFormData.name}
+                                  onChange={e => setNewsFormData({ ...newsFormData, name: e.target.value })}
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>
+                                {lbl('Descriere', 'Описание', 'Description')} *
+                                <span className="char-counter">{newsFormData.description.length}/400</span>
+                              </label>
+                              <textarea
+                                  className="form-textarea" rows={5} required maxLength={400}
+                                  value={newsFormData.description}
+                                  onChange={e => setNewsFormData({ ...newsFormData, description: e.target.value })}
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>{lbl('Tip', 'Тип', 'Type')}</label>
+                              <CustomSelect
+                                  options={(Object.keys(NEWS_TYPE_LABELS) as NewsType[]).map(type => ({ value: type, label: newsTypeLabel(type) }))}
+                                  value={newsFormData.type}
+                                  onChange={val => setNewsFormData({ ...newsFormData, type: val as NewsType })}
+                              />
+                            </div>
+                            <div className="form-actions">
+                              <button type="submit" className="btn-send-notification">
+                                {lbl('Publică Noutatea', 'Опубликовать', 'Publish')}
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                      <div className="notification-history-section">
+                        <h3 className="history-title">
+                          {lbl('Noutăți Publicate', 'Опубликованные новости', 'Published News')}
+                        </h3>
+                        {newsHistory.length === 0 ? (
+                            <div className="history-empty">
+                              <p>{lbl('Nicio noutate', 'Нет новостей', 'No news')}</p>
+                            </div>
+                        ) : (
+                            <div className="history-list">
+                              {newsHistory.map(entry => {
+                                const isExp = expandedNewsIds.includes(entry.id);
+                                return (
+                                    <div key={entry.id} className="history-card">
+                                      <div className="history-header">
+                                        <div className="history-meta">
+                                  <span>
+                                    <span style={{ background: '#3b82f6', color: 'white', padding: '2px 10px', borderRadius: '12px', fontSize: '12px', marginRight: '8px' }}>
+                                      {newsTypeLabel(entry.type)}
+                                    </span>
+                                    <strong>{entry.name}</strong>
+                                  </span>
+                                          <span className="history-timestamp">{entry.timestamp}</span>
+                                        </div>
+                                      </div>
+                                      <div className="history-recipients">
+                                        <span className="recipients-label">{lbl('Către', 'Кому', 'To')}:</span>
+                                        <div className="recipients-tags">
+                                          {entry.patientNames.map((n, i) => (
+                                              <span key={i} className="recipient-tag">{n}</span>
+                                          ))}
+                                        </div>
+                                      </div>
+                                      {isExp && (
+                                          <div className="history-content">
+                                            <p className="history-message">{entry.description}</p>
+                                          </div>
+                                      )}
+                                      <button className="btn-toggle-details" onClick={() =>
+                                          setExpandedNewsIds(prev =>
+                                              prev.includes(entry.id) ? prev.filter(x => x !== entry.id) : [...prev, entry.id]
+                                          )
+                                      }>
+                                        {isExp ? lbl('Ascunde', 'Скрыть', 'Hide') : lbl('Detalii', 'Детали', 'Details')}
+                                      </button>
+                                    </div>
+                                );
+                              })}
+                            </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+              )}
+
+              {/* ── RECENZII ── */}
+              {activeSection === 'recenzii' && (
+                  <div className="section-content">
+                    <div className="section-top-bar">
+                      <h2 className="section-top-title">
+                        {lbl('Recenzii Pacienți', 'Отзывы пациентов', 'Patient Reviews')}
+                      </h2>
+                    </div>
+                    {loadingReviews ? (
+                        <p>{lbl('Se încarcă...', 'Загрузка...', 'Loading...')}</p>
+                    ) : (
+                        <div className="table-container">
+                          <table className="patients-table">
+                            <thead>
+                            <tr>
+                              <th>{lbl('Pacient', 'Пациент', 'Patient')}</th>
+                              <th>{lbl('Rating', 'Рейтинг', 'Rating')}</th>
+                              <th>{lbl('Comentariu', 'Комментарий', 'Comment')}</th>
+                              <th>{lbl('Data', 'Дата', 'Date')}</th>
+                              <th>{t.adminActions}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {reviews.map(r => (
+                                <tr key={r.id}>
+                                  <td>
+                                    <div className="patient-info">
+                                      <div className="patient-avatar">{r.authorName?.[0]?.toUpperCase() ?? '?'}</div>
+                                      <span>{r.authorName}</span>
+                                    </div>
+                                  </td>
+                                  <td>{'⭐'.repeat(r.rating)}</td>
+                                  <td style={{ maxWidth: '300px' }}>{r.reviewText}</td>
+                                  <td>{new Date(r.createdAt).toLocaleDateString('ro-RO')}</td>
+                                  <td>
+                                    <div className="action-buttons">
+                                      <button className="btn-action btn-edit" onClick={() => {
+                                        setEditingReview(r);
+                                        setReviewFormData({ reviewText: r.reviewText, rating: r.rating });
+                                        setShowReviewModal(true);
+                                      }}>{t.adminEdit}</button>
+                                      <button className="btn-action btn-delete" onClick={() => handleDeleteReview(r.id)}>
+                                        {t.adminDelete}
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                          </table>
+                        </div>
+                    )}
+                  </div>
+              )}
+
+              {/* ── SERVICII ── */}
+              {activeSection === 'servicii' && (
+                  <div className="section-content">
+                    <div className="section-top-bar">
+                      <h2 className="section-top-title">
+                        {lbl('Servicii Medicale', 'Медицинские услуги', 'Medical Services')}
+                      </h2>
+                      <button className="btn-action btn-create" onClick={() => {
+                        setEditingService(null);
+                        setServiceFormData({ serviceName: '', serviceDescription: '', servicePrice: '', serviceDuration: '', category: 0 });
+                        setShowServiceModal(true);
+                      }}>
+                        + {lbl('Adaugă Serviciu', 'Добавить услугу', 'Add Service')}
+                      </button>
+                    </div>
+                    {loadingServices ? (
+                        <p>{lbl('Se încarcă...', 'Загрузка...', 'Loading...')}</p>
+                    ) : (
+                        <div className="table-container">
+                          <table className="patients-table">
+                            <thead>
+                            <tr>
+                              <th>{lbl('Nume', 'Название', 'Name')}</th>
+                              <th>{lbl('Descriere', 'Описание', 'Description')}</th>
+                              <th>{lbl('Preț (MDL)', 'Цена', 'Price')}</th>
+                              <th>{lbl('Durată (min)', 'Прод.', 'Duration')}</th>
+                              <th>{t.adminStatus}</th>
+                              <th>{t.adminActions}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {services.map(s => (
+                                <tr key={s.id}>
+                                  <td>{s.serviceName}</td>
+                                  <td>{s.serviceDescription}</td>
+                                  <td>{s.servicePrice}</td>
+                                  <td>{s.serviceDuration}</td>
+                                  <td>
+                              <span className={`status-badge ${s.isDeleted ? 'inactive' : 'active'}`}>
+                                {s.isDeleted ? t.adminInactive : t.adminActive}
+                              </span>
+                                  </td>
+                                  <td>
+                                    <div className="action-buttons">
+                                      <button className="btn-action btn-edit" onClick={() => {
+                                        setEditingService(s);
+                                        setServiceFormData({ serviceName: s.serviceName, serviceDescription: s.serviceDescription, servicePrice: s.servicePrice.toString(), serviceDuration: s.serviceDuration.toString(), category: s.category });
+                                        setShowServiceModal(true);
+                                      }}>{t.adminEdit}</button>
+                                      <button className="btn-action btn-delete" onClick={() => handleDeleteService(s.id)}>
+                                        {t.adminDelete}
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                          </table>
+                        </div>
+                    )}
                   </div>
               )}
 
             </div>
           </main>
         </div>
-
         <Footer />
 
         {/* ── MODAL PACIENT ── */}
         {showPatientModal && (
             <div className="modal-overlay" onClick={() => setShowPatientModal(false)}>
-              <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                   <h2>{editingPatient ? t.adminEditPatient : t.adminAddPatient}</h2>
                   <button className="modal-close" onClick={() => setShowPatientModal(false)}>&times;</button>
                 </div>
-                <form onSubmit={handlePatientSubmit}>
-                  <div className="form-group"><label>{t.adminName}</label><input type="text" required value={patientFormData.name} onChange={(e) => setPatientFormData({ ...patientFormData, name: e.target.value })} /></div>
+                <form onSubmit={handleSavePatient}>
                   <div className="form-row">
-                    <div className="form-group"><label>{t.adminAge}</label><input type="number" required value={patientFormData.age} onChange={(e) => setPatientFormData({ ...patientFormData, age: e.target.value })} /></div>
-                    <div className="form-group"><label>{t.adminPhone}</label><input type="tel" required value={patientFormData.phone} onChange={(e) => setPatientFormData({ ...patientFormData, phone: e.target.value })} /></div>
+                    <div className="form-group">
+                      <label>{lbl('Prenume', 'Имя', 'First Name')}</label>
+                      <input type="text" required value={patientFormData.firstName}
+                             onChange={e => setPatientFormData({ ...patientFormData, firstName: e.target.value })} />
+                    </div>
+                    <div className="form-group">
+                      <label>{lbl('Nume', 'Фамилия', 'Last Name')}</label>
+                      <input type="text" required value={patientFormData.lastName}
+                             onChange={e => setPatientFormData({ ...patientFormData, lastName: e.target.value })} />
+                    </div>
                   </div>
-                  <div className="form-group"><label>{t.adminEmail}</label><input type="email" required value={patientFormData.email} onChange={(e) => setPatientFormData({ ...patientFormData, email: e.target.value })} /></div>
-                  <div className="form-group">
-                    <label>{t.adminStatus}</label>
-                    <div className="custom-dropdown">
-                      <button type="button" className="dropdown-toggle" onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}>
-                        {patientFormData.status === 'Active' ? t.adminActive : t.adminInactive}
-                        <span className="dropdown-arrow">▾</span>
-                      </button>
-                      {statusDropdownOpen && (
-                          <div className="dropdown-menu">
-                            {(['Active', 'Inactive'] as const).map((option) => (
-                                <div
-                                    key={option}
-                                    className={`dropdown-item ${patientFormData.status === option ? 'selected' : ''}`}
-                                    onClick={() => { setPatientFormData({ ...patientFormData, status: option }); setStatusDropdownOpen(false); }}
-                                >
-                                  {option === 'Active' ? t.adminActive : t.adminInactive}
-                                </div>
-                            ))}
-                          </div>
-                      )}
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>{lbl('Data nașterii', 'Дата рождения', 'Date of Birth')}</label>
+                      <input type="date" required value={patientFormData.dateOfBirth}
+                             onChange={e => setPatientFormData({ ...patientFormData, dateOfBirth: e.target.value })} />
+                    </div>
+                    <div className="form-group">
+                      <label>{lbl('Sex', 'Пол', 'Sex')}</label>
+                      <CustomSelect
+                          options={[
+                            { value: 'Barbat', label: lbl('Bărbat', 'Мужчина', 'Male') },
+                            { value: 'Femeie', label: lbl('Femeie', 'Женщина', 'Female') },
+                          ]}
+                          value={patientFormData.sex}
+                          onChange={val => setPatientFormData({ ...patientFormData, sex: val })}
+                          placeholder={lbl('-- Alege --', '-- Выбрать --', '-- Choose --')}
+                      />
+                    </div>
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>{t.adminEmail}</label>
+                      <input type="email" required value={patientFormData.email}
+                             onChange={e => setPatientFormData({ ...patientFormData, email: e.target.value })} />
+                    </div>
+                    <div className="form-group">
+                      <label>{t.adminPhone}</label>
+                      <input type="tel" value={patientFormData.phone}
+                             onChange={e => setPatientFormData({ ...patientFormData, phone: e.target.value })} />
                     </div>
                   </div>
                   <div className="modal-actions">
@@ -917,41 +1503,31 @@ const AdminDashboard: React.FC = () => {
         {/* ── MODAL MEDIC ── */}
         {showDoctorModal && (
             <div className="modal-overlay" onClick={() => setShowDoctorModal(false)}>
-              <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
-                  <h2>{editingDoctor ? (language === 'ru' ? 'Редактировать врача' : language === 'en' ? 'Edit Doctor' : 'Editează Medic') : (language === 'ru' ? 'Добавить врача' : language === 'en' ? 'Add Doctor' : 'Adaugă Medic')}</h2>
+                  <h2>{editingDoctor ? lbl('Editează Medic', 'Редактировать врача', 'Edit Doctor') : lbl('Adaugă Medic', 'Добавить врача', 'Add Doctor')}</h2>
                   <button className="modal-close" onClick={() => setShowDoctorModal(false)}>&times;</button>
                 </div>
-                <form onSubmit={handleDoctorSubmit}>
+                <form onSubmit={handleSaveDoctor}>
                   <div className="form-row">
-                    <div className="form-group"><label>{t.adminName}</label><input type="text" required value={doctorFormData.name} onChange={(e) => setDoctorFormData({ ...doctorFormData, name: e.target.value })} /></div>
-                    <div className="form-group"><label>{getSpecializationLabel(language)}</label><input type="text" required value={doctorFormData.specialization} onChange={(e) => setDoctorFormData({ ...doctorFormData, specialization: e.target.value })} /></div>
-                  </div>
-                  <div className="form-row">
-                    <div className="form-group"><label>{t.adminPhone}</label><input type="tel" required value={doctorFormData.phone} onChange={(e) => setDoctorFormData({ ...doctorFormData, phone: e.target.value })} /></div>
-                    <div className="form-group"><label>{t.adminEmail}</label><input type="email" required value={doctorFormData.email} onChange={(e) => setDoctorFormData({ ...doctorFormData, email: e.target.value })} /></div>
+                    <div className="form-group">
+                      <label>{lbl('Prenume', 'Имя', 'First Name')}</label>
+                      <input type="text" required value={doctorFormData.firstName}
+                             onChange={e => setDoctorFormData({ ...doctorFormData, firstName: e.target.value })} />
+                    </div>
+                    <div className="form-group">
+                      <label>{lbl('Nume', 'Фамилия', 'Last Name')}</label>
+                      <input type="text" required value={doctorFormData.lastName}
+                             onChange={e => setDoctorFormData({ ...doctorFormData, lastName: e.target.value })} />
+                    </div>
                   </div>
                   <div className="form-group">
-                    <label>{t.adminStatus}</label>
-                    <div className="custom-dropdown">
-                      <button type="button" className="dropdown-toggle" onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}>
-                        {doctorFormData.status === 'Active' ? t.adminActive : t.adminInactive}
-                        <span className="dropdown-arrow">▾</span>
-                      </button>
-                      {statusDropdownOpen && (
-                          <div className="dropdown-menu">
-                            {(['Active', 'Inactive'] as const).map((option) => (
-                                <div
-                                    key={option}
-                                    className={`dropdown-item ${doctorFormData.status === option ? 'selected' : ''}`}
-                                    onClick={() => { setDoctorFormData({ ...doctorFormData, status: option }); setStatusDropdownOpen(false); }}
-                                >
-                                  {option === 'Active' ? t.adminActive : t.adminInactive}
-                                </div>
-                            ))}
-                          </div>
-                      )}
-                    </div>
+                    <label>{lbl('Specialitate', 'Специальность', 'Speciality')}</label>
+                    <CustomSelect
+                        options={Object.entries(SPECIALITY_MAP).map(([k, v]) => ({ value: k, label: translateSpecialization(v, language) }))}
+                        value={String(doctorFormData.specialty)}
+                        onChange={val => setDoctorFormData({ ...doctorFormData, specialty: parseInt(val) })}
+                    />
                   </div>
                   <div className="modal-actions">
                     <button type="button" className="btn-cancel" onClick={() => setShowDoctorModal(false)}>{t.adminCancel}</button>
@@ -963,47 +1539,119 @@ const AdminDashboard: React.FC = () => {
         )}
 
         {/* ── MODAL PROGRAMARE ── */}
-        {showAppointmentModal && (
-            <div className="modal-overlay" onClick={() => setShowAppointmentModal(false)}>
-              <div className="modal" onClick={(e) => e.stopPropagation()}>
+        {showApptModal && (
+            <div className="modal-overlay" onClick={() => setShowApptModal(false)}>
+              <div className="modal modal-appt" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
-                  <h2>{editingAppointment ? (language === 'ru' ? 'Редактировать запись' : language === 'en' ? 'Edit Appointment' : 'Editează Programare') : (language === 'ru' ? 'Добавить запись' : language === 'en' ? 'Add Appointment' : 'Adaugă Programare')}</h2>
-                  <button className="modal-close" onClick={() => setShowAppointmentModal(false)}>&times;</button>
+                  <h2>{editingAppt ? lbl('Editează Programare', 'Редактировать запись', 'Edit Appointment') : lbl('Adaugă Programare', 'Добавить запись', 'Add Appointment')}</h2>
+                  <button className="modal-close" onClick={() => setShowApptModal(false)}>&times;</button>
                 </div>
-                <form onSubmit={handleAppointmentSubmit}>
+                <form onSubmit={handleSaveAppt}>
                   <div className="form-row">
-                    <div className="form-group"><label>{language === 'ru' ? 'Дата' : language === 'en' ? 'Date' : 'Data'}</label><input type="date" required value={appointmentFormData.date} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, date: e.target.value })} /></div>
-                    <div className="form-group"><label>{language === 'ru' ? 'Время' : language === 'en' ? 'Time' : 'Ora'}</label><input type="time" required value={appointmentFormData.time} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, time: e.target.value })} /></div>
-                  </div>
-                  <div className="form-row">
-                    <div className="form-group"><label>{language === 'ru' ? 'Пациент' : language === 'en' ? 'Patient' : 'Pacient'}</label><input type="text" required value={appointmentFormData.patientName} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, patientName: e.target.value })} /></div>
-                    <div className="form-group"><label>{language === 'ru' ? 'Врач' : language === 'en' ? 'Doctor' : 'Medic'}</label><input type="text" required value={appointmentFormData.doctorName} onChange={(e) => setAppointmentFormData({ ...appointmentFormData, doctorName: e.target.value })} /></div>
-                  </div>
-                  <div className="form-group">
-                    <label>{t.adminStatus}</label>
-                    <div className="custom-dropdown">
-                      <button type="button" className="dropdown-toggle" onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}>
-                        {appointmentFormData.status === 'Confirmed' ? t.adminApptConfirmed : t.adminApptPending}
-                        <span className="dropdown-arrow">▾</span>
-                      </button>
-                      {statusDropdownOpen && (
-                          <div className="dropdown-menu">
-                            {(['Confirmed', 'Pending'] as const).map((option) => (
-                                <div
-                                    key={option}
-                                    className={`dropdown-item ${appointmentFormData.status === option ? 'selected' : ''}`}
-                                    onClick={() => { setAppointmentFormData({ ...appointmentFormData, status: option }); setStatusDropdownOpen(false); }}
-                                >
-                                  {option === 'Confirmed' ? t.adminApptConfirmed : t.adminApptPending}
-                                </div>
-                            ))}
-                          </div>
-                      )}
+                    <div className="form-group">
+                      <label>{lbl('Data', 'Дата', 'Date')}</label>
+                      <input type="date" required value={apptFormData.appointmentDate}
+                             onChange={e => setApptFormData({ ...apptFormData, appointmentDate: e.target.value })} />
+                    </div>
+                    <div className="form-group">
+                      <label>{lbl('Ora', 'Время', 'Time')}</label>
+                      <input type="time" required value={apptFormData.appointmentTime}
+                             onChange={e => setApptFormData({ ...apptFormData, appointmentTime: e.target.value })} />
                     </div>
                   </div>
+
+                  {/* Filtru specialitate → dropdown medici */}
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>{lbl('Filtrează după specialitate', 'Фильтр по специальности', 'Filter by speciality')}</label>
+                      <CustomSelect
+                          options={[
+                            { value: '', label: lbl('-- Toate specialitățile --', '-- Все специальности --', '-- All specialities --') },
+                            ...Object.entries(SPECIALITY_MAP).map(([k, v]) => ({ value: k, label: translateSpecialization(v, language) }))
+                          ]}
+                          value={String(apptSpecialityFilter)}
+                          onChange={val => {
+                            setApptSpecialityFilter(val === '' ? '' : parseInt(val));
+                            setApptFormData({ ...apptFormData, doctorName: '', serviceName: '' });
+                          }}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>{lbl('Medic', 'Врач', 'Doctor')} *</label>
+                      <CustomSelect
+                          required
+                          placeholder={lbl('-- Alege medic --', '-- Выберите врача --', '-- Choose doctor --')}
+                          options={doctors
+                              .filter(d => !d.isDeleted && (apptSpecialityFilter === '' || d.specialty === apptSpecialityFilter))
+                              .map(d => ({
+                                value: `${d.firstName} ${d.lastName}`,
+                                label: `${d.firstName} ${d.lastName} — ${translateSpecialization(SPECIALITY_MAP[d.specialty] ?? '', language)}`
+                              }))
+                          }
+                          value={apptFormData.doctorName}
+                          onChange={val => {
+                            const selectedDoctor = doctors.find(d => `${d.firstName} ${d.lastName}` === val);
+                            setApptFormData({
+                              ...apptFormData,
+                              doctorName: val,
+                              serviceName: selectedDoctor ? translateSpecialization(SPECIALITY_MAP[selectedDoctor.specialty] ?? '', language) : apptFormData.serviceName,
+                            });
+                          }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>{lbl('Pacient', 'Пациент', 'Patient')}</label>
+                      <input type="text" required value={apptFormData.patientName}
+                             onChange={e => setApptFormData({ ...apptFormData, patientName: e.target.value })} />
+                    </div>
+                    <div className="form-group">
+                      <label>{lbl('Serviciu', 'Услуга', 'Service')}</label>
+                      <input type="text" value={apptFormData.serviceName}
+                             onChange={e => setApptFormData({ ...apptFormData, serviceName: e.target.value })} />
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>{lbl('Telefon', 'Телефон', 'Phone')}</label>
+                      <input type="tel" value={apptFormData.phone}
+                             onChange={e => setApptFormData({ ...apptFormData, phone: e.target.value })} />
+                    </div>
+                    <div className="form-group">
+                      <label>{lbl('Email', 'Email', 'Email')}</label>
+                      <input type="email" value={apptFormData.email}
+                             onChange={e => setApptFormData({ ...apptFormData, email: e.target.value })} />
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>{lbl('Motiv vizită', 'Причина визита', 'Reason')}</label>
+                      <input type="text" value={apptFormData.reasonForVisit}
+                             onChange={e => setApptFormData({ ...apptFormData, reasonForVisit: e.target.value })} />
+                    </div>
+                    {editingAppt && (
+                        <div className="form-group">
+                          <label>{t.adminStatus}</label>
+                          <CustomSelect
+                              options={[
+                                { value: '0', label: lbl('În așteptare', 'В ожидании', 'Pending') },
+                                { value: '1', label: lbl('Confirmat', 'Подтверждён', 'Confirmed') },
+                                { value: '2', label: lbl('Anulat', 'Отменён', 'Cancelled') },
+                              ]}
+                              value={String(apptFormData.status)}
+                              onChange={val => setApptFormData({ ...apptFormData, status: parseInt(val) })}
+                          />
+                        </div>
+                    )}
+                  </div>
+
                   <div className="modal-actions">
-                    <button type="button" className="btn-cancel" onClick={() => setShowAppointmentModal(false)}>{t.adminCancel}</button>
-                    <button type="submit" className="btn-submit">{editingAppointment ? t.adminUpdate : t.adminAdd}</button>
+                    <button type="button" className="btn-cancel" onClick={() => setShowApptModal(false)}>{t.adminCancel}</button>
+                    <button type="submit" className="btn-submit">{editingAppt ? t.adminUpdate : t.adminAdd}</button>
                   </div>
                 </form>
               </div>
@@ -1011,89 +1659,64 @@ const AdminDashboard: React.FC = () => {
         )}
 
         {/* ── MODAL RECENZIE ── */}
-        {showReviewModal && (
+        {showReviewModal && editingReview && (
             <div className="modal-overlay" onClick={() => setShowReviewModal(false)}>
-              <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
-                  <h2>{editingReview ? (language === 'ru' ? 'Редактировать отзыв' : language === 'en' ? 'Edit Review' : 'Editează Recenzie') : (language === 'ru' ? 'Добавить отзыв' : language === 'en' ? 'Add Review' : 'Adaugă Recenzie')}</h2>
+                  <h2>{lbl('Editează Recenzie', 'Редактировать отзыв', 'Edit Review')}</h2>
                   <button className="modal-close" onClick={() => setShowReviewModal(false)}>&times;</button>
                 </div>
-                <form onSubmit={handleReviewSubmit}>
-                  <div className="form-row">
-                    <div className="form-group"><label>{language === 'ru' ? 'Пациент' : language === 'en' ? 'Patient' : 'Pacient'}</label><input type="text" required value={reviewFormData.patientName} onChange={(e) => setReviewFormData({ ...reviewFormData, patientName: e.target.value })} /></div>
-                    <div className="form-group"><label>{language === 'ru' ? 'Врач' : language === 'en' ? 'Doctor' : 'Medic'}</label><input type="text" required value={reviewFormData.doctorName} onChange={(e) => setReviewFormData({ ...reviewFormData, doctorName: e.target.value })} /></div>
-                  </div>
-                  <div className="form-row">
-                    <div className="form-group"><label>{language === 'ru' ? 'Рейтинг (1-5)' : language === 'en' ? 'Rating (1-5)' : 'Rating (1-5)'}</label><input type="number" min="1" max="5" required value={reviewFormData.rating} onChange={(e) => setReviewFormData({ ...reviewFormData, rating: parseInt(e.target.value) })} /></div>
-                    <div className="form-group"><label>{language === 'ru' ? 'Дата' : language === 'en' ? 'Date' : 'Data'}</label><input type="date" required value={reviewFormData.date} onChange={(e) => setReviewFormData({ ...reviewFormData, date: e.target.value })} /></div>
-                  </div>
-                  <div className="form-group"><label>{language === 'ru' ? 'Комментарий' : language === 'en' ? 'Comment' : 'Comentariu'}</label><textarea rows={4} required value={reviewFormData.comment} onChange={(e) => setReviewFormData({ ...reviewFormData, comment: e.target.value })} style={{width: '100%', padding: '8px 10px', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.9rem'}} /></div>
+                <form onSubmit={handleSaveReview}>
                   <div className="form-group">
-                    <label>{t.adminStatus}</label>
-                    <div className="custom-dropdown">
-                      <button type="button" className="dropdown-toggle" onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}>
-                        {reviewFormData.status === 'Approved' ? (language === 'ru' ? 'Одобрено' : language === 'en' ? 'Approved' : 'Aprobat') : reviewFormData.status === 'Pending' ? (language === 'ru' ? 'В ожидании' : language === 'en' ? 'Pending' : 'În așteptare') : (language === 'ru' ? 'Отклонено' : language === 'en' ? 'Rejected' : 'Respins')}
-                        <span className="dropdown-arrow">▾</span>
-                      </button>
-                      {statusDropdownOpen && (
-                          <div className="dropdown-menu">
-                            {(['Approved', 'Pending', 'Rejected'] as const).map((option) => (
-                                <div
-                                    key={option}
-                                    className={`dropdown-item ${reviewFormData.status === option ? 'selected' : ''}`}
-                                    onClick={() => { setReviewFormData({ ...reviewFormData, status: option }); setStatusDropdownOpen(false); }}
-                                >
-                                  {option === 'Approved' ? (language === 'ru' ? 'Одобрено' : language === 'en' ? 'Approved' : 'Aprobat') : option === 'Pending' ? (language === 'ru' ? 'В ожидании' : language === 'en' ? 'Pending' : 'În așteptare') : (language === 'ru' ? 'Отклонено' : language === 'en' ? 'Rejected' : 'Respins')}
-                                </div>
-                            ))}
-                          </div>
-                      )}
-                    </div>
+                    <label>{lbl('Rating (1-5)', 'Рейтинг (1-5)', 'Rating (1-5)')}</label>
+                    <input type="number" min="1" max="5" required value={reviewFormData.rating}
+                           onChange={e => setReviewFormData({ ...reviewFormData, rating: parseInt(e.target.value) })} />
+                  </div>
+                  <div className="form-group">
+                    <label>{lbl('Comentariu', 'Комментарий', 'Comment')}</label>
+                    <textarea rows={4} required value={reviewFormData.reviewText}
+                              onChange={e => setReviewFormData({ ...reviewFormData, reviewText: e.target.value })}
+                    />
                   </div>
                   <div className="modal-actions">
                     <button type="button" className="btn-cancel" onClick={() => setShowReviewModal(false)}>{t.adminCancel}</button>
-                    <button type="submit" className="btn-submit">{editingReview ? t.adminUpdate : t.adminAdd}</button>
+                    <button type="submit" className="btn-submit">{t.adminUpdate}</button>
                   </div>
                 </form>
               </div>
             </div>
         )}
 
-        {/* ── MODAL SERVICIU MEDICAL ── */}
+        {/* ── MODAL SERVICIU ── */}
         {showServiceModal && (
             <div className="modal-overlay" onClick={() => setShowServiceModal(false)}>
-              <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
-                  <h2>{editingService ? (language === 'ru' ? 'Редактировать услугу' : language === 'en' ? 'Edit Service' : 'Editează Serviciu') : (language === 'ru' ? 'Добавить услугу' : language === 'en' ? 'Add Service' : 'Adaugă Serviciu')}</h2>
+                  <h2>{editingService ? lbl('Editează Serviciu', 'Редактировать услугу', 'Edit Service') : lbl('Adaugă Serviciu', 'Добавить услугу', 'Add Service')}</h2>
                   <button className="modal-close" onClick={() => setShowServiceModal(false)}>&times;</button>
                 </div>
-                <form onSubmit={handleServiceSubmit}>
-                  <div className="form-group"><label>{language === 'ru' ? 'Название' : language === 'en' ? 'Name' : 'Nume'}</label><input type="text" required value={serviceFormData.name} onChange={(e) => setServiceFormData({ ...serviceFormData, name: e.target.value })} /></div>
-                  <div className="form-group"><label>{language === 'ru' ? 'Описание' : language === 'en' ? 'Description' : 'Descriere'}</label><textarea rows={3} required value={serviceFormData.description} onChange={(e) => setServiceFormData({ ...serviceFormData, description: e.target.value })} style={{width: '100%', padding: '8px 10px', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.9rem'}} /></div>
-                  <div className="form-row">
-                    <div className="form-group"><label>{language === 'ru' ? 'Цена (RON)' : language === 'en' ? 'Price (RON)' : 'Preț (RON)'}</label><input type="number" min="0" step="0.01" required value={serviceFormData.price} onChange={(e) => setServiceFormData({ ...serviceFormData, price: e.target.value })} /></div>
-                    <div className="form-group"><label>{language === 'ru' ? 'Продолжительность' : language === 'en' ? 'Duration' : 'Durată'}</label><input type="text" required placeholder="ex: 30 min" value={serviceFormData.duration} onChange={(e) => setServiceFormData({ ...serviceFormData, duration: e.target.value })} /></div>
+                <form onSubmit={handleSaveService}>
+                  <div className="form-group">
+                    <label>{lbl('Nume', 'Название', 'Name')}</label>
+                    <input type="text" required value={serviceFormData.serviceName}
+                           onChange={e => setServiceFormData({ ...serviceFormData, serviceName: e.target.value })} />
                   </div>
                   <div className="form-group">
-                    <label>{t.adminStatus}</label>
-                    <div className="custom-dropdown">
-                      <button type="button" className="dropdown-toggle" onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}>
-                        {serviceFormData.status === 'Active' ? t.adminActive : t.adminInactive}
-                        <span className="dropdown-arrow">▾</span>
-                      </button>
-                      {statusDropdownOpen && (
-                          <div className="dropdown-menu">
-                            {(['Active', 'Inactive'] as const).map((option) => (
-                                <div
-                                    key={option}
-                                    className={`dropdown-item ${serviceFormData.status === option ? 'selected' : ''}`}
-                                    onClick={() => { setServiceFormData({ ...serviceFormData, status: option }); setStatusDropdownOpen(false); }}
-                                >
-                                  {option === 'Active' ? t.adminActive : t.adminInactive}
-                                </div>
-                            ))}
-                          </div>
-                      )}
+                    <label>{lbl('Descriere', 'Описание', 'Description')}</label>
+                    <textarea rows={3} required value={serviceFormData.serviceDescription}
+                              onChange={e => setServiceFormData({ ...serviceFormData, serviceDescription: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>{lbl('Preț (MDL)', 'Цена (MDL)', 'Price (MDL)')}</label>
+                      <input type="number" min="0" step="1" required value={serviceFormData.servicePrice}
+                             onChange={e => setServiceFormData({ ...serviceFormData, servicePrice: e.target.value })} />
+                    </div>
+                    <div className="form-group">
+                      <label>{lbl('Durată (min)', 'Продолжительность (мин)', 'Duration (min)')}</label>
+                      <input type="number" min="1" required value={serviceFormData.serviceDuration}
+                             onChange={e => setServiceFormData({ ...serviceFormData, serviceDuration: e.target.value })} />
                     </div>
                   </div>
                   <div className="modal-actions">
@@ -1104,6 +1727,7 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
         )}
+
       </div>
   );
 };
