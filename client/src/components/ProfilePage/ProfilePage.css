@@ -186,14 +186,14 @@
 
 .stats-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 14px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
 }
 
 .stat-box {
     background: #f4f8ff;
     border-radius: 12px;
-    padding: 16px;
+    padding: 10px 6px;
     text-align: center;
     border: 2px solid transparent;
     transition: all 0.3s ease;
@@ -206,14 +206,14 @@
 
 .profile-page .stat-box .stat-number {
     display: block;
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 800;
     color: #1e90ff !important;
 }
 
 .profile-page .stat-box .stat-label {
     display: block;
-    font-size: 12px;
+    font-size: 11px;
     color: #1a1a1a !important;
     font-weight: 600;
     margin-top: 4px;

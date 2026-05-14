@@ -6,7 +6,7 @@ import heroBg2 from "../../assets/hero-bg2.jpg";
 import heroBg3 from "../../assets/hero-bg3.jpg";
 import heroBg4 from "../../assets/hero-bg4.jpg";
 import heroBg5 from "../../assets/hero-bg5.jpg";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useLanguage } from "../../context/LanguageContext";
 import { translateSpecialization } from "../../utils/translateSpecialization";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +17,7 @@ import { useAuth } from "../../context/AuthContext";
 // Tipuri
 
 interface AppointmentAPI {
+    id: number;
     patientName: string;
     phone: string;
     email: string;
@@ -25,7 +26,7 @@ interface AppointmentAPI {
     reasonForVisit: string;
     appointmentTime: string;
     appointmentDate: string;
-    status?: string;
+    status?: number | string;
 }
 
 interface PatientAPI {
@@ -137,6 +138,17 @@ const MiniCalendar = ({ programari, language }: { programari: Programare[], lang
     );
 };
 
+// ─── mapStatus suportă atât număr cât și string ───────────────────────────────
+const mapStatus = (status?: number | string): string => {
+    if (status === undefined || status === null) return "in asteptare";
+    // numeric: 0=Asteptare, 1=Confirmat, 2=Anulat
+    if (status === 0 || status === "0" || status === "asteptare" || status === "pending") return "in asteptare";
+    if (status === 1 || status === "1" || status === "confirmat" || status === "confirmed") return "confirmat";
+    if (status === 2 || status === "2" || status === "anulat" || status === "canceled") return "anulat";
+    if (status === "completed" || status === "finalizat") return "finalizat";
+    return "in asteptare";
+};
+
 // ProfilePage
 
 const ProfilePage = () => {
@@ -146,7 +158,7 @@ const ProfilePage = () => {
     const [currentImage, setCurrentImage] = useState(0);
     const navigate = useNavigate();
     const api = useApi();
-    const { userId, userEmail } = useAuth();
+    const { userId } = useAuth();
 
     // Rotatie imagini
     useEffect(() => {
@@ -169,24 +181,70 @@ const ProfilePage = () => {
 
     const [loadingProfile, setLoadingProfile] = useState(true);
 
+    // ── emailul pacientului obținut din API (nu din token) ────────────────────
+    const patientEmailRef = useRef<string>("");
+
+    // Programări
+    const [programari, setProgramari] = useState<Programare[]>([]);
+    const [loadingProgramari, setLoadingProgramari] = useState(true);
+
+    // ── fetchProgramari folosește emailul din API ─────────────────────────────
+    const fetchProgramari = useCallback(async (emailPacient: string) => {
+        if (!emailPacient) return;
+        try {
+            const data = await api.get<AppointmentAPI[]>(
+                `/api/appointment/byEmail/${encodeURIComponent(emailPacient)}`
+            );
+            const mapped: Programare[] = data.map((a) => {
+                const initials = a.doctorName
+                    .split(" ")
+                    .filter((w) => w !== "Dr." && w !== "dr.")
+                    .map((w) => w[0])
+                    .join("")
+                    .substring(0, 2)
+                    .toUpperCase();
+                return {
+                    id: a.id,
+                    doctor: a.doctorName,
+                    specialty: a.serviceName,
+                    date: a.appointmentDate,
+                    time: a.appointmentTime?.substring(0, 5) ?? "",
+                    status: mapStatus(a.status),
+                    initials,
+                };
+            });
+            setProgramari(mapped);
+        } catch (err) {
+            console.error("Eroare la încărcarea programărilor:", err);
+        } finally {
+            setLoadingProgramari(false);
+        }
+    }, [api]);
+
+    // ── Fetch pacient → obține emailul → fetch programări ────────────────────
     useEffect(() => {
         if (!userId) return;
         const fetchPatient = async () => {
             try {
                 const data = await api.get<PatientAPI>(`/api/patients/${userId}`);
                 const numeIntreg = `${data.firstName ?? ""} ${data.lastName ?? ""}`.trim();
+                const emailPacient = data.email ?? "";
 
                 setNumeComplet(numeIntreg);
-                setEmail(data.email ?? "");
+                setEmail(emailPacient);
                 setTelefon(data.phone ?? "");
                 setDataNasterii(data.dateOfBirth?.split("T")[0] ?? "");
                 setSex(data.sex ?? "");
 
                 setNumeCompletTemp(numeIntreg);
-                setEmailTemp(data.email ?? "");
+                setEmailTemp(emailPacient);
                 setTelefonTemp(data.phone ?? "");
                 setDataNasteriiTemp(data.dateOfBirth?.split("T")[0] ?? "");
                 setSexTemp(data.sex ?? "");
+
+                // Salvăm emailul în ref și fetch-uim programările
+                patientEmailRef.current = emailPacient;
+                await fetchProgramari(emailPacient);
             } catch (err) {
                 console.error("Eroare la încărcarea profilului:", err);
             } finally {
@@ -194,52 +252,18 @@ const ProfilePage = () => {
             }
         };
         fetchPatient();
-    }, [userId]);
+    }, [userId, api, fetchProgramari]);
 
-    // Programări din API după email
-    const [programari, setProgramari] = useState<Programare[]>([]);
-    const [loadingProgramari, setLoadingProgramari] = useState(true);
-
+    // ── Refresh automat când userul revine pe pagină ──────────────────────────
     useEffect(() => {
-        if (!userEmail) return;
-        const fetchProgramari = async () => {
-            try {
-                const data = await api.get<AppointmentAPI[]>(`/api/appointment/byEmail/${userEmail}`);
-                const mapped: Programare[] = data.map((a, index) => {
-                    const initials = a.doctorName
-                        .split(" ")
-                        .filter((w) => w !== "Dr." && w !== "dr.")
-                        .map((w) => w[0])
-                        .join("")
-                        .substring(0, 2)
-                        .toUpperCase();
-                    return {
-                        id: index + 1,
-                        doctor: a.doctorName,
-                        specialty: a.serviceName,
-                        date: a.appointmentDate,
-                        time: a.appointmentTime,
-                        status: mapStatus(a.status),
-                        initials,
-                    };
-                });
-                setProgramari(mapped);
-            } catch (err) {
-                console.error("Eroare la încărcarea programărilor:", err);
-            } finally {
-                setLoadingProgramari(false);
+        const handleFocus = () => {
+            if (patientEmailRef.current) {
+                void fetchProgramari(patientEmailRef.current);
             }
         };
-        fetchProgramari();
-    }, [userEmail]);
-
-    const mapStatus = (status?: string): string => {
-        if (!status) return "in asteptare";
-        const s = status.toLowerCase();
-        if (s === "confirmed" || s === "confirmat") return "confirmat";
-        if (s === "completed" || s === "finalizat") return "finalizat";
-        return "in asteptare";
-    };
+        window.addEventListener("focus", handleFocus);
+        return () => window.removeEventListener("focus", handleFocus);
+    }, [fetchProgramari]);
 
     // Analize (statice)
     const analize = [
@@ -287,7 +311,6 @@ const ProfilePage = () => {
     const [reviewSuccess, setReviewSuccess] = useState(false);
     const [reviewError, setReviewError] = useState("");
 
-    // Verifică dacă userul poate lăsa recenzie (o dată pe lună)
     const [poateLasaRecenzie, setPoateLasaRecenzie] = useState(() => {
         const ultima = localStorage.getItem(`review_${userId ?? ""}`);
         if (!ultima) return true;
@@ -303,7 +326,6 @@ const ProfilePage = () => {
     });
 
     const trimiteRecenzie = async () => {
-        // Verificare limită - o recenzie pe lună
         const ultimaRecenzie = localStorage.getItem(`review_${userId}`);
         if (ultimaRecenzie) {
             const data = new Date(ultimaRecenzie);
@@ -336,7 +358,6 @@ const ProfilePage = () => {
                 rating: reviewRating,
                 isVerifiedPatient: true,
             });
-            //  Salvează data DOAR după succes
             localStorage.setItem(`review_${userId}`, new Date().toISOString());
             setPoateLasaRecenzie(false);
             setZileRamaseGlobal(30);
@@ -361,6 +382,7 @@ const ProfilePage = () => {
             case "confirmat":    return "status-confirmed";
             case "in asteptare": return "status-pending";
             case "finalizat":    return "status-done";
+            case "anulat":       return "status-canceled";
             case "disponibil":   return "status-available";
             default:             return "";
         }
@@ -372,6 +394,7 @@ const ProfilePage = () => {
                 case "confirmat":    return "Подтверждено";
                 case "in asteptare": return "Ожидание";
                 case "finalizat":    return "Завершено";
+                case "anulat":       return "Отменено";
                 case "disponibil":   return "Доступно";
                 default:             return status;
             }
@@ -381,11 +404,18 @@ const ProfilePage = () => {
                 case "confirmat":    return "Confirmed";
                 case "in asteptare": return "Pending";
                 case "finalizat":    return "Completed";
+                case "anulat":       return "Canceled";
                 case "disponibil":   return "Available";
                 default:             return status;
             }
         }
-        return status;
+        switch (status) {
+            case "confirmat":    return "Confirmat";
+            case "in asteptare": return "În așteptare";
+            case "finalizat":    return "Finalizat";
+            case "anulat":       return "Anulat";
+            default:             return status;
+        }
     };
 
     const notifOptions = language === "ru"
@@ -395,10 +425,10 @@ const ProfilePage = () => {
             : ["Reminder programări (SMS)", "Reminder programări (Email)", "Rezultate analize disponibile", "Oferte și noutăți MediCare"];
 
     const getInitials = (name: string) =>
-        name.split(" ").map((w) => w[0]).join("").substring(0, 2).toUpperCase();
+        name.split(" ").filter(Boolean).map((w) => w[0]).join("").substring(0, 2).toUpperCase();
 
     const urmatoarea = programari
-        .filter((p) => parseDate(p.date) >= new Date())
+        .filter((p) => p.status !== "anulat" && parseDate(p.date) >= new Date())
         .sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime())[0];
 
     return (
@@ -413,7 +443,9 @@ const ProfilePage = () => {
                         <div className="modal-buttons">
                             <button className="modal-btn-cancel" onClick={() => setShowCancelModal(false)}>{t.profCancelNo}</button>
                             <button className="modal-btn-confirm" onClick={() => {
-                                setProgramari(programari.filter(p => p.id !== programareDeAnulat));
+                                setProgramari(prev => prev.map(p =>
+                                    p.id === programareDeAnulat ? { ...p, status: "anulat" } : p
+                                ));
                                 setShowCancelModal(false);
                                 setProgramareDeAnulat(null);
                             }}>{t.profCancelYes}</button>
@@ -495,7 +527,7 @@ const ProfilePage = () => {
                         <div className="sidebar-card stats-card">
                             <h3 className="sidebar-card-title">{t.profStats}</h3>
                             <div className="stats-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
-                                <div className="stat-box"><span className="stat-number">{programari.length}</span><span className="stat-label">{t.profApptsLabel}</span></div>
+                                <div className="stat-box"><span className="stat-number">{programari.filter(p => p.status !== "anulat").length}</span><span className="stat-label">{t.profApptsLabel}</span></div>
                                 <div className="stat-box"><span className="stat-number">{analize.length}</span><span className="stat-label">{t.profResultsLabel}</span></div>
                                 <div className="stat-box"><span className="stat-number">{[...new Set(programari.map(p => p.doctor))].length}</span><span className="stat-label">{t.profDoctorsLabel}</span></div>
                             </div>
@@ -539,7 +571,7 @@ const ProfilePage = () => {
                                                 </div>
                                                 <div className="appointment-right">
                                                     <span className={`status-badge ${getStatusClass(p.status)}`}>{getStatusLabel(p.status)}</span>
-                                                    {p.status !== "finalizat" && (
+                                                    {p.status !== "finalizat" && p.status !== "anulat" && (
                                                         <button className="cancel-btn" onClick={() => { setProgramareDeAnulat(p.id); setShowCancelModal(true); }}>{t.profCancelBtn}</button>
                                                     )}
                                                 </div>
@@ -585,7 +617,6 @@ const ProfilePage = () => {
                                 </div>
 
                                 <div style={{ maxWidth: "600px" }}>
-                                    {/* Avertisment dacă nu poate lăsa recenzie */}
                                     {!poateLasaRecenzie && (
                                         <div style={{
                                             padding: "12px 16px",
@@ -613,7 +644,6 @@ const ProfilePage = () => {
                                                 : "Împărtășește experiența ta și ajută alți pacienți."}
                                     </p>
 
-                                    {/* Rating */}
                                     <div className="form-group">
                                         <label className="form-label">
                                             {language === "ru" ? "Оценка" : language === "en" ? "Rating" : "Evaluare"}
@@ -643,7 +673,6 @@ const ProfilePage = () => {
                                         </div>
                                     </div>
 
-                                    {/* Text */}
                                     <div className="form-group">
                                         <label className="form-label">
                                             {language === "ru" ? "Ваш отзыв" : language === "en" ? "Your review" : "Recenzia ta"}

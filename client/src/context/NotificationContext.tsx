@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { Language } from "./LanguageContext";
 import { useApi } from "../api/context";
@@ -36,7 +36,6 @@ interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-// Formatare dată relativă
 const formatTime = (createdAt: string, lang: Language): string => {
     const now = new Date();
     const date = new Date(createdAt);
@@ -59,7 +58,6 @@ const formatTime = (createdAt: string, lang: Language): string => {
         if (diffD === 1) return "Yesterday";
         return date.toLocaleDateString("en-GB");
     }
-    // ro
     if (diffMin < 1) return "Acum";
     if (diffMin < 60) return `Acum ${diffMin} min`;
     if (diffH < 24) return `${diffH} oră în urmă`;
@@ -67,7 +65,6 @@ const formatTime = (createdAt: string, lang: Language): string => {
     return date.toLocaleDateString("ro-RO");
 };
 
-// Detectăm tipul din titlu
 const detectType = (title: string): Notification["type"] => {
     const t = title.toLowerCase();
     if (t.includes("programare") || t.includes("запись") || t.includes("appointment")) return "programare";
@@ -87,7 +84,7 @@ const mapNotification = (n: NotificationAPI, lang: Language): Notification => ({
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
     const api = useApi();
-    const { userId } = useAuth();
+    const { userId, isAdmin } = useAuth();
     const [currentLang, setCurrentLang] = useState<Language>("ro");
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(false);
@@ -95,12 +92,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     const unreadCount = notifications.filter((n) => !n.read).length;
 
     const fetchNotifications = useCallback(async () => {
-        if (!userId) return;
+        // Adminul nu are notificări personale
+        if (!userId || isAdmin) return;
         setLoading(true);
         try {
             const data = await api.get<NotificationAPI[]>(`/api/notification/${userId}/by-user-id`);
             const mapped = data.map((n) => mapNotification(n, currentLang));
-            // sortăm cele necitite primele, apoi după dată
             mapped.sort((a, b) => {
                 if (a.read !== b.read) return a.read ? 1 : -1;
                 return 0;
@@ -111,7 +108,14 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         } finally {
             setLoading(false);
         }
-    }, [userId, currentLang]);
+    }, [userId, isAdmin, currentLang, api]);
+
+    // Fetch la mount + polling la 30 secunde
+    useEffect(() => {
+        void fetchNotifications();
+        const interval = setInterval(() => void fetchNotifications(), 30000);
+        return () => clearInterval(interval);
+    }, [fetchNotifications]);
 
     const markOneRead = async (id: number) => {
         try {
@@ -146,10 +150,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     const updateLanguage = (lang: Language) => {
         if (lang === currentLang) return;
         setCurrentLang(lang);
-        // re-formatăm timpii cu noua limbă
-        setNotifications((prev) =>
-            prev.map((n) => ({ ...n, time: n.time })) // timpii se vor actualiza la următorul fetch
-        );
     };
 
     return (
