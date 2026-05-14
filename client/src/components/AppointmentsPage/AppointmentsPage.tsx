@@ -5,11 +5,31 @@ import Navbar from '../../shared/Navbar/Navbar';
 import Footer from '../../shared/Footer/Footer';
 import ReactDOM from 'react-dom';
 import { useApi } from '../../api/context';
+import { useAuth } from '../../context/AuthContext';
 
-interface Doctor {
+// ─── Tipuri ──────────────────────────────────────────────────────────────────
+
+type BackendStatus = 0 | 1 | 2;
+type FrontendStatus = 'pending' | 'confirmed' | 'canceled';
+
+interface MedicInfoDto {
   id: number;
-  name: string;
-  specializationKey: string;
+  lastName: string;
+  firstName: string;
+  specialty: number;
+}
+
+interface AppointmentInfoDto {
+  id: number;
+  patientName: string;
+  phone: string;
+  email: string;
+  doctorName: string;
+  serviceName: string;
+  reasonForVisit: string;
+  appointmentTime: string; // "HH:MM:SS"
+  appointmentDate: string; // "YYYY-MM-DD"
+  status: BackendStatus;
 }
 
 interface Appointment {
@@ -22,30 +42,50 @@ interface Appointment {
   date: string;
   time: string;
   reason: string;
-  status: 'confirmed' | 'pending' | 'canceled';
-}
-
-interface AppointmentDTO {
-  id: number;
-  patientName: string;
-  phone: string;
-  email: string;
-  doctorName: string;
-  serviceName: string;
-  reasonForVisit: string;
-  appointmentTime: string;
-  appointmentDate: string;
-  status: 'confirmed' | 'pending' | 'canceled';
+  status: FrontendStatus;
 }
 
 interface CustomSelectProps {
-  options: { value: string; label: string }[];
+  options: { value: string; label: string; disabled?: boolean }[];
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
+  disabled?: boolean;
 }
 
-const CustomSelect: React.FC<CustomSelectProps> = ({ options, value, onChange, placeholder }) => {
+// ─── MedicSpeciality enum ─────────────────────────────────────────────────────
+const MEDIC_SPECIALITY_LABELS: Record<number, string> = {
+  0: 'Cardiologie',
+  1: 'Pediatrie',
+  2: 'Neurologie',
+  3: 'Dermatologie',
+  4: 'Oftalmologie',
+  5: 'Stomatologie',
+  6: 'Chirurgie',
+  7: 'Ortopedie',
+  8: 'Ginecologie',
+  9: 'Urologie',
+  10: 'Psihiatrie',
+  11: 'Medicina Generala',
+};
+
+// Orele disponibile: 08-11 dimineața, 14-16 după-amiaza (pauză 12-14)
+const ALL_TIMES = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
+
+function mapStatus(s: BackendStatus): FrontendStatus {
+  if (s === 1) return 'confirmed';
+  if (s === 2) return 'canceled';
+  return 'pending';
+}
+
+// ─── CustomSelect ─────────────────────────────────────────────────────────────
+const CustomSelect: React.FC<CustomSelectProps> = ({
+                                                     options,
+                                                     value,
+                                                     onChange,
+                                                     placeholder,
+                                                     disabled = false,
+                                                   }) => {
   const [open, setOpen] = useState(false);
   const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
   const ref = useRef<HTMLDivElement>(null);
@@ -95,40 +135,77 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ options, value, onChange, p
   }, [open]);
 
   const handleToggle = () => {
+    if (disabled) return;
     if (!open) calculatePosition();
     setOpen(!open);
   };
 
-  const selected = options.find(o => o.value === value);
+  const selected = options.find((o) => o.value === value);
 
   return (
-      <div className="custom-select-wrapper" ref={ref}>
-        <div className={`custom-select-toggle ${open ? 'open' : ''}`} onClick={handleToggle} ref={toggleRef}>
-          <span className={selected ? '' : 'placeholder'}>{selected ? selected.label : placeholder}</span>
+      <div className="custom-select-wrapper" ref={ref} style={disabled ? { opacity: 0.6, pointerEvents: 'none' } : {}}>
+        <div
+            className={`custom-select-toggle ${open ? 'open' : ''}`}
+            onClick={handleToggle}
+            ref={toggleRef}
+        >
+        <span className={selected ? '' : 'placeholder'}>
+          {selected ? selected.label : placeholder}
+        </span>
           <span className="custom-select-arrow">▾</span>
         </div>
-        {open && ReactDOM.createPortal(
-            <div style={menuStyle} ref={menuRef}>
-              {options.map((option) => (
-                  <div
-                      key={option.value}
-                      className={`custom-select-item ${value === option.value ? 'selected' : ''}`}
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => { onChange(option.value); setOpen(false); }}
-                  >
-                    {option.label}
-                  </div>
-              ))}
-            </div>,
-            document.body
-        )}
+        {open &&
+            ReactDOM.createPortal(
+                <div style={menuStyle} ref={menuRef}>
+                  {options.map((option) => (
+                      <div
+                          key={option.value}
+                          className={`custom-select-item ${value === option.value ? 'selected' : ''}`}
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => {
+                            if (option.disabled) return;
+                            onChange(option.value);
+                            setOpen(false);
+                          }}
+                          style={option.disabled ? {
+                            cursor: 'not-allowed',
+                            background: '#fef2f2',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                          } : {
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                          }}
+                      >
+                <span style={{ color: option.disabled ? '#9ca3af' : 'inherit' }}>
+                  {option.label}
+                </span>
+                        {option.disabled && (
+                            <span style={{
+                              fontSize: '0.8rem',
+                              color: '#ef4444',
+                              fontWeight: 600,
+                              marginLeft: '8px',
+                            }}>
+                    Ocupat
+                  </span>
+                        )}
+                      </div>
+                  ))}
+                </div>,
+                document.body
+            )}
       </div>
   );
 };
 
+// ─── AppointmentsPage ─────────────────────────────────────────────────────────
 const AppointmentsPage: React.FC = () => {
   const { t } = useLanguage();
   const api = useApi();
+  const { userEmail, isAuthenticated } = useAuth();
 
   const [formData, setFormData] = useState({
     patientName: '',
@@ -138,45 +215,100 @@ const AppointmentsPage: React.FC = () => {
     specialization: '',
     date: '',
     time: '',
-    reason: ''
+    reason: '',
   });
 
+  const [medici, setMedici] = useState<MedicInfoDto[]>([]);
+  const [loadingMedici, setLoadingMedici] = useState(true);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [loadingAppointments, setLoadingAppointments] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
-  const doctors: Doctor[] = [
-    { id: 1, name: 'Dr. Ion Ionescu', specializationKey: 'apptSpecCardio' },
-    { id: 2, name: 'Dr. Ana Vasilescu', specializationKey: 'apptSpecPediatrie' },
-    { id: 3, name: 'Dr. George Popescu', specializationKey: 'apptSpecMedGen' },
-    { id: 4, name: 'Dr. Maria Gheorghiu', specializationKey: 'apptSpecDerma' },
-    { id: 5, name: 'Dr. Andrei Munteanu', specializationKey: 'apptSpecNeuro' }
-  ];
+  // Orele ocupate pentru medicul și data selectată
+  const [occupiedTimes, setOccupiedTimes] = useState<string[]>([]);
+  const [loadingTimes, setLoadingTimes] = useState(false);
 
-  const specializationKeys: (keyof typeof t)[] = [
-    'apptSpecCardio', 'apptSpecPediatrie', 'apptSpecMedGen',
-    'apptSpecDerma', 'apptSpecNeuro', 'apptSpecOrtoped',
-    'apptSpecOrl', 'apptSpecOftalmologie'
-  ];
+  // ── Fetch medici la mount ──────────────────────────────────────────────────
+  useEffect(() => {
+    const fetchMedici = async () => {
+      try {
+        const data = await api.get<MedicInfoDto[]>('/api/medic/list');
+        setMedici(data);
+      } catch {
+        setApiError('Nu s-au putut încărca medicii. Încearcă să reîmprospătezi pagina.');
+      } finally {
+        setLoadingMedici(false);
+      }
+    };
+    void fetchMedici();
+  }, [api]);
 
-  const availableTimes = [
-    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-    '12:00', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'
-  ];
+  // ── Pre-completează emailul dacă userul e autentificat ────────────────────
+  useEffect(() => {
+    if (isAuthenticated && userEmail) {
+      setFormData((prev) => ({ ...prev, email: userEmail }));
+      void fetchAppointmentsByEmail(userEmail);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, userEmail]);
 
-  const mapDtoToAppointment = (dto: AppointmentDTO): Appointment => ({
+  // ── Fetch orele ocupate când se schimbă medicul SAU data ─────────────────
+  useEffect(() => {
+    const fetchOccupiedTimes = async () => {
+      if (!formData.doctorId || !formData.date) {
+        setOccupiedTimes([]);
+        return;
+      }
+
+      const medic = medici.find((m) => String(m.id) === formData.doctorId);
+      if (!medic) return;
+
+      const doctorName = `Dr. ${medic.lastName} ${medic.firstName}`;
+
+      setLoadingTimes(true);
+      try {
+        const allAppointments = await api.get<AppointmentInfoDto[]>('/api/appointment/list');
+
+        const occupied = allAppointments
+            .filter(
+                (a) =>
+                    a.doctorName === doctorName &&
+                    a.appointmentDate === formData.date &&
+                    a.status !== 2 // excludem programările anulate
+            )
+            .map((a) => a.appointmentTime?.substring(0, 5) ?? '');
+
+        setOccupiedTimes(occupied);
+
+        // Dacă ora deja selectată devine ocupată, o resetăm
+        if (formData.time && occupied.includes(formData.time)) {
+          setFormData((prev) => ({ ...prev, time: '' }));
+        }
+      } catch {
+        setOccupiedTimes([]);
+      } finally {
+        setLoadingTimes(false);
+      }
+    };
+
+    void fetchOccupiedTimes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.doctorId, formData.date, medici]);
+
+  // ── Mapare DTO → Appointment ───────────────────────────────────────────────
+  const mapDto = (dto: AppointmentInfoDto): Appointment => ({
     id: dto.id,
     patientName: dto.patientName,
     phone: dto.phone,
     email: dto.email,
     doctor: dto.doctorName,
     specialization: dto.serviceName,
-    date: dto.appointmentDate,
-    time: dto.appointmentTime,
+    time: dto.appointmentTime?.substring(0, 5) ?? '',
+    date: dto.appointmentDate ?? '',
     reason: dto.reasonForVisit,
-    status: dto.status,
+    status: mapStatus(dto.status),
   });
 
   const fetchAppointmentsByEmail = async (email: string) => {
@@ -184,30 +316,48 @@ const AppointmentsPage: React.FC = () => {
     setLoadingAppointments(true);
     setApiError(null);
     try {
-      const data = await api.get<AppointmentDTO[]>(`/api/appointment/byEmail/${encodeURIComponent(email)}`);
-      setAppointments(data.map(mapDtoToAppointment));
+      const data = await api.get<AppointmentInfoDto[]>(
+          `/api/appointment/byEmail/${encodeURIComponent(email)}`
+      );
+      setAppointments(data.map(mapDto));
     } catch {
-      // erorile globale sunt gestionate in AxiosProvider
+      // erori globale gestionate în AxiosProvider
     } finally {
       setLoadingAppointments(false);
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleEmailBlur = () => {
     void fetchAppointmentsByEmail(formData.email);
   };
 
+  // ── Selectare medic: setează automat specializarea și resetează ora ───────
   const handleDoctorChange = (doctorId: string) => {
-    const selectedDoctor = doctors.find(d => d.id === parseInt(doctorId));
-    setFormData(prev => ({
+    const medic = medici.find((m) => String(m.id) === doctorId);
+    const specialization = medic
+        ? MEDIC_SPECIALITY_LABELS[medic.specialty] ?? ''
+        : '';
+    setFormData((prev) => ({
       ...prev,
       doctorId,
-      specialization: selectedDoctor ? t[selectedDoctor.specializationKey as keyof typeof t] as string : ''
+      specialization,
+      time: '',
+    }));
+  };
+
+  // ── Schimbare dată: resetează ora selectată ───────────────────────────────
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      date: e.target.value,
+      time: '',
     }));
   };
 
@@ -216,25 +366,24 @@ const AppointmentsPage: React.FC = () => {
     if (!formData.phone.trim()) { alert(t.apptPhone); return false; }
     if (!formData.email.trim() || !formData.email.includes('@')) { alert(t.apptEmail); return false; }
     if (!formData.doctorId) { alert(t.apptSelectDoctor); return false; }
-    if (!formData.specialization) { alert(t.apptSpecialization); return false; }
     if (!formData.date) { alert(t.apptDate); return false; }
     if (!formData.time) { alert(t.apptTime); return false; }
     if (!formData.reason.trim()) { alert(t.apptReason); return false; }
     return true;
   };
 
-  // POST /api/appointment/create
+  // ── POST /api/appointment/create ─────────────────────────────────────────
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const selectedDoctor = doctors.find(d => d.id === parseInt(formData.doctorId));
+    const medic = medici.find((m) => String(m.id) === formData.doctorId);
 
     const payload = {
       patientName: formData.patientName,
       phone: formData.phone,
       email: formData.email,
-      doctorName: selectedDoctor?.name ?? '',
+      doctorName: medic ? `Dr. ${medic.lastName} ${medic.firstName}` : '',
       serviceName: formData.specialization,
       reasonForVisit: formData.reason,
       appointmentTime: formData.time + ':00',
@@ -246,7 +395,17 @@ const AppointmentsPage: React.FC = () => {
     try {
       await api.post<string>('/api/appointment/create', payload);
       await fetchAppointmentsByEmail(formData.email);
-      setFormData({ patientName: '', phone: '', email: '', doctorId: '', specialization: '', date: '', time: '', reason: '' });
+      setFormData({
+        patientName: '',
+        phone: '',
+        email: isAuthenticated && userEmail ? userEmail : '',
+        doctorId: '',
+        specialization: '',
+        date: '',
+        time: '',
+        reason: '',
+      });
+      setOccupiedTimes([]);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch {
@@ -256,7 +415,7 @@ const AppointmentsPage: React.FC = () => {
     }
   };
 
-  const getStatusLabel = (status: string) => {
+  const getStatusLabel = (status: FrontendStatus) => {
     if (status === 'confirmed') return t.apptConfirmed;
     if (status === 'pending') return t.apptPending;
     if (status === 'canceled') return t.apptCanceled;
@@ -264,36 +423,42 @@ const AppointmentsPage: React.FC = () => {
   };
 
   const getMinDate = () => new Date().toISOString().split('T')[0];
-  const getMaxDate = () => { const d = new Date(); d.setMonth(d.getMonth() + 3); return d.toISOString().split('T')[0]; };
+  const getMaxDate = () => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 3);
+    return d.toISOString().split('T')[0];
+  };
 
-  // PATCH /api/appointment/{id}/status
+  // ── PATCH /api/appointment/{id}/status (2 = Anulat) ─────────────────────
   const handleCancelAppointment = async (id: number) => {
     if (!window.confirm(t.apptCancelConfirm)) return;
     try {
       await api.patch(`/api/appointment/${id}/status`, { status: 2 });
-      setAppointments(prev =>
-          prev.map(apt => apt.id === id ? { ...apt, status: 'canceled' as const } : apt)
+      setAppointments((prev) =>
+          prev.map((apt) =>
+              apt.id === id ? { ...apt, status: 'canceled' as const } : apt
+          )
       );
     } catch {
       setApiError('Nu s-a putut anula programarea. Încearcă din nou.');
     }
   };
 
-  const doctorOptions = doctors.map(d => ({
-    value: String(d.id),
-    label: `${d.name} - ${t[d.specializationKey as keyof typeof t]}`
+  // ── Opțiuni dropdown ─────────────────────────────────────────────────────
+  const doctorOptions = medici.map((m) => ({
+    value: String(m.id),
+    label: `Dr. ${m.lastName} ${m.firstName} — ${MEDIC_SPECIALITY_LABELS[m.specialty] ?? ''}`,
   }));
 
-  const specializationOptions = specializationKeys.map(key => ({
-    value: t[key] as string,
-    label: t[key] as string
-  }));
-
-  const timeOptions = availableTimes.map(time => ({
+  const timeOptions = ALL_TIMES.map((time) => ({
     value: time,
-    label: time
+    label: time,
+    disabled: occupiedTimes.includes(time),
   }));
 
+  const canSelectTime = !!formData.doctorId && !!formData.date;
+
+  // ─── Render ───────────────────────────────────────────────────────────────
   return (
       <>
         <div className="appointments-page">
@@ -301,12 +466,12 @@ const AppointmentsPage: React.FC = () => {
           <div className="appointments-container">
             <h1 className="page-title">{t.apptTitle}</h1>
 
-            {showSuccess && (
-                <div className="success-message">{t.apptSuccess}</div>
-            )}
+            {showSuccess && <div className="success-message">{t.apptSuccess}</div>}
 
             {apiError && (
-                <div className="error-message" style={{ color: 'red', marginBottom: '1rem' }}>{apiError}</div>
+                <div className="error-message" style={{ color: 'red', marginBottom: '1rem' }}>
+                  {apiError}
+                </div>
             )}
 
             <div className="form-card">
@@ -315,11 +480,23 @@ const AppointmentsPage: React.FC = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label>{t.apptPatientName}</label>
-                    <input type="text" name="patientName" value={formData.patientName} onChange={handleInputChange} required />
+                    <input
+                        type="text"
+                        name="patientName"
+                        value={formData.patientName}
+                        onChange={handleInputChange}
+                        required
+                    />
                   </div>
                   <div className="form-group">
                     <label>{t.apptPhone}</label>
-                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required />
+                    <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        required
+                    />
                   </div>
                 </div>
 
@@ -332,6 +509,8 @@ const AppointmentsPage: React.FC = () => {
                       onChange={handleInputChange}
                       onBlur={handleEmailBlur}
                       required
+                      readOnly={isAuthenticated && !!userEmail}
+                      style={isAuthenticated && userEmail ? { background: '#f1f5f9' } : {}}
                   />
                 </div>
 
@@ -342,15 +521,19 @@ const AppointmentsPage: React.FC = () => {
                         options={doctorOptions}
                         value={formData.doctorId}
                         onChange={handleDoctorChange}
-                        placeholder={`-- ${t.apptSelectDoctor} --`}
+                        placeholder={
+                          loadingMedici ? 'Se încarcă medicii...' : `-- ${t.apptSelectDoctor} --`
+                        }
+                        disabled={loadingMedici}
                     />
                   </div>
                   <div className="form-group">
                     <label>{t.apptSpecialization}</label>
-                    <CustomSelect
-                        options={specializationOptions}
+                    <input
+                        type="text"
                         value={formData.specialization}
-                        onChange={(val) => setFormData(prev => ({ ...prev, specialization: val }))}
+                        readOnly
+                        style={{ background: '#f1f5f9' }}
                         placeholder={`-- ${t.apptSpecialization} --`}
                     />
                   </div>
@@ -359,22 +542,48 @@ const AppointmentsPage: React.FC = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label>{t.apptDate}</label>
-                    <input type="date" name="date" value={formData.date} onChange={handleInputChange} min={getMinDate()} max={getMaxDate()} required />
+                    <input
+                        type="date"
+                        name="date"
+                        value={formData.date}
+                        onChange={handleDateChange}
+                        min={getMinDate()}
+                        max={getMaxDate()}
+                        required
+                    />
                   </div>
                   <div className="form-group">
-                    <label>{t.apptTime}</label>
+                    <label>
+                      {t.apptTime}
+                      {loadingTimes && (
+                          <span style={{ fontSize: '0.75rem', color: '#888', marginLeft: '8px' }}>
+                        Se verifică orele...
+                      </span>
+                      )}
+                    </label>
                     <CustomSelect
                         options={timeOptions}
                         value={formData.time}
-                        onChange={(val) => setFormData(prev => ({ ...prev, time: val }))}
-                        placeholder={`-- ${t.apptTime} --`}
+                        onChange={(val) => setFormData((prev) => ({ ...prev, time: val }))}
+                        placeholder={
+                          !canSelectTime
+                              ? 'Selectează mai întâi medicul și data'
+                              : `-- ${t.apptTime} --`
+                        }
+                        disabled={!canSelectTime || loadingTimes}
                     />
                   </div>
                 </div>
 
                 <div className="form-group">
                   <label>{t.apptReason}</label>
-                  <textarea name="reason" value={formData.reason} onChange={handleInputChange} rows={4} required />
+                  <textarea
+                      name="reason"
+                      value={formData.reason}
+                      onChange={handleInputChange}
+                      rows={4}
+                      required
+                  />
                 </div>
 
                 <button type="submit" className="submit-btn" disabled={submitting}>
@@ -384,30 +593,58 @@ const AppointmentsPage: React.FC = () => {
             </div>
 
             {loadingAppointments && (
-                <p style={{ textAlign: 'center', margin: '1rem 0' }}>Se încarcă programările...</p>
+                <p style={{ textAlign: 'center', margin: '1rem 0' }}>
+                  Se încarcă programările...
+                </p>
             )}
 
             {!loadingAppointments && appointments.length > 0 && (
                 <div className="appointments-list-card">
                   <h2 className="section-title">{t.apptMyList}</h2>
                   <div className="appointments-grid">
-                    {appointments.map(appointment => (
+                    {appointments.map((appointment) => (
                         <div key={appointment.id} className="appointment-item">
                           <div className="appointment-header">
                             <h3>{appointment.patientName}</h3>
-                            <span className={`status-badge status-${appointment.status}`}>{getStatusLabel(appointment.status)}</span>
+                            <span className={`status-badge status-${appointment.status}`}>
+                        {getStatusLabel(appointment.status)}
+                      </span>
                           </div>
                           <div className="appointment-details">
-                            <div className="detail-row"><span className="detail-label">{t.apptPhone}:</span><span className="detail-value">{appointment.phone}</span></div>
-                            <div className="detail-row"><span className="detail-label">{t.apptEmail}:</span><span className="detail-value">{appointment.email}</span></div>
-                            <div className="detail-row"><span className="detail-label">{t.adminDoctors}:</span><span className="detail-value">{appointment.doctor}</span></div>
-                            <div className="detail-row"><span className="detail-label">{t.apptSpecialization}:</span><span className="detail-value">{appointment.specialization}</span></div>
-                            <div className="detail-row"><span className="detail-label">{t.apptDate}:</span><span className="detail-value">{appointment.date}</span></div>
-                            <div className="detail-row"><span className="detail-label">{t.apptTime}:</span><span className="detail-value">{appointment.time}</span></div>
-                            <div className="detail-row"><span className="detail-label">{t.apptReason}:</span><span className="detail-value">{appointment.reason}</span></div>
+                            <div className="detail-row">
+                              <span className="detail-label">{t.apptPhone}:</span>
+                              <span className="detail-value">{appointment.phone}</span>
+                            </div>
+                            <div className="detail-row">
+                              <span className="detail-label">{t.apptEmail}:</span>
+                              <span className="detail-value">{appointment.email}</span>
+                            </div>
+                            <div className="detail-row">
+                              <span className="detail-label">{t.adminDoctors}:</span>
+                              <span className="detail-value">{appointment.doctor}</span>
+                            </div>
+                            <div className="detail-row">
+                              <span className="detail-label">{t.apptSpecialization}:</span>
+                              <span className="detail-value">{appointment.specialization}</span>
+                            </div>
+                            <div className="detail-row">
+                              <span className="detail-label">{t.apptDate}:</span>
+                              <span className="detail-value">{appointment.date}</span>
+                            </div>
+                            <div className="detail-row">
+                              <span className="detail-label">{t.apptTime}:</span>
+                              <span className="detail-value">{appointment.time}</span>
+                            </div>
+                            <div className="detail-row">
+                              <span className="detail-label">{t.apptReason}:</span>
+                              <span className="detail-value">{appointment.reason}</span>
+                            </div>
                           </div>
                           {appointment.status !== 'canceled' && (
-                              <button className="cancel-btn" onClick={() => handleCancelAppointment(appointment.id)}>
+                              <button
+                                  className="cancel-btn"
+                                  onClick={() => handleCancelAppointment(appointment.id)}
+                              >
                                 {t.apptCancel}
                               </button>
                           )}
