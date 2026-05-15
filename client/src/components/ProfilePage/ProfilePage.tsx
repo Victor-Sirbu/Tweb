@@ -372,9 +372,28 @@ const ProfilePage = () => {
         }
     };
 
-    // Modal anulare
+    // ── Modal anulare ─────────────────────────────────────────────────────────
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [programareDeAnulat, setProgramareDeAnulat] = useState<number | null>(null);
+    const [cancelLoading, setCancelLoading] = useState(false);
+
+    // FIX: trimite PATCH la backend înainte să updateze state-ul local
+    const handleConfirmCancel = async () => {
+        if (programareDeAnulat === null) return;
+        setCancelLoading(true);
+        try {
+            await api.patch(`/api/appointment/${programareDeAnulat}/status`, { status: 2 });
+            setProgramari(prev => prev.map(p =>
+                p.id === programareDeAnulat ? { ...p, status: "anulat" } : p
+            ));
+        } catch (err) {
+            console.error("Eroare la anulare:", err);
+        } finally {
+            setCancelLoading(false);
+            setShowCancelModal(false);
+            setProgramareDeAnulat(null);
+        }
+    };
 
     // Status helpers
     const getStatusClass = (status: string) => {
@@ -441,14 +460,21 @@ const ProfilePage = () => {
                         <h3 className="modal-title">{t.profCancelModal}</h3>
                         <p className="modal-text">{t.profCancelConfirm}</p>
                         <div className="modal-buttons">
-                            <button className="modal-btn-cancel" onClick={() => setShowCancelModal(false)}>{t.profCancelNo}</button>
-                            <button className="modal-btn-confirm" onClick={() => {
-                                setProgramari(prev => prev.map(p =>
-                                    p.id === programareDeAnulat ? { ...p, status: "anulat" } : p
-                                ));
-                                setShowCancelModal(false);
-                                setProgramareDeAnulat(null);
-                            }}>{t.profCancelYes}</button>
+                            <button
+                                className="modal-btn-cancel"
+                                onClick={() => setShowCancelModal(false)}
+                                disabled={cancelLoading}
+                            >
+                                {t.profCancelNo}
+                            </button>
+                            {/* FIX: acum apelează backend-ul via handleConfirmCancel */}
+                            <button
+                                className="modal-btn-confirm"
+                                onClick={handleConfirmCancel}
+                                disabled={cancelLoading}
+                            >
+                                {cancelLoading ? "Se anulează..." : t.profCancelYes}
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -265,7 +265,11 @@ const AppointmentsPage: React.FC = () => {
       const medic = medici.find((m) => String(m.id) === formData.doctorId);
       if (!medic) return;
 
-      const doctorName = `Dr. ${medic.lastName} ${medic.firstName}`;
+      // FIX: fără "Dr." — format consistent cu AdminDashboard
+      const doctorName = `${medic.firstName} ${medic.lastName}`;
+
+      // Comparatie flexibila: ignoram "Dr.", lowercase, sortam cuvintele
+      const normDr = (n: string) => n.toLowerCase().replace('dr.', '').trim().split(/\s+/).sort().join(' ');
 
       setLoadingTimes(true);
       try {
@@ -274,7 +278,7 @@ const AppointmentsPage: React.FC = () => {
         const occupied = allAppointments
             .filter(
                 (a) =>
-                    a.doctorName === doctorName &&
+                    normDr(a.doctorName) === normDr(doctorName) &&
                     a.appointmentDate === formData.date &&
                     a.status !== 2 // excludem programările anulate
             )
@@ -379,11 +383,12 @@ const AppointmentsPage: React.FC = () => {
 
     const medic = medici.find((m) => String(m.id) === formData.doctorId);
 
+    // FIX: fără "Dr." — format consistent cu AdminDashboard
     const payload = {
       patientName: formData.patientName,
       phone: formData.phone,
       email: formData.email,
-      doctorName: medic ? `Dr. ${medic.lastName} ${medic.firstName}` : '',
+      doctorName: medic ? `${medic.firstName} ${medic.lastName}` : '',
       serviceName: formData.specialization,
       reasonForVisit: formData.reason,
       appointmentTime: formData.time + ':00',
@@ -445,9 +450,10 @@ const AppointmentsPage: React.FC = () => {
   };
 
   // ── Opțiuni dropdown ─────────────────────────────────────────────────────
+  // FIX: fără "Dr." în label — afișăm doar Prenume Nume — Specialitate
   const doctorOptions = medici.map((m) => ({
     value: String(m.id),
-    label: `Dr. ${m.lastName} ${m.firstName} — ${MEDIC_SPECIALITY_LABELS[m.specialty] ?? ''}`,
+    label: `${m.firstName} ${m.lastName} — ${MEDIC_SPECIALITY_LABELS[m.specialty] ?? ''}`,
   }));
 
   const timeOptions = ALL_TIMES.map((time) => ({

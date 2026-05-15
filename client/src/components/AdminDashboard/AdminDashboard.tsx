@@ -381,7 +381,7 @@ const AdminDashboard: React.FC = () => {
     const doctor = doctors.find(d => d.id === id);
     try {
       await api.delete(`/api/medic/${id}`);
-      setDoctors(prev => prev.filter(d => d.id !== id));
+      setDoctors(prev => prev.map(d => d.id === id ? { ...d, isDeleted: true } : d));
       log('Ștergere medic', 'delete', `${doctor?.firstName ?? ''} ${doctor?.lastName ?? ''}`, 'medic', `Medicul a fost șters din sistem.`);
     } catch {
       alert(lbl('Eroare la ștergere', 'Ошибка удаления', 'Delete error'));
@@ -423,16 +423,16 @@ const AdminDashboard: React.FC = () => {
       return;
     }
     setLoadingTimes(true);
+    // Comparatie flexibila: ignoram "Dr.", lowercase, sortam cuvintele
+    // Astfel "Dr. Malairau Dumitru" == "Dumitru Malairau" == "Malairau Dumitru"
+    const normDr = (n: string) => n.toLowerCase().replace('dr.', '').trim().split(/\s+/).sort().join(' ');
     const occupied = appointments
-        .filter(a => {
-          // Comparăm flexibil - extragem doar cuvintele din nume și le comparăm
-          const apptWords = a.doctorName.toLowerCase().replace('dr.', '').trim().split(/\s+/).sort().join(' ');
-          const selectedWords = apptFormData.doctorName.toLowerCase().replace('dr.', '').trim().split(/\s+/).sort().join(' ');
-          return apptWords === selectedWords &&
-              a.appointmentDate === apptFormData.appointmentDate &&
-              a.status !== 2 &&
-              (!editingAppt || a.id !== editingAppt.id);
-        })
+        .filter(a =>
+            normDr(a.doctorName) === normDr(apptFormData.doctorName) &&
+            a.appointmentDate === apptFormData.appointmentDate &&
+            a.status !== 2 && // excludem anulate
+            (!editingAppt || a.id !== editingAppt.id) // excludem programarea curentă la editare
+        )
         .map(a => a.appointmentTime?.substring(0, 5) ?? '');
     setOccupiedTimes(occupied);
     // Dacă ora selectată devine ocupată, o resetăm
