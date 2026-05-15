@@ -340,6 +340,9 @@ const AdminDashboard: React.FC = () => {
   const [showDoctorModal, setShowDoctorModal] = useState(false);
   const [editingDoctor, setEditingDoctor] = useState<DoctorAPI | null>(null);
   const [doctorFormData, setDoctorFormData] = useState({ firstName: '', lastName: '', specialty: 0 });
+  const [doctorSearchTerm, setDoctorSearchTerm] = useState('');
+  const [doctorStatusFilter, setDoctorStatusFilter] = useState<'All' | 'Active' | 'Inactive'>('All');
+  const [doctorDropdownOpen, setDoctorDropdownOpen] = useState(false);
 
   const fetchDoctors = useCallback(async () => {
     setLoadingDoctors(true);
@@ -381,7 +384,7 @@ const AdminDashboard: React.FC = () => {
     const doctor = doctors.find(d => d.id === id);
     try {
       await api.delete(`/api/medic/${id}`);
-      setDoctors(prev => prev.map(d => d.id === id ? { ...d, isDeleted: true } : d));
+      setDoctors(prev => prev.filter(d => d.id !== id));
       log('Ștergere medic', 'delete', `${doctor?.firstName ?? ''} ${doctor?.lastName ?? ''}`, 'medic', `Medicul a fost șters din sistem.`);
     } catch {
       alert(lbl('Eroare la ștergere', 'Ошибка удаления', 'Delete error'));
@@ -423,12 +426,9 @@ const AdminDashboard: React.FC = () => {
       return;
     }
     setLoadingTimes(true);
-    // Comparatie flexibila: ignoram "Dr.", lowercase, sortam cuvintele
-    // Astfel "Dr. Malairau Dumitru" == "Dumitru Malairau" == "Malairau Dumitru"
-    const normDr = (n: string) => n.toLowerCase().replace('dr.', '').trim().split(/\s+/).sort().join(' ');
     const occupied = appointments
         .filter(a =>
-            normDr(a.doctorName) === normDr(apptFormData.doctorName) &&
+            a.doctorName === apptFormData.doctorName &&
             a.appointmentDate === apptFormData.appointmentDate &&
             a.status !== 2 && // excludem anulate
             (!editingAppt || a.id !== editingAppt.id) // excludem programarea curentă la editare
@@ -736,6 +736,14 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  // filteredDoctors pentru sectiunea medici
+  const filteredDoctors = doctors.filter(d => {
+    const name = `${d.firstName} ${d.lastName}`.toLowerCase();
+    const matchSearch = name.includes(doctorSearchTerm.toLowerCase());
+    const matchStatus = doctorStatusFilter === 'All' || (doctorStatusFilter === 'Active' ? !d.isDeleted : d.isDeleted);
+    return matchSearch && matchStatus;
+  });
+
   // ── Statistici ──────────────────────────────────────────────────────────────
   const statCards = [
     { label: t.adminTotalPatients, value: patients.length, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', bars: [40,55,45,70,60,80,100], icon: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>) },
@@ -864,9 +872,26 @@ const AdminDashboard: React.FC = () => {
               )}
 
               {activeSection === 'medici' && (
-                  <div className="section-content">
+                  <>
                     <div className="section-top-bar">
-                      <h2 className="section-top-title">{t.adminDoctors}</h2>
+                      <div className="filters">
+                        <input type="text" className="search-input" placeholder={t.adminSearch} value={doctorSearchTerm} onChange={e => setDoctorSearchTerm(e.target.value)} />
+                        <div className="custom-dropdown">
+                          <button className="dropdown-toggle" onClick={() => setDoctorDropdownOpen(!doctorDropdownOpen)}>
+                            {doctorStatusFilter === 'All' ? lbl('Toți medicii','Все врачи','All Doctors') : doctorStatusFilter === 'Active' ? t.adminActive : t.adminInactive}
+                            <span className="dropdown-arrow">▾</span>
+                          </button>
+                          {doctorDropdownOpen && (
+                              <div className="dropdown-menu">
+                                {(['All','Active','Inactive'] as const).map(opt => (
+                                    <div key={opt} className={`dropdown-item ${doctorStatusFilter === opt ? 'selected' : ''}`} onClick={() => { setDoctorStatusFilter(opt); setDoctorDropdownOpen(false); }}>
+                                      {opt === 'All' ? lbl('Toți medicii','Все врачи','All Doctors') : opt === 'Active' ? t.adminActive : t.adminInactive}
+                                    </div>
+                                ))}
+                              </div>
+                          )}
+                        </div>
+                      </div>
                       <button className="btn-action btn-create" onClick={() => { setEditingDoctor(null); setDoctorFormData({ firstName:'',lastName:'',specialty:0 }); setShowDoctorModal(true); }}>
                         + {lbl('Adaugă Medic','Добавить врача','Add Doctor')}
                       </button>
@@ -876,7 +901,7 @@ const AdminDashboard: React.FC = () => {
                           <table className="patients-table">
                             <thead><tr><th>{lbl('Medic','Врач','Doctor')}</th><th>{lbl('Specialitate','Специальность','Speciality')}</th><th>{t.adminStatus}</th><th>{t.adminActions}</th></tr></thead>
                             <tbody>
-                            {doctors.map(d => (
+                            {filteredDoctors.map(d => (
                                 <tr key={d.id}>
                                   <td><div className="patient-info"><div className="patient-avatar">{getAvatar(d.firstName,d.lastName)}</div><span>{d.firstName} {d.lastName}</span></div></td>
                                   <td>{translateSpecialization(SPECIALITY_MAP[d.specialty]??String(d.specialty),language)}</td>
@@ -891,7 +916,7 @@ const AdminDashboard: React.FC = () => {
                           </table>
                         </div>
                     )}
-                  </div>
+                  </>
               )}
 
               {activeSection === 'notificari' && (
