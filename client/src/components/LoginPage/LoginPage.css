@@ -31,14 +31,12 @@
     max-height: 100%;
 }
 
-/* Enable scroll for New Patient form */
 .right.scroll-enabled {
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
 }
 
-/* Show scrollbar only when scrolling - WebKit */
 .right.scroll-enabled::-webkit-scrollbar {
     width: 8px;
 }
@@ -61,7 +59,6 @@
     background: #6E97B5;
 }
 
-/* Firefox scrollbar */
 .right.scroll-enabled:hover {
     scrollbar-color: #AFC4D6 transparent;
 }
@@ -224,7 +221,6 @@
     transform: translateX(-3px);
 }
 
-/* Date of Birth Inputs */
 .date-inputs {
     display: flex;
     gap: 10px;
@@ -246,7 +242,6 @@
     box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
 }
 
-/* Remove spinner arrows from number inputs */
 .date-input::-webkit-outer-spin-button,
 .date-input::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -257,7 +252,6 @@
     -moz-appearance: textfield;
 }
 
-/* Error Message */
 .error-message {
     color: #e74c3c;
     font-size: 12px;
@@ -265,7 +259,6 @@
     display: block;
 }
 
-/* Password Input Wrapper */
 .password-input-wrapper {
     position: relative;
     display: flex;
@@ -299,7 +292,6 @@
     outline: none;
 }
 
-/* Custom Dropdown */
 .custom-dropdown {
     position: relative;
     width: 100%;
@@ -373,7 +365,6 @@
     border-bottom: 1px solid #f0f0f0;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .page {
         padding: 20px;
@@ -444,7 +435,6 @@
 }
 
 
-/* MODAL RESET PAROLA */
 .modal-overlay {
     position: fixed;
     inset: 0;

@@ -471,7 +471,6 @@
     box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
 }
 
-/* Textarea în tab recenzie */
 textarea.form-input {
     min-height: 140px;
     resize: vertical;
@@ -740,7 +739,6 @@ textarea.form-input {
     border: 2px solid #a5d6a7;
 }
 
-/* ── Rating stele recenzie ── */
 .review-rating-row {
     display: flex;
     align-items: center;

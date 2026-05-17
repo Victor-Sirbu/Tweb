@@ -47,7 +47,6 @@ const HomePage = () => {
     const navigate = useNavigate();
     const api = useApi();
 
-    // ── Medici cu fade ──
     const [medici, setMedici] = useState<MedicAPI[]>([]);
     const [medicPage, setMedicPage] = useState(0);
     const [medicFading, setMedicFading] = useState(false);
@@ -82,7 +81,6 @@ const HomePage = () => {
         medicPage * MEDICI_PER_PAGE + MEDICI_PER_PAGE
     );
 
-    // ── Reviews cu fade ──
     const [reviews, setReviews] = useState<ReviewAPI[]>([]);
     const [reviewPage, setReviewPage] = useState(0);
     const [reviewFading, setReviewFading] = useState(false);

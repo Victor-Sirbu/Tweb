@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 
@@ -17,7 +16,7 @@ export interface AuditEntry {
     date: string;
     time: string;
     ip: string;
-    timestamp: number; // ms pentru filtrare 7 zile
+    timestamp: number;
 }
 
 interface AuditContextType {
@@ -51,7 +50,7 @@ function loadEntries(): AuditEntry[] {
 function saveEntries(entries: AuditEntry[]) {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-    } catch { /* storage full */ }
+    } catch { }
 }
 
 const AuditContext = createContext<AuditContextType | undefined>(undefined);

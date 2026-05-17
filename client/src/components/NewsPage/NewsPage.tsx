@@ -6,8 +6,6 @@ import HeroSlider from "../../shared/HeroSlider/HeroSlider";
 import { useLanguage } from "../../context/LanguageContext";
 import { useApi } from "../../api/context";
 
-// ─── Tipuri API ───────────────────────────────────────────────────────────────
-
 interface NewsAPI {
     id: number;
     name: string;
@@ -15,8 +13,6 @@ interface NewsAPI {
     type: number;
     date: string;
 }
-
-// ─── Tipuri interne ───────────────────────────────────────────────────────────
 
 type NewsCategory = "ServiciuNou" | "Promotie" | "MedicNou" | "ActualizarePret";
 
@@ -27,8 +23,6 @@ interface NewsItem {
     category: NewsCategory;
     date: string;
 }
-
-// ─── Mapări ───────────────────────────────────────────────────────────────────
 
 const TYPE_MAP: Record<number, NewsCategory> = {
     0: "ServiciuNou",
@@ -49,8 +43,6 @@ const CATEGORY_LABELS: Record<string, Record<NewsCategory, string>> = {
     ru: { ServiciuNou: "Новая услуга", Promotie: "Акция",    MedicNou: "Новый врач", ActualizarePret: "Обновление цены" },
     en: { ServiciuNou: "New service",  Promotie: "Promotion", MedicNou: "New doctor", ActualizarePret: "Price update" },
 };
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 const NewsPage = () => {
     const { t, language } = useLanguage();
@@ -80,7 +72,6 @@ const NewsPage = () => {
             .finally(() => setLoading(false));
     }, []);
 
-    // Închide modalul cu Escape
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
             if (e.key === "Escape") setSelectedNews(null);

@@ -400,8 +400,27 @@
     background: white;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
-    overflow: hidden;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: auto;
+}
+
+.al-table-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.al-table-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 0 0 16px 16px;
+}
+
+.al-table-wrapper::-webkit-scrollbar-thumb {
+    background: #718096;
+    border-radius: 4px;
+}
+
+.al-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #4a5568;
 }
 
 .al-table {
@@ -727,5 +746,160 @@
     .al-modal-close {
         min-width: 44px;
         min-height: 44px;
+    }
+}
+
+@media (max-width: 480px) {
+    .al-hero {
+        padding: 100px 16px 40px;
+    }
+
+    .al-hero-title {
+        font-size: 26px;
+    }
+
+    .al-hero-badge {
+        font-size: 11px;
+        padding: 7px 14px;
+        margin-bottom: 28px;
+    }
+
+    .al-hero-description {
+        font-size: 14px;
+    }
+
+    .al-hero-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .al-stat-card {
+        padding: 16px 20px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        text-align: left;
+    }
+
+    .al-stat-number {
+        font-size: 28px;
+    }
+
+    .al-stat-label {
+        font-size: 12px;
+        margin-top: 0;
+        margin-left: 8px;
+    }
+
+    .al-main {
+        padding: 28px 16px 48px;
+    }
+
+    .al-sidebar-card {
+        padding: 18px;
+    }
+
+    .al-filter-buttons {
+        gap: 6px;
+    }
+
+    .al-filter-btn {
+        padding: 8px 10px;
+        font-size: 13px;
+        min-height: 40px;
+    }
+
+    .al-content-title {
+        font-size: 18px;
+    }
+
+    .al-content-sub {
+        font-size: 13px;
+    }
+
+    .al-search-input {
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+
+    .al-table-wrapper {
+        border-radius: 12px;
+    }
+
+    .al-details-btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .al-modal-box {
+        padding: 20px 16px;
+        border-radius: 16px;
+    }
+
+    .al-modal-title {
+        font-size: 17px;
+    }
+
+    .al-admin-list {
+        gap: 10px;
+    }
+
+    .al-admin-avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 12px;
+    }
+
+    .al-admin-name {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 360px) {
+    .al-hero {
+        padding: 96px 12px 32px;
+    }
+
+    .al-hero-title {
+        font-size: 22px;
+    }
+
+    .al-hero-badge {
+        font-size: 10px;
+        padding: 6px 12px;
+    }
+
+    .al-hero-description {
+        font-size: 13px;
+    }
+
+    .al-main {
+        padding: 20px 12px 40px;
+    }
+
+    .al-sidebar-card {
+        padding: 14px;
+    }
+
+    .al-filter-btn {
+        min-width: 90px;
+        font-size: 12px;
+    }
+
+    .al-content-title {
+        font-size: 16px;
+    }
+
+    .al-modal-box {
+        padding: 16px 12px;
+        border-radius: 14px;
+    }
+
+    .al-modal-title {
+        font-size: 15px;
+    }
+
+    .al-modal-overlay {
+        padding: 12px;
     }
 }

@@ -18,7 +18,6 @@ export function AxiosProvider({ children, baseURL }: AxiosProviderProps) {
             },
         });
 
-        // Request interceptor — ataseaza JWT-ul automat la fiecare request
         instance.interceptors.request.use(
             (config) => {
                 const token = localStorage.getItem("token");
@@ -30,7 +29,6 @@ export function AxiosProvider({ children, baseURL }: AxiosProviderProps) {
             (error) => Promise.reject(error)
         );
 
-        // Response interceptor — gestioneaza erorile globale
         instance.interceptors.response.use(
             (response) => response,
             (error) => {

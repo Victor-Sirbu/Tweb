@@ -14,7 +14,6 @@
     min-height: 95vh;
 }
 
-/* Content Section */
 .contact-content {
     padding: 80px 40px;
     background: #f8f9fa;
@@ -33,7 +32,6 @@
     text-align: center;
 }
 
-/* Contact Info Cards */
 .contact-info-section {
     margin-bottom: 80px;
 }
@@ -91,7 +89,6 @@
     margin: 4px 0;
 }
 
-/* Contact Form Section */
 .contact-form-section {
     background: white;
     padding: 48px;
@@ -167,7 +164,6 @@
     transform: translateY(0);
 }
 
-/* Map Section */
 .map-section {
     margin-bottom: 40px;
 }
@@ -182,7 +178,6 @@
     display: block;
 }
 
-/* Contact Hero Methods */
 .contact-hero-methods {
     display: flex;
     gap: 30px;
@@ -240,7 +235,6 @@
     color: rgba(255, 255, 255, 0.8);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .contact-content {
         padding: 60px 24px;

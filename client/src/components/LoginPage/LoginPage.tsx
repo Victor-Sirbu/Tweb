@@ -24,12 +24,10 @@ const LoginPage = () => {
     const [activeTab, setActiveTab] = useState<"existing" | "new">("existing");
     const [view, setView] = useState<View>("login");
 
-    // State LOGIN
     const [loginEmail, setLoginEmail] = useState("");
     const [loginPassword, setLoginPassword] = useState("");
     const [loginError, setLoginError] = useState("");
 
-    // State REGISTER
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [registerEmail, setRegisterEmail] = useState("");
@@ -44,7 +42,6 @@ const LoginPage = () => {
     const [registerError, setRegisterError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
 
-    // State RESET PAROLA
     const [resetEmail, setResetEmail] = useState("");
     const [resetNewPassword, setResetNewPassword] = useState("");
     const [resetConfirmPassword, setResetConfirmPassword] = useState("");

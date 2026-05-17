@@ -62,7 +62,6 @@ const AdminNavbar = () => {
             if (langRef.current && !langRef.current.contains(e.target as Node))
                 setLangMenuOpen(false);
 
-            // Close mobile menu when clicking outside
             if (menuOpen && menuRef.current && !menuRef.current.contains(e.target as Node)) {
                 const target = e.target as HTMLElement;
                 if (!target.closest('.admin-menu-toggle')) {
@@ -105,6 +104,22 @@ const AdminNavbar = () => {
                         <a className={isActive("/activity") ? "admin-nav-active" : ""} onClick={() => handleMenuLinkClick(() => navigate("/activity"))}>
                             {t.adminNavAudit}
                         </a>
+                    </li>
+                    <li className="admin-mobile-extras">
+                        <div className="admin-mobile-lang">
+                            {(["ro", "ru", "en"] as const).map((lang) => (
+                                <button
+                                    key={lang}
+                                    className={`admin-lang-btn ${language === lang ? "admin-lang-active" : ""}`}
+                                    onClick={() => setLanguage(lang)}
+                                >
+                                    {langLabels[lang]}
+                                </button>
+                            ))}
+                        </div>
+                        <button className="admin-mobile-logout-btn" onClick={() => handleMenuLinkClick(handleExit)}>
+                            {t.adminNavExitAdmin}
+                        </button>
                     </li>
                 </ul>
 

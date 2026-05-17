@@ -7,8 +7,6 @@ import ReactDOM from 'react-dom';
 import { useApi } from '../../api/context';
 import { useAuth } from '../../context/AuthContext';
 
-// ─── Tipuri ──────────────────────────────────────────────────────────────────
-
 type BackendStatus = 0 | 1 | 2;
 type FrontendStatus = 'pending' | 'confirmed' | 'canceled';
 
@@ -53,7 +51,6 @@ interface CustomSelectProps {
   disabled?: boolean;
 }
 
-// ─── MedicSpeciality enum ─────────────────────────────────────────────────────
 const MEDIC_SPECIALITY_LABELS: Record<number, string> = {
   0: 'Cardiologie',
   1: 'Pediatrie',
@@ -69,7 +66,6 @@ const MEDIC_SPECIALITY_LABELS: Record<number, string> = {
   11: 'Medicina Generala',
 };
 
-// Orele disponibile: 08-11 dimineața, 14-16 după-amiaza (pauză 12-14)
 const ALL_TIMES = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
 
 function mapStatus(s: BackendStatus): FrontendStatus {
@@ -78,7 +74,6 @@ function mapStatus(s: BackendStatus): FrontendStatus {
   return 'pending';
 }
 
-// ─── CustomSelect ─────────────────────────────────────────────────────────────
 const CustomSelect: React.FC<CustomSelectProps> = ({
                                                      options,
                                                      value,
@@ -201,7 +196,6 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   );
 };
 
-// ─── AppointmentsPage ─────────────────────────────────────────────────────────
 const AppointmentsPage: React.FC = () => {
   const { t } = useLanguage();
   const api = useApi();
@@ -226,11 +220,9 @@ const AppointmentsPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
-  // Orele ocupate pentru medicul și data selectată
   const [occupiedTimes, setOccupiedTimes] = useState<string[]>([]);
   const [loadingTimes, setLoadingTimes] = useState(false);
 
-  // ── Fetch medici la mount ──────────────────────────────────────────────────
   useEffect(() => {
     const fetchMedici = async () => {
       try {
@@ -245,16 +237,13 @@ const AppointmentsPage: React.FC = () => {
     void fetchMedici();
   }, [api]);
 
-  // ── Pre-completează emailul dacă userul e autentificat ────────────────────
   useEffect(() => {
     if (isAuthenticated && userEmail) {
       setFormData((prev) => ({ ...prev, email: userEmail }));
       void fetchAppointmentsByEmail(userEmail);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, userEmail]);
 
-  // ── Fetch orele ocupate când se schimbă medicul SAU data ─────────────────
   useEffect(() => {
     const fetchOccupiedTimes = async () => {
       if (!formData.doctorId || !formData.date) {
@@ -265,10 +254,8 @@ const AppointmentsPage: React.FC = () => {
       const medic = medici.find((m) => String(m.id) === formData.doctorId);
       if (!medic) return;
 
-      // FIX: fără "Dr." — format consistent cu AdminDashboard
       const doctorName = `${medic.firstName} ${medic.lastName}`;
 
-      // Comparatie flexibila: ignoram "Dr.", lowercase, sortam cuvintele
       const normDr = (n: string) => n.toLowerCase().replace('dr.', '').trim().split(/\s+/).sort().join(' ');
 
       setLoadingTimes(true);
@@ -280,13 +267,12 @@ const AppointmentsPage: React.FC = () => {
                 (a) =>
                     normDr(a.doctorName) === normDr(doctorName) &&
                     a.appointmentDate === formData.date &&
-                    a.status !== 2 // excludem programările anulate
+                    a.status !== 2
             )
             .map((a) => a.appointmentTime?.substring(0, 5) ?? '');
 
         setOccupiedTimes(occupied);
 
-        // Dacă ora deja selectată devine ocupată, o resetăm
         if (formData.time && occupied.includes(formData.time)) {
           setFormData((prev) => ({ ...prev, time: '' }));
         }
@@ -298,10 +284,8 @@ const AppointmentsPage: React.FC = () => {
     };
 
     void fetchOccupiedTimes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.doctorId, formData.date, medici]);
 
-  // ── Mapare DTO → Appointment ───────────────────────────────────────────────
   const mapDto = (dto: AppointmentInfoDto): Appointment => ({
     id: dto.id,
     patientName: dto.patientName,
@@ -325,7 +309,6 @@ const AppointmentsPage: React.FC = () => {
       );
       setAppointments(data.map(mapDto));
     } catch {
-      // erori globale gestionate în AxiosProvider
     } finally {
       setLoadingAppointments(false);
     }
@@ -342,7 +325,6 @@ const AppointmentsPage: React.FC = () => {
     void fetchAppointmentsByEmail(formData.email);
   };
 
-  // ── Selectare medic: setează automat specializarea și resetează ora ───────
   const handleDoctorChange = (doctorId: string) => {
     const medic = medici.find((m) => String(m.id) === doctorId);
     const specialization = medic
@@ -356,7 +338,6 @@ const AppointmentsPage: React.FC = () => {
     }));
   };
 
-  // ── Schimbare dată: resetează ora selectată ───────────────────────────────
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
@@ -376,14 +357,12 @@ const AppointmentsPage: React.FC = () => {
     return true;
   };
 
-  // ── POST /api/appointment/create ─────────────────────────────────────────
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     const medic = medici.find((m) => String(m.id) === formData.doctorId);
 
-    // FIX: fără "Dr." — format consistent cu AdminDashboard
     const payload = {
       patientName: formData.patientName,
       phone: formData.phone,
@@ -434,7 +413,6 @@ const AppointmentsPage: React.FC = () => {
     return d.toISOString().split('T')[0];
   };
 
-  // ── PATCH /api/appointment/{id}/status (2 = Anulat) ─────────────────────
   const handleCancelAppointment = async (id: number) => {
     if (!window.confirm(t.apptCancelConfirm)) return;
     try {
@@ -449,8 +427,6 @@ const AppointmentsPage: React.FC = () => {
     }
   };
 
-  // ── Opțiuni dropdown ─────────────────────────────────────────────────────
-  // FIX: fără "Dr." în label — afișăm doar Prenume Nume — Specialitate
   const doctorOptions = medici.map((m) => ({
     value: String(m.id),
     label: `${m.firstName} ${m.lastName} — ${MEDIC_SPECIALITY_LABELS[m.specialty] ?? ''}`,
@@ -464,7 +440,6 @@ const AppointmentsPage: React.FC = () => {
 
   const canSelectTime = !!formData.doctorId && !!formData.date;
 
-  // ─── Render ───────────────────────────────────────────────────────────────
   return (
       <>
         <div className="appointments-page">

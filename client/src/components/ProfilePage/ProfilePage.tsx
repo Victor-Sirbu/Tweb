@@ -14,8 +14,6 @@ import testPdf from "../../assets/test-result.pdf";
 import { useApi } from "../../api/context";
 import { useAuth } from "../../context/AuthContext";
 
-// Tipuri
-
 interface AppointmentAPI {
     id: number;
     patientName: string;
@@ -51,9 +49,7 @@ interface Programare {
     initials: string;
 }
 
-// Calendar
-
-const LUNI_RO = ["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
+const LUNI_RO =["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
 const LUNI_RU = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
 const LUNI_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const ZILE_RO = ["Lu","Ma","Mi","Jo","Vi","Sa","Du"];
@@ -138,18 +134,14 @@ const MiniCalendar = ({ programari, language }: { programari: Programare[], lang
     );
 };
 
-// ─── mapStatus suportă atât număr cât și string ───────────────────────────────
 const mapStatus = (status?: number | string): string => {
     if (status === undefined || status === null) return "in asteptare";
-    // numeric: 0=Asteptare, 1=Confirmat, 2=Anulat
     if (status === 0 || status === "0" || status === "asteptare" || status === "pending") return "in asteptare";
     if (status === 1 || status === "1" || status === "confirmat" || status === "confirmed") return "confirmat";
     if (status === 2 || status === "2" || status === "anulat" || status === "canceled") return "anulat";
     if (status === "completed" || status === "finalizat") return "finalizat";
     return "in asteptare";
 };
-
-// ProfilePage
 
 const ProfilePage = () => {
     const { t, language } = useLanguage();
@@ -160,13 +152,11 @@ const ProfilePage = () => {
     const api = useApi();
     const { userId } = useAuth();
 
-    // Rotatie imagini
     useEffect(() => {
         const interval = setInterval(() => setCurrentImage((prev) => (prev + 1) % images.length), 3000);
         return () => clearInterval(interval);
     }, []);
 
-    // Date pacient
     const [numeComplet, setNumeComplet] = useState("");
     const [email, setEmail] = useState("");
     const [telefon, setTelefon] = useState("");
@@ -181,14 +171,11 @@ const ProfilePage = () => {
 
     const [loadingProfile, setLoadingProfile] = useState(true);
 
-    // ── emailul pacientului obținut din API (nu din token) ────────────────────
     const patientEmailRef = useRef<string>("");
 
-    // Programări
     const [programari, setProgramari] = useState<Programare[]>([]);
     const [loadingProgramari, setLoadingProgramari] = useState(true);
 
-    // ── fetchProgramari folosește emailul din API ─────────────────────────────
     const fetchProgramari = useCallback(async (emailPacient: string) => {
         if (!emailPacient) return;
         try {
@@ -221,7 +208,6 @@ const ProfilePage = () => {
         }
     }, [api]);
 
-    // ── Fetch pacient → obține emailul → fetch programări ────────────────────
     useEffect(() => {
         if (!userId) return;
         const fetchPatient = async () => {
@@ -242,7 +228,6 @@ const ProfilePage = () => {
                 setDataNasteriiTemp(data.dateOfBirth?.split("T")[0] ?? "");
                 setSexTemp(data.sex ?? "");
 
-                // Salvăm emailul în ref și fetch-uim programările
                 patientEmailRef.current = emailPacient;
                 await fetchProgramari(emailPacient);
             } catch (err) {
@@ -254,7 +239,6 @@ const ProfilePage = () => {
         fetchPatient();
     }, [userId, api, fetchProgramari]);
 
-    // ── Refresh automat când userul revine pe pagină ──────────────────────────
     useEffect(() => {
         const handleFocus = () => {
             if (patientEmailRef.current) {
@@ -265,7 +249,6 @@ const ProfilePage = () => {
         return () => window.removeEventListener("focus", handleFocus);
     }, [fetchProgramari]);
 
-    // Analize (statice)
     const analize = [
         { id: 1, name: "Hemoleucograma completa", date: "10 Ianuarie 2026", status: "disponibil", doctor: "Dr. Tatiana Cobzac" },
         { id: 2, name: "Profil lipidic",          date: "10 Ianuarie 2026", status: "disponibil", doctor: "Dr. Vasile Munteanu" },
@@ -278,7 +261,6 @@ const ProfilePage = () => {
         return `${zi}-${luna}-${an}`;
     };
 
-    // Salvare profil
     const [showSuccessMsg, setShowSuccessMsg] = useState(false);
 
     const salveazaModificarile = async () => {
@@ -304,7 +286,6 @@ const ProfilePage = () => {
         }
     };
 
-    // ── Recenzie ──
     const [reviewRating, setReviewRating] = useState(5);
     const [reviewText, setReviewText] = useState("");
     const [reviewSending, setReviewSending] = useState(false);
@@ -372,12 +353,10 @@ const ProfilePage = () => {
         }
     };
 
-    // ── Modal anulare ─────────────────────────────────────────────────────────
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [programareDeAnulat, setProgramareDeAnulat] = useState<number | null>(null);
     const [cancelLoading, setCancelLoading] = useState(false);
 
-    // FIX: trimite PATCH la backend înainte să updateze state-ul local
     const handleConfirmCancel = async () => {
         if (programareDeAnulat === null) return;
         setCancelLoading(true);
@@ -395,7 +374,6 @@ const ProfilePage = () => {
         }
     };
 
-    // Status helpers
     const getStatusClass = (status: string) => {
         switch (status) {
             case "confirmat":    return "status-confirmed";

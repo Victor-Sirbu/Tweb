@@ -21,7 +21,6 @@ export default function NotificationsPage() {
     const [filtru, setFiltru] = useState("all");
     const [selected, setSelected] = useState<Notification | null>(null);
 
-    // Fetch la montare
     useEffect(() => {
         fetchNotifications();
     }, [fetchNotifications]);

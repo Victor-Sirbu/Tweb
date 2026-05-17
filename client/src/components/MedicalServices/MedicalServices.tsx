@@ -12,8 +12,6 @@ import { useLanguage } from "../../context/LanguageContext";
 import { useApi } from "../../api/context";
 import type { Language } from "../../context/LanguageContext";
 
-// ─── Tipuri ───────────────────────────────────────────────────────────────────
-
 interface ServiceAPI {
     id: number;
     serviceName: string;
@@ -32,16 +30,12 @@ interface Service {
     duration: string;
 }
 
-// ─── Mapări ───────────────────────────────────────────────────────────────────
-
 const CATEGORY_MAP: Record<number, string> = {
     0: "Generala",
     1: "Specialitate",
     2: "Laborator",
     3: "Imagistica",
 };
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 const MedicalServices = () => {
     const { t, language } = useLanguage();

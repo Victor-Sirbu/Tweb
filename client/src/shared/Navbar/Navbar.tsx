@@ -14,7 +14,7 @@ const Navbar = () => {
     const [langMenuOpen, setLangMenuOpen] = useState<boolean>(false);
     const profileRef = useRef<HTMLDivElement>(null);
     const langRef = useRef<HTMLDivElement>(null);
-    const menuRef = useRef<HTMLUListElement>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -68,7 +68,6 @@ const Navbar = () => {
             if (langRef.current && !langRef.current.contains(e.target as Node))
                 setLangMenuOpen(false);
 
-            // Close mobile menu when clicking outside
             if (menuOpen && menuRef.current && !menuRef.current.contains(e.target as Node)) {
                 const target = e.target as HTMLElement;
                 if (!target.closest('.menu-toggle')) {
@@ -111,23 +110,25 @@ const Navbar = () => {
                     </div>
                 </div>
 
-                <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
-                    ☰
+                <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
+                    <span className="hamburger-line"></span>
+                    <span className="hamburger-line"></span>
+                    <span className="hamburger-line"></span>
                 </button>
 
-                <ul ref={menuRef} className={`navbar-menu ${menuOpen ? "active" : ""} ${menuClosing ? "closing" : ""}`}>
-                    <li><Link to="/" onClick={() => handleMenuLinkClick(() => navigate("/"))}>{t.home}</Link></li>
-                    <li><Link to="/services" onClick={() => handleMenuLinkClick(() => navigate("/services"))}>{t.services}</Link></li>
-                    <li><a onClick={() => handleMenuLinkClick(() => scrollToSection("echipa"))} style={{ cursor: "pointer" }}>{t.doctors}</a></li>
-                    <li><a onClick={() => handleMenuLinkClick(() => scrollToSection("testimoniale"))} style={{ cursor: "pointer" }}>{t.reviews}</a></li>
-                    <li><Link to="/news" onClick={() => handleMenuLinkClick(() => navigate("/news"))}>{t.navNews}</Link></li>
-                    <li><Link to="/help" onClick={() => handleMenuLinkClick(() => navigate("/help"))}>{t.navHelp}</Link></li>
-                    <li><Link to="/contact" onClick={() => handleMenuLinkClick(() => navigate("/contact"))}>{t.contact}</Link></li>
+                {/* Desktop menu - only navigation links */}
+                <ul className="navbar-menu-desktop">
+                    <li><Link to="/">{t.home}</Link></li>
+                    <li><Link to="/services">{t.services}</Link></li>
+                    <li><a onClick={() => scrollToSection("echipa")} style={{ cursor: "pointer" }}>{t.doctors}</a></li>
+                    <li><a onClick={() => scrollToSection("testimoniale")} style={{ cursor: "pointer" }}>{t.reviews}</a></li>
+                    <li><Link to="/news">{t.navNews}</Link></li>
+                    <li><Link to="/help">{t.navHelp}</Link></li>
+                    <li><Link to="/contact">{t.contact}</Link></li>
                 </ul>
 
+                {/* Desktop actions */}
                 <div className="navbar-actions">
-
-
                     <div className="lang-selector" ref={langRef}>
                         <button className="lang-btn" onClick={() => setLangMenuOpen(!langMenuOpen)}>
                             {langLabels[language]} <span className="lang-arrow">▾</span>
@@ -147,7 +148,6 @@ const Navbar = () => {
                         )}
                     </div>
 
-                    {/* Notification bell */}
                     {isAuthenticated && (
                         <button
                             className="notification-bell-btn"
@@ -161,7 +161,6 @@ const Navbar = () => {
                         </button>
                     )}
 
-                    {/* Auth section */}
                     {isAuthenticated ? (
                         <div className="profile-wrapper" ref={profileRef}>
                             <button
@@ -198,6 +197,150 @@ const Navbar = () => {
                             {t.signIn}
                         </button>
                     )}
+                </div>
+
+                {/* Mobile overlay menu */}
+                {menuOpen && <div className="mobile-menu-overlay" onClick={closeMenu}></div>}
+
+                <div ref={menuRef} className={`mobile-menu ${menuOpen ? "mobile-menu--open" : ""} ${menuClosing ? "mobile-menu--closing" : ""}`}>
+                    <div className="mobile-menu-header">
+                        <div className="mobile-menu-logo">
+                            <span className="logo-title">MediCare</span>
+                            <span className="logo-subtitle">Cabinet Medical</span>
+                        </div>
+                        <button className="mobile-menu-close" onClick={closeMenu} aria-label="Close menu">×</button>
+                    </div>
+
+                    {/* Mobile menu user section */}
+                    {isAuthenticated && (
+                        <div className="mobile-menu-user">
+                            <div className="mobile-user-avatar">
+                                {user?.photo ? (
+                                    <img src={user.photo} alt="avatar" />
+                                ) : (
+                                    <div className="avatar-initials-mobile">
+                                        {user?.name?.charAt(0).toUpperCase() ?? "U"}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="mobile-user-info">
+                                <strong>{user?.name}</strong>
+                                <span>{user?.email}</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Mobile menu navigation */}
+                    <nav className="mobile-menu-nav">
+                        <Link to="/" onClick={() => handleMenuLinkClick(() => navigate("/"))}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            </svg>
+                            {t.home}
+                        </Link>
+                        <Link to="/services" onClick={() => handleMenuLinkClick(() => navigate("/services"))}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                            </svg>
+                            {t.services}
+                        </Link>
+                        <a onClick={() => handleMenuLinkClick(() => scrollToSection("echipa"))}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            {t.doctors}
+                        </a>
+                        <a onClick={() => handleMenuLinkClick(() => scrollToSection("testimoniale"))}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            {t.reviews}
+                        </a>
+                        <Link to="/news" onClick={() => handleMenuLinkClick(() => navigate("/news"))}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            </svg>
+                            {t.navNews}
+                        </Link>
+                        <Link to="/help" onClick={() => handleMenuLinkClick(() => navigate("/help"))}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            {t.navHelp}
+                        </Link>
+                        <Link to="/contact" onClick={() => handleMenuLinkClick(() => navigate("/contact"))}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            {t.contact}
+                        </Link>
+
+                        {isAuthenticated && (
+                            <>
+                                <div className="mobile-menu-divider"></div>
+                                <Link to="/profile" onClick={() => handleMenuLinkClick(() => navigate("/profile"))}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                    {t.profile}
+                                </Link>
+                                <Link to="/notifications" onClick={() => handleMenuLinkClick(() => navigate("/notifications"))}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                    </svg>
+                                    {t.notifTitle}
+                                    {unreadCount > 0 && <span className="mobile-notif-badge">{unreadCount}</span>}
+                                </Link>
+                            </>
+                        )}
+                    </nav>
+
+                    {/* Mobile menu footer */}
+                    <div className="mobile-menu-footer">
+                        <div className="mobile-lang-selector">
+                            <span className="mobile-lang-label">{t.adminLanguage}:</span>
+                            <div className="mobile-lang-buttons">
+                                {(["ro", "ru", "en"] as const).map((lang) => (
+                                    <button
+                                        key={lang}
+                                        className={`mobile-lang-btn ${language === lang ? "mobile-lang-btn--active" : ""}`}
+                                        onClick={() => setLanguage(lang)}
+                                    >
+                                        {langLabels[lang]}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {isAuthenticated ? (
+                            <button className="mobile-logout-btn" onClick={() => handleMenuLinkClick(handleLogout)}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                {t.signOut}
+                            </button>
+                        ) : (
+                            <button className="mobile-login-btn" onClick={() => handleMenuLinkClick(() => navigate("/login"))}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                    <polyline points="10 17 15 12 10 7"></polyline>
+                                    <line x1="15" y1="12" x2="3" y2="12"></line>
+                                </svg>
+                                {t.signIn}
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         </nav>

@@ -9,8 +9,6 @@ import { useApi } from '../../api/context';
 import { useAuth } from '../../context/AuthContext';
 import { useAudit } from '../../context/AuditContext';
 
-// ─── Tipuri API ────────────────────────────────────────────────────────────────
-
 interface PatientAPI {
   id: number;
   firstName: string;
@@ -62,15 +60,12 @@ interface ServiceAPI {
   isDeleted: boolean;
 }
 
-// ─── Mapări constante ──────────────────────────────────────────────────────────
-
 const SPECIALITY_MAP: Record<number, string> = {
   0: 'Cardiologie', 1: 'Pediatrie', 2: 'Neurologie', 3: 'Dermatologie',
   4: 'Oftalmologie', 5: 'Stomatologie', 6: 'Chirurgie', 7: 'Ortopedie',
   8: 'Ginecologie', 9: 'Urologie', 10: 'Psihiatrie', 11: 'Medicina Generala',
 };
 
-// Orele fixe disponibile (08-11 dimineata, 14-16 dupa-amiaza)
 const ALL_TIMES = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
 
 type NewsType = 'ServiciuNou' | 'Promotie' | 'MedicNou' | 'ActualizarePret';
@@ -85,8 +80,6 @@ const NEWS_TYPE_LABELS: Record<NewsType, { ro: string; ru: string; en: string }>
   MedicNou:        { ro: 'Medic nou',        ru: 'Новый врач',      en: 'New doctor'    },
   ActualizarePret: { ro: 'Actualizare preț', ru: 'Обновление цены', en: 'Price update'  },
 };
-
-// ─── Componenta PatientPicker ──────────────────────────────────────────────────
 
 interface PatientPickerProps {
   filtered: PatientAPI[];
@@ -154,8 +147,6 @@ const PatientPicker: React.FC<PatientPickerProps> = ({
       </div>
   );
 };
-
-// ─── Custom Select reutilizabil ────────────────────────────────────────────────
 
 interface SelectOption { value: string; label: string; disabled?: boolean; }
 
@@ -270,7 +261,6 @@ const AdminDashboard: React.FC = () => {
 
   const [activeSection, setActiveSection] = useState<Section>('statistici');
 
-  // ── Pacienți ────────────────────────────────────────────────────────────────
   const [patients, setPatients] = useState<PatientAPI[]>([]);
   const [loadingPatients, setLoadingPatients] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -326,7 +316,6 @@ const AdminDashboard: React.FC = () => {
     const patient = patients.find(p => p.id === id);
     try {
       await api.delete(`/api/patients/${id}`);
-      // Rămâne în listă ca Inactive (nu se șterge din state)
       setPatients(prev => prev.map(p => p.id === id ? { ...p, isDeleted: true } : p));
       log('Ștergere pacient', 'delete', `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`, 'patient', `Pacientul a fost marcat ca șters.`);
     } catch {
@@ -334,7 +323,6 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // ── Medici ──────────────────────────────────────────────────────────────────
   const [doctors, setDoctors] = useState<DoctorAPI[]>([]);
   const [loadingDoctors, setLoadingDoctors] = useState(false);
   const [showDoctorModal, setShowDoctorModal] = useState(false);
@@ -391,7 +379,6 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // ── Programări ──────────────────────────────────────────────────────────────
   const [appointments, setAppointments] = useState<AppointmentAPI[]>([]);
   const [loadingAppts, setLoadingAppts] = useState(false);
   const [showApptModal, setShowApptModal] = useState(false);
@@ -399,7 +386,6 @@ const AdminDashboard: React.FC = () => {
   const [apptFormData, setApptFormData] = useState({ patientName: '', phone: '', email: '', doctorName: '', serviceName: '', reasonForVisit: '', appointmentTime: '', appointmentDate: '', status: 0 });
   const [apptSpecialityFilter, setApptSpecialityFilter] = useState<number | ''>('');
 
-  // ── Ore ocupate pentru modal programare ──────────────────────────────────
   const [occupiedTimes, setOccupiedTimes] = useState<string[]>([]);
   const [loadingTimes, setLoadingTimes] = useState(false);
 
@@ -419,7 +405,6 @@ const AdminDashboard: React.FC = () => {
     if (activeSection === 'programari' || activeSection === 'statistici') void fetchAppointments();
   }, [activeSection, fetchAppointments]);
 
-  // Calculează orele ocupate când se schimbă medicul sau data în modal
   useEffect(() => {
     if (!apptFormData.doctorName || !apptFormData.appointmentDate) {
       setOccupiedTimes([]);
@@ -430,17 +415,15 @@ const AdminDashboard: React.FC = () => {
         .filter(a =>
             a.doctorName === apptFormData.doctorName &&
             a.appointmentDate === apptFormData.appointmentDate &&
-            a.status !== 2 && // excludem anulate
-            (!editingAppt || a.id !== editingAppt.id) // excludem programarea curentă la editare
+            a.status !== 2 &&
+            (!editingAppt || a.id !== editingAppt.id)
         )
         .map(a => a.appointmentTime?.substring(0, 5) ?? '');
     setOccupiedTimes(occupied);
-    // Dacă ora selectată devine ocupată, o resetăm
     if (apptFormData.appointmentTime && occupied.includes(apptFormData.appointmentTime)) {
       setApptFormData(prev => ({ ...prev, appointmentTime: '' }));
     }
     setLoadingTimes(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apptFormData.doctorName, apptFormData.appointmentDate, appointments, editingAppt]);
 
   const handleSaveAppt = async (e: React.FormEvent) => {
@@ -483,7 +466,6 @@ const AdminDashboard: React.FC = () => {
     return lbl('Anulat', 'Отменён', 'Cancelled');
   };
 
-  // Opțiuni ore cu marcaj ocupat
   const canSelectTime = !!apptFormData.doctorName && !!apptFormData.appointmentDate;
   const timeOptions: SelectOption[] = ALL_TIMES.map(time => ({
     value: time,
@@ -491,7 +473,6 @@ const AdminDashboard: React.FC = () => {
     disabled: occupiedTimes.includes(time),
   }));
 
-  // ── Recenzii ────────────────────────────────────────────────────────────────
   const [reviews, setReviews] = useState<ReviewAPI[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -541,7 +522,6 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // ── Servicii ────────────────────────────────────────────────────────────────
   const [services, setServices] = useState<ServiceAPI[]>([]);
   const [loadingServices, setLoadingServices] = useState(false);
   const [showServiceModal, setShowServiceModal] = useState(false);
@@ -588,7 +568,6 @@ const AdminDashboard: React.FC = () => {
     const service = services.find(s => s.id === id);
     try {
       await api.delete(`/api/service/${id}`);
-      // Rămâne în listă ca Inactive (nu se șterge din state)
       setServices(prev => prev.map(s => s.id === id ? { ...s, isDeleted: true } : s));
       log('Ștergere serviciu', 'delete', service?.serviceName ?? '', 'service', `Serviciul medical a fost șters.`);
     } catch {
@@ -596,7 +575,6 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // ── Notificări ──────────────────────────────────────────────────────────────
   const [notifPatients, setNotifPatients] = useState<PatientAPI[]>([]);
   const [selectedPatientIds, setSelectedPatientIds] = useState<number[]>([]);
   const [notifPatientSearch, setNotifPatientSearch] = useState('');
@@ -672,7 +650,6 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // ── Noutăți ─────────────────────────────────────────────────────────────────
   const [newsPatients, setNewsPatients] = useState<PatientAPI[]>([]);
   const [newsSelectedIds, setNewsSelectedIds] = useState<number[]>([]);
   const [newsPatientSearch, setNewsPatientSearch] = useState('');
@@ -736,7 +713,6 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // filteredDoctors pentru sectiunea medici
   const filteredDoctors = doctors.filter(d => {
     const name = `${d.firstName} ${d.lastName}`.toLowerCase();
     const matchSearch = name.includes(doctorSearchTerm.toLowerCase());
@@ -744,7 +720,6 @@ const AdminDashboard: React.FC = () => {
     return matchSearch && matchStatus;
   });
 
-  // ── Statistici ──────────────────────────────────────────────────────────────
   const statCards = [
     { label: t.adminTotalPatients, value: patients.length, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', bars: [40,55,45,70,60,80,100], icon: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>) },
     { label: t.adminActivePatients, value: patients.filter(p => !p.isDeleted).length, color: '#10b981', bg: 'rgba(16,185,129,0.1)', bars: [50,65,55,75,90,80,100], icon: (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>) },

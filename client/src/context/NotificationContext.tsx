@@ -92,7 +92,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     const unreadCount = notifications.filter((n) => !n.read).length;
 
     const fetchNotifications = useCallback(async () => {
-        // Adminul nu are notificări personale
         if (!userId || isAdmin) return;
         setLoading(true);
         try {
@@ -110,7 +109,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         }
     }, [userId, isAdmin, currentLang, api]);
 
-    // Fetch la mount + polling la 30 secunde
     useEffect(() => {
         void fetchNotifications();
         const interval = setInterval(() => void fetchNotifications(), 30000);
@@ -169,7 +167,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useNotifications() {
     const context = useContext(NotificationContext);
     if (!context) throw new Error("useNotifications must be used within NotificationProvider");

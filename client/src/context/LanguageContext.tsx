@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 export type Language = "ro" | "ru" | "en";
 
 export interface Translations {
-    // Navbar
     home: string;
     services: string;
     doctors: string;
@@ -16,7 +15,6 @@ export interface Translations {
     appointment: string;
     profile: string;
 
-    // Login Page
     existingPatient: string;
     newPatient: string;
     loginTitle: string;
@@ -39,7 +37,6 @@ export interface Translations {
     month: string;
     year: string;
 
-    // HomePage — Hero
     heroBadge: string;
     heroTitle1: string;
     heroTitle2: string;
@@ -50,14 +47,12 @@ export interface Translations {
     statDoctors: string;
     statYears: string;
 
-    // HomePage — Schedule
     scheduleTitle: string;
     schedMonFri: string;
     schedSat: string;
     schedSun: string;
     closed: string;
 
-    // HomePage — Features
     featuresLabel: string;
     featuresTitle: string;
     featuresSubtitle: string;
@@ -70,14 +65,12 @@ export interface Translations {
     feat4Title: string;
     feat4Desc: string;
 
-    // HomePage — Team
     teamBadge: string;
     teamTitle: string;
     teamSubtitle: string;
     bookConsultation: string;
     yearsExp: string;
 
-    // HomePage — Doctor specialties / experience
     specInterna: string;
     specCardio: string;
     specPediatrie: string;
@@ -87,7 +80,6 @@ export interface Translations {
     exp10: string;
     exp18: string;
 
-    // HomePage — How it works
     howBadge: string;
     howTitle: string;
     howSubtitle: string;
@@ -98,19 +90,16 @@ export interface Translations {
     step3Title: string;
     step3Desc: string;
 
-    // HomePage — Testimonials
     testiBadge: string;
     testiTitle: string;
     testiSubtitle: string;
     verifiedPatient: string;
 
-    // Testimonial texts
     testi1: string;
     testi2: string;
     testi3: string;
     testi4: string;
 
-    // HomePage — CTA
     ctaTitle: string;
     ctaDesc: string;
     ctaBook: string;
@@ -118,7 +107,6 @@ export interface Translations {
     ctaSatisfaction: string;
     ctaOnline: string;
 
-    // Footer
     footerDescription: string;
     footerQuickLinks: string;
     footerSchedule: string;
@@ -134,7 +122,6 @@ export interface Translations {
     footerProgram: string;
     footerProgramVal: string;
 
-    // MedicalServices Page
     msHeroBadge: string;
     msHeroTitle1: string;
     msHeroTitle2: string;
@@ -154,14 +141,12 @@ export interface Translations {
     msPrice: string;
     msDuration: string;
     msBookBtn: string;
-    // Service categories
     msCatAll: string;
     msCatGeneral: string;
     msCatSpec: string;
     msCatLab: string;
     msCatImaging: string;
 
-    // ContactPage
     contactTitle: string;
     contactSubtitle: string;
     contactInfoTitle: string;
@@ -179,7 +164,6 @@ export interface Translations {
     contactScheduleVal: string;
     contactScheduleSat: string;
 
-    // ProfilePage
     profMyAccount: string;
     profWelcome: string;
     profSubtitle: string;
@@ -226,17 +210,14 @@ export interface Translations {
     profHour: string;
     profCalLegend: string;
 
-    // Navbar extra
     navHelp: string;
     navNews: string;
 
-    // MedicalServices categories (multilingual aliases)
     msCatGeneralaAlias: string;
     msCatSpecAlias: string;
     msCatLabAlias: string;
     msCatImagAlias: string;
 
-    // HelpPage
     helpTitle: string;
     helpSubtitle: string;
     helpGuideTitle: string;
@@ -245,7 +226,6 @@ export interface Translations {
     helpEmpty: string;
     helpContactText: string;
 
-    // NotificationsPage
     notifTitle: string;
     notifTotal: string;
     notifUnread: string;
@@ -259,7 +239,6 @@ export interface Translations {
     notifDelete: string;
     notifClose: string;
 
-    // NewsPage
     newsTitle: string;
     newsSubtitle: string;
     newsViewDetails: string;
@@ -267,7 +246,6 @@ export interface Translations {
     newsAll: string;
     newsClose: string;
 
-    // AppointmentsPage
     apptTitle: string;
     apptFormTitle: string;
     apptPatientName: string;
@@ -295,7 +273,6 @@ export interface Translations {
     apptSpecOrl: string;
     apptSpecOftalmologie: string;
 
-    // AdminDashboard
     adminStats: string;
     adminAppts: string;
     adminPatients: string;
@@ -324,13 +301,11 @@ export interface Translations {
     adminTheme: string;
     adminSave: string;
 
-    // AdminNavbar
     adminNavDashboard: string;
     adminNavAudit: string;
     adminNavExitAdmin: string;
     adminNavPanel: string;
 
-    // AdminDashboard extra buttons/labels
     adminView: string;
     adminEdit: string;
     adminDelete: string;
@@ -347,7 +322,6 @@ export interface Translations {
     adminSpecMedGen: string;
     adminSpecOrtoped: string;
 
-    // ActivityLog target types
     auditTargetPatient: string;
     auditTargetAppointment: string;
     auditTargetRecord: string;
@@ -461,7 +435,6 @@ const translations: Record<Language, Translations> = {
         ctaSatisfaction: "Satisfacție Pacienți",
         ctaOnline: "Programare Online",
 
-        // Footer
         footerDescription: "Cabinet medical modern cu servicii complete de diagnostic și tratament. Echipă de medici specialiști dedicați sănătății tale.",
         footerQuickLinks: "Link-uri Rapide",
         footerSchedule: "Program",
@@ -477,7 +450,6 @@ const translations: Record<Language, Translations> = {
         footerProgram: "Program:",
         footerProgramVal: "Luni-Vineri: 08:00-20:00",
 
-        // MedicalServices Page
         msHeroBadge: "Servicii Medicale",
         msHeroTitle1: "Servicii Medicale",
         msHeroTitle2: "de Înaltă Calitate",
@@ -503,7 +475,6 @@ const translations: Record<Language, Translations> = {
         msCatLab: "Laborator",
         msCatImaging: "Imagistica",
 
-        // ContactPage
         contactTitle: "Contact & Suport",
         contactSubtitle: "Suntem aici pentru a vă ajuta. Contactați-ne pentru programări, întrebări sau feedback.",
         contactInfoTitle: "Informații de Contact",
@@ -521,7 +492,6 @@ const translations: Record<Language, Translations> = {
         contactScheduleVal: "Luni - Vineri: 08:00 - 20:00",
         contactScheduleSat: "Sâmbătă: 09:00 - 14:00",
 
-        // ProfilePage
         profMyAccount: "Contul Meu",
         profWelcome: "Bine ai revenit",
         profSubtitle: "Gestionează programările, analizele și datele tale. Vizualizează istoricul consultațiilor și actualizează datele personale în timp real.",
@@ -568,7 +538,6 @@ const translations: Record<Language, Translations> = {
         profHour: "Ora",
         profCalLegend: "Programare",
 
-        // Navbar extra
         navHelp: "Ajutor",
         navNews: "Noutăți",
 
@@ -795,7 +764,6 @@ const translations: Record<Language, Translations> = {
         ctaSatisfaction: "Удовлетворённость пациентов",
         ctaOnline: "Онлайн-запись",
 
-        // Footer
         footerDescription: "Современный медицинский кабинет с полным спектром диагностики и лечения. Команда врачей, посвящённых вашему здоровью.",
         footerQuickLinks: "Быстрые ссылки",
         footerSchedule: "Расписание",
@@ -811,7 +779,6 @@ const translations: Record<Language, Translations> = {
         footerProgram: "Расписание:",
         footerProgramVal: "Пн-Пт: 08:00-20:00",
 
-        // MedicalServices Page
         msHeroBadge: "Медицинские услуги",
         msHeroTitle1: "Медицинские услуги",
         msHeroTitle2: "высокого качества",
@@ -837,7 +804,6 @@ const translations: Record<Language, Translations> = {
         msCatLab: "Лаборатория",
         msCatImaging: "Визуализация",
 
-        // ContactPage
         contactTitle: "Контакты и поддержка",
         contactSubtitle: "Мы здесь, чтобы помочь вам. Свяжитесь с нами для записи, вопросов или обратной связи.",
         contactInfoTitle: "Контактная информация",
@@ -855,7 +821,6 @@ const translations: Record<Language, Translations> = {
         contactScheduleVal: "Пн - Пт: 08:00 - 20:00",
         contactScheduleSat: "Суббота: 09:00 - 14:00",
 
-        // ProfilePage
         profMyAccount: "Мой аккаунт",
         profWelcome: "Добро пожаловать",
         profSubtitle: "Управляйте записями, анализами и личными данными. Просматривайте историю консультаций и обновляйте данные в реальном времени.",
@@ -1128,7 +1093,6 @@ const translations: Record<Language, Translations> = {
         ctaSatisfaction: "Patient Satisfaction",
         ctaOnline: "Online Booking",
 
-        // Footer
         footerDescription: "Modern medical clinic with complete diagnostic and treatment services. A team of specialist doctors dedicated to your health.",
         footerQuickLinks: "Quick Links",
         footerSchedule: "Schedule",
@@ -1144,7 +1108,6 @@ const translations: Record<Language, Translations> = {
         footerProgram: "Schedule:",
         footerProgramVal: "Mon-Fri: 08:00-20:00",
 
-        // MedicalServices Page
         msHeroBadge: "Medical Services",
         msHeroTitle1: "Medical Services",
         msHeroTitle2: "of High Quality",
@@ -1170,7 +1133,6 @@ const translations: Record<Language, Translations> = {
         msCatLab: "Laboratory",
         msCatImaging: "Imaging",
 
-        // ContactPage
         contactTitle: "Contact & Support",
         contactSubtitle: "We are here to help you. Contact us for appointments, questions or feedback.",
         contactInfoTitle: "Contact Information",
@@ -1188,7 +1150,6 @@ const translations: Record<Language, Translations> = {
         contactScheduleVal: "Monday - Friday: 08:00 - 20:00",
         contactScheduleSat: "Saturday: 09:00 - 14:00",
 
-        // ProfilePage
         profMyAccount: "My Account",
         profWelcome: "Welcome back",
         profSubtitle: "Manage your appointments, test results, and personal data. View consultation history and update personal details in real time.",
@@ -1389,7 +1350,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useLanguage() {
     const context = useContext(LanguageContext);
     if (!context) throw new Error("useLanguage must be used within LanguageProvider");
