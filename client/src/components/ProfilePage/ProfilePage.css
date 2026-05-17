@@ -757,3 +757,114 @@ textarea.form-input {
     transition: color 0.2s ease;
     line-height: 1;
 }
+
+@media (max-width: 768px) {
+    .profile-hero {
+        min-height: auto;
+        padding: 120px 24px 48px;
+    }
+
+    .profile-hero-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 28px;
+    }
+
+    .profile-hero-title {
+        font-size: 34px;
+    }
+
+    .profile-hero-subtitle {
+        font-size: 16px;
+    }
+
+    .profile-hero-right,
+    .mini-calendar {
+        width: 100%;
+    }
+
+    .mini-calendar {
+        padding: 20px;
+    }
+
+    .profile-main {
+        padding: 32px 24px 48px;
+    }
+
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-sidebar {
+        position: static;
+    }
+
+    .sidebar-card,
+    .tab-content {
+        padding: 24px;
+    }
+
+    .tabs-container {
+        flex-wrap: wrap;
+    }
+
+    .tabs-container .tab-btn {
+        flex: 1 1 calc(50% - 8px);
+        min-height: 44px;
+        padding: 12px 14px;
+    }
+
+    .content-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+    }
+
+    .content-header .navbar-btn,
+    .analiza-right .navbar-btn,
+    .outline-btn {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    .appointment-card,
+    .analiza-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .appointment-left,
+    .hero-appointment-details,
+    .hero-appointment-doctor {
+        align-items: flex-start;
+    }
+
+    .appointment-center,
+    .appointment-right,
+    .analiza-right,
+    .hero-appointment-time {
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-card.full-width {
+        grid-column: auto;
+    }
+
+    .toggle-label {
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .modal-box {
+        padding: 28px 24px;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+    }
+}

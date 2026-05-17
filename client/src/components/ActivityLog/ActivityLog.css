@@ -645,16 +645,45 @@
         display: block;
     }
 
+    .al-hero {
+        min-height: auto;
+        padding: 110px 24px 48px;
+    }
+
+    .al-hero-container {
+        gap: 32px;
+    }
+
     .al-hero-title {
-        font-size: 50px;
-        font-weight: 800;
-        margin-bottom: 24px;
-        line-height: 1.2;
-        color: white;
+        font-size: 34px;
+    }
+
+    .al-hero-badge {
+        font-size: 12px;
+        padding: 8px 16px;
+    }
+
+    .al-hero-description {
+        font-size: 15px;
     }
 
     .al-hero-stats {
-        grid-template-columns: repeat(2, 1fr);
+        width: 100%;
+        min-width: 0;
+        grid-template-columns: 1fr;
+    }
+
+    .al-stat-card {
+        padding: 20px;
+    }
+
+    .al-main {
+        padding: 40px 24px 56px;
+    }
+
+    .al-sidebar-card,
+    .al-table-wrapper {
+        border-radius: 14px;
     }
 
     .al-content-header {
@@ -662,8 +691,41 @@
         align-items: flex-start;
     }
 
+    .al-content-title {
+        font-size: 20px;
+    }
+
     .al-search-input {
         width: 100%;
         min-width: unset;
+        min-height: 44px;
+    }
+
+    .al-filter-btn,
+    .al-details-btn {
+        min-height: 44px;
+    }
+
+    .al-modal-box {
+        padding: 28px 24px;
+        max-width: calc(100% - 40px);
+    }
+
+    .al-modal-title {
+        font-size: 18px;
+    }
+
+    .al-modal-row {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .al-modal-label {
+        min-width: 0;
+    }
+
+    .al-modal-close {
+        min-width: 44px;
+        min-height: 44px;
     }
 }

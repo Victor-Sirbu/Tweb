@@ -6,17 +6,36 @@ import { useState, useEffect, useRef } from "react";
 
 const AdminNavbar = () => {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
+    const [menuClosing, setMenuClosing] = useState<boolean>(false);
     const [visible, setVisible] = useState<boolean>(true);
     const [lastScroll, setLastScroll] = useState<number>(0);
     const navigate = useNavigate();
     const [langMenuOpen, setLangMenuOpen] = useState<boolean>(false);
     const langRef = useRef<HTMLDivElement>(null);
+    const menuRef = useRef<HTMLUListElement>(null);
     const langLabels = { ro: "RO", ru: "RU", en: "EN" };
     const location = useLocation();
     const { t, language, setLanguage } = useLanguage();
     const { logout } = useAuth();
 
     const isActive = (path: string) => location.pathname === path;
+
+    const closeMenu = () => {
+        setMenuClosing(true);
+        setTimeout(() => {
+            setMenuOpen(false);
+            setMenuClosing(false);
+        }, 300);
+    };
+
+    const handleMenuLinkClick = (callback: () => void) => {
+        if (menuOpen) {
+            closeMenu();
+            setTimeout(callback, 300);
+        } else {
+            callback();
+        }
+    };
 
     const handleExit = () => {
         logout();
@@ -39,13 +58,25 @@ const AdminNavbar = () => {
     }, [lastScroll]);
 
     useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
+        const handleClickOutside = (e: MouseEvent | TouchEvent) => {
             if (langRef.current && !langRef.current.contains(e.target as Node))
                 setLangMenuOpen(false);
+
+            // Close mobile menu when clicking outside
+            if (menuOpen && menuRef.current && !menuRef.current.contains(e.target as Node)) {
+                const target = e.target as HTMLElement;
+                if (!target.closest('.admin-menu-toggle')) {
+                    closeMenu();
+                }
+            }
         };
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+        document.addEventListener("touchstart", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("touchstart", handleClickOutside);
+        };
+    }, [menuOpen, closeMenu]);
 
     return (
         <nav className="admin-navbar" style={{
@@ -64,14 +95,14 @@ const AdminNavbar = () => {
                     ☰
                 </button>
 
-                <ul className={`admin-navbar-menu ${menuOpen ? 'active' : ''}`}>
+                <ul ref={menuRef} className={`admin-navbar-menu ${menuOpen ? 'active' : ''} ${menuClosing ? 'closing' : ''}`}>
                     <li>
-                        <a className={isActive("/admin") ? "admin-nav-active" : ""} onClick={() => navigate("/admin")}>
+                        <a className={isActive("/admin") ? "admin-nav-active" : ""} onClick={() => handleMenuLinkClick(() => navigate("/admin"))}>
                             {t.adminNavDashboard}
                         </a>
                     </li>
                     <li>
-                        <a className={isActive("/activity") ? "admin-nav-active" : ""} onClick={() => navigate("/activity")}>
+                        <a className={isActive("/activity") ? "admin-nav-active" : ""} onClick={() => handleMenuLinkClick(() => navigate("/activity"))}>
                             {t.adminNavAudit}
                         </a>
                     </li>

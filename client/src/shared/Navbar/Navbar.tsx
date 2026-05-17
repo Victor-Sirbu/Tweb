@@ -7,12 +7,14 @@ import { useNotifications } from "../../context/NotificationContext";
 
 const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
+    const [menuClosing, setMenuClosing] = useState<boolean>(false);
     const [visible, setVisible] = useState<boolean>(true);
     const [lastScroll, setLastScroll] = useState<number>(0);
     const [profileMenuOpen, setProfileMenuOpen] = useState<boolean>(false);
     const [langMenuOpen, setLangMenuOpen] = useState<boolean>(false);
     const profileRef = useRef<HTMLDivElement>(null);
     const langRef = useRef<HTMLDivElement>(null);
+    const menuRef = useRef<HTMLUListElement>(null);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -21,6 +23,23 @@ const Navbar = () => {
     const { unreadCount } = useNotifications();
 
     const langLabels = { ro: "RO", ru: "RU", en: "EN" };
+
+    const closeMenu = () => {
+        setMenuClosing(true);
+        setTimeout(() => {
+            setMenuOpen(false);
+            setMenuClosing(false);
+        }, 300);
+    };
+
+    const handleMenuLinkClick = (callback: () => void) => {
+        if (menuOpen) {
+            closeMenu();
+            setTimeout(callback, 300);
+        } else {
+            callback();
+        }
+    };
 
     useEffect(() => {
         if (location.hash) {
@@ -43,15 +62,27 @@ const Navbar = () => {
 
 
     useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
+        const handleClickOutside = (e: MouseEvent | TouchEvent) => {
             if (profileRef.current && !profileRef.current.contains(e.target as Node))
                 setProfileMenuOpen(false);
             if (langRef.current && !langRef.current.contains(e.target as Node))
                 setLangMenuOpen(false);
+
+            // Close mobile menu when clicking outside
+            if (menuOpen && menuRef.current && !menuRef.current.contains(e.target as Node)) {
+                const target = e.target as HTMLElement;
+                if (!target.closest('.menu-toggle')) {
+                    closeMenu();
+                }
+            }
         };
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+        document.addEventListener("touchstart", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("touchstart", handleClickOutside);
+        };
+    }, [menuOpen, closeMenu]);
 
     const scrollToSection = (id: string) => {
         if (location.pathname === "/") {
@@ -84,14 +115,14 @@ const Navbar = () => {
                     ☰
                 </button>
 
-                <ul className={`navbar-menu ${menuOpen ? "active" : ""}`}>
-                    <li><Link to="/">{t.home}</Link></li>
-                    <li><Link to="/services">{t.services}</Link></li>
-                    <li><a onClick={() => scrollToSection("echipa")} style={{ cursor: "pointer" }}>{t.doctors}</a></li>
-                    <li><a onClick={() => scrollToSection("testimoniale")} style={{ cursor: "pointer" }}>{t.reviews}</a></li>
-                    <li><Link to="/news">{t.navNews}</Link></li>
-                    <li><Link to="/help">{t.navHelp}</Link></li>
-                    <li><Link to="/contact">{t.contact}</Link></li>
+                <ul ref={menuRef} className={`navbar-menu ${menuOpen ? "active" : ""} ${menuClosing ? "closing" : ""}`}>
+                    <li><Link to="/" onClick={() => handleMenuLinkClick(() => navigate("/"))}>{t.home}</Link></li>
+                    <li><Link to="/services" onClick={() => handleMenuLinkClick(() => navigate("/services"))}>{t.services}</Link></li>
+                    <li><a onClick={() => handleMenuLinkClick(() => scrollToSection("echipa"))} style={{ cursor: "pointer" }}>{t.doctors}</a></li>
+                    <li><a onClick={() => handleMenuLinkClick(() => scrollToSection("testimoniale"))} style={{ cursor: "pointer" }}>{t.reviews}</a></li>
+                    <li><Link to="/news" onClick={() => handleMenuLinkClick(() => navigate("/news"))}>{t.navNews}</Link></li>
+                    <li><Link to="/help" onClick={() => handleMenuLinkClick(() => navigate("/help"))}>{t.navHelp}</Link></li>
+                    <li><Link to="/contact" onClick={() => handleMenuLinkClick(() => navigate("/contact"))}>{t.contact}</Link></li>
                 </ul>
 
                 <div className="navbar-actions">

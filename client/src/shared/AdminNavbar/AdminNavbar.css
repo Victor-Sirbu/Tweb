@@ -164,8 +164,23 @@
 }
 
 @media (max-width: 768px) {
+    .admin-navbar-container {
+        padding: 0 24px;
+        gap: 14px;
+    }
+
+    .admin-navbar-logo .logo-title {
+        font-size: 18px;
+    }
+
+    .admin-navbar-logo .logo-subtitle {
+        font-size: 11px;
+    }
+
     .admin-menu-toggle {
         display: block;
+        min-width: 44px;
+        min-height: 44px;
     }
 
     .admin-navbar-menu {
@@ -179,15 +194,23 @@
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         display: none;
         gap: 16px;
+        transform: translateY(-100%);
+        opacity: 0;
+        transition: transform 0.3s ease, opacity 0.3s ease;
     }
 
     .admin-navbar-menu.active {
         display: flex;
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .admin-navbar-menu.closing {
+        transform: translateY(-100%);
+        opacity: 0;
     }
 
     .admin-navbar-actions {
         display: none;
     }
-
-
 }

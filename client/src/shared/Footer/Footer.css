@@ -107,3 +107,24 @@
 .contact-icon {
     font-size: 18px;
 }
+
+@media (max-width: 768px) {
+    .footer {
+        padding: 44px 24px 24px;
+    }
+
+    .footer-container {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        margin-bottom: 28px;
+    }
+
+    .footer-logo {
+        align-items: flex-start;
+    }
+
+    .footer-schedule li,
+    .footer-contact li {
+        gap: 10px;
+    }
+}

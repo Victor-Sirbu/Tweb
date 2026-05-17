@@ -377,11 +377,19 @@
 @media (max-width: 768px) {
     .page {
         padding: 20px;
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
     }
 
     .card {
         max-width: 100%;
         padding: 30px 25px;
+        max-height: none;
+    }
+
+    .right {
+        overflow-y: visible;
     }
 
     .login-header h2 {
@@ -391,6 +399,32 @@
     .tab-btn {
         font-size: 14px;
         padding: 10px 20px;
+    }
+
+    .field-row {
+        grid-template-columns: 1fr;
+    }
+
+    .field input,
+    .field select,
+    .dropdown-header,
+    .date-input,
+    .login-btn,
+    .cancel-btn {
+        min-height: 44px;
+    }
+
+    .login-btn {
+        width: 100%;
+    }
+
+    .modal-card {
+        max-width: calc(100% - 32px);
+        padding: 1.5rem;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
     }
 }
 

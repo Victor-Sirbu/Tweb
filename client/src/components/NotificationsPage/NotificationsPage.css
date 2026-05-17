@@ -512,6 +512,68 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+    .notif-page {
+        padding: 24px;
+    }
+
+    .notif-header,
+    .notif-summary-bar,
+    .filter-tabs,
+    .notif-card,
+    .notif-footer {
+        flex-wrap: wrap;
+    }
+
+    .notif-header {
+        align-items: flex-start;
+    }
+
+    .notif-title {
+        font-size: 24px;
+        letter-spacing: 0;
+    }
+
+    .notif-summary-bar {
+        gap: 16px;
+        padding: 20px;
+    }
+
+    .summary-divider {
+        display: none;
+    }
+
+    .summary-spacer {
+        display: none;
+    }
+
+    .summary-item {
+        flex: 1 1 calc(50% - 16px);
+    }
+
+    .btn-mark-all,
+    .filter-tab {
+        min-height: 44px;
+    }
+
+    .btn-mark-all {
+        width: 100%;
+    }
+
+    .filter-tab {
+        flex: 1 1 calc(50% - 8px);
+        justify-content: center;
+        padding: 10px 14px;
+    }
+
+    .notif-card {
+        align-items: flex-start;
+        padding: 18px;
+    }
+
+    .notif-message {
+        white-space: normal;
+    }
+
     .modal {
         max-width: 95%;
         margin: 20px;

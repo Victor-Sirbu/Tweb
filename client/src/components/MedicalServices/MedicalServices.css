@@ -604,3 +604,91 @@
         min-width: unset;
     }
 }
+
+@media (max-width: 768px) {
+    .ms-hero {
+        min-height: auto;
+        padding: 110px 24px 48px;
+    }
+
+    .ms-hero-container {
+        gap: 32px;
+    }
+
+    .ms-hero-title {
+        font-size: 32px;
+    }
+
+    .ms-hero-description {
+        font-size: 16px;
+    }
+
+    .ms-hero-buttons,
+    .ms-cta-buttons {
+        flex-direction: column;
+    }
+
+    .ms-btn-primary,
+    .ms-btn-secondary,
+    .ms-cta-btn-primary,
+    .ms-cta-btn-secondary {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    .ms-hero-stats-box,
+    .ms-cta-stats {
+        width: 100%;
+        flex-direction: column;
+        padding: 28px 24px;
+        gap: 18px;
+    }
+
+    .ms-stat-divider {
+        width: 100%;
+        height: 1px;
+    }
+
+    .ms-filter-section {
+        position: static;
+        padding: 24px;
+    }
+
+    .ms-category-tabs {
+        width: 100%;
+    }
+
+    .ms-cat-btn {
+        flex: 1 1 calc(50% - 10px);
+        min-height: 44px;
+        padding: 10px 14px;
+    }
+
+    .ms-services-section,
+    .ms-cta-section {
+        padding: 56px 24px;
+    }
+
+    .ms-section-title,
+    .ms-cta-title {
+        font-size: 30px;
+    }
+
+    .ms-services-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ms-service-card,
+    .ms-cta-container {
+        padding: 28px 24px;
+    }
+
+    .ms-service-meta {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .ms-service-btn {
+        min-height: 44px;
+    }
+}

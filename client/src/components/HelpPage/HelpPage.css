@@ -441,3 +441,72 @@
     font-size: 14px;
     margin: 0;
 }
+
+@media (max-width: 768px) {
+    .help-hero {
+        padding: 24px 24px 32px;
+        margin-bottom: 24px;
+    }
+
+    .help-title {
+        font-size: 24px;
+    }
+
+    .help-subtitle {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .help-stats,
+    .faq-section,
+    .help-contact {
+        margin-left: 24px;
+        margin-right: 24px;
+    }
+
+    .help-stats,
+    .help-contact,
+    .contact-left,
+    .contact-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .faq-section {
+        padding: 22px 20px;
+    }
+
+    .help-page .filter-tabs {
+        gap: 10px;
+    }
+
+    .help-page .filter-tab {
+        flex: 1 1 calc(50% - 10px);
+        min-height: 44px;
+        padding: 10px 14px;
+    }
+
+    .faq-card {
+        padding: 16px;
+    }
+
+    .faq-top,
+    .faq-left {
+        align-items: flex-start;
+    }
+
+    .faq-left {
+        flex-wrap: wrap;
+    }
+
+    .faq-question {
+        flex-basis: 100%;
+        line-height: 1.5;
+    }
+
+    .contact-btn,
+    .back-btn {
+        min-height: 44px;
+        text-align: center;
+    }
+}
