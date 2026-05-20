@@ -6,7 +6,7 @@ import { AxiosProvider } from './api/axios-provider.tsx'
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <AxiosProvider baseURL="http://178.128.201.144">
+        <AxiosProvider baseURL="https://medicalcabinet.duckdns.org">
             <App />
         </AxiosProvider>
     </StrictMode>,
