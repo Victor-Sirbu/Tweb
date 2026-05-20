@@ -6,7 +6,7 @@ import { AxiosProvider } from './api/axios-provider.tsx'
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <AxiosProvider baseURL="https://localhost:44324">
+        <AxiosProvider baseURL="http://178.128.201.144">
             <App />
         </AxiosProvider>
     </StrictMode>,
