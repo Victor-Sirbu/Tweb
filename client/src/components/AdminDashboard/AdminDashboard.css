@@ -1322,3 +1322,52 @@
 .btn-news-toggle:hover {
   color: #2980b9;
 }
+
+/* ── News item actions ── */
+.news-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.news-item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-news-edit {
+  padding: 5px 14px;
+  background: #ffc107;
+  color: #212529;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-news-edit:hover {
+  background: #e0a800;
+  transform: translateY(-1px);
+}
+
+.btn-news-delete {
+  padding: 5px 14px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-news-delete:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}

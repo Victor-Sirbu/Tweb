@@ -50,6 +50,14 @@ interface ReviewAPI {
   createdAt: string;
 }
 
+interface NewsAPI {
+  id: number;
+  name: string;
+  description: string;
+  type: number;
+  date: string;
+}
+
 interface ServiceAPI {
   id: number;
   serviceName: string;
@@ -651,34 +659,72 @@ const AdminDashboard: React.FC = () => {
   };
 
   const [newsFormData, setNewsFormData] = useState({ name: '', description: '', type: 'ServiciuNou' as NewsType });
-  const [newsHistory, setNewsHistory] = useState<Array<{
-    id: number; name: string; description: string; type: NewsType; timestamp: string; ts: number;
-  }>>(() => {
-    try {
-      const raw = localStorage.getItem('news_history');
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
-      return parsed.filter((e: { ts: number }) => e.ts > cutoff);
-    } catch { return []; }
-  });
+  const [publishedNews, setPublishedNews] = useState<NewsAPI[]>([]);
+  const [loadingNews, setLoadingNews] = useState(false);
   const [expandedNewsIds, setExpandedNewsIds] = useState<number[]>([]);
+  const [editingNews, setEditingNews] = useState<NewsAPI | null>(null);
+  const [showNewsModal, setShowNewsModal] = useState(false);
+  const [newsEditForm, setNewsEditForm] = useState({ name: '', description: '', type: 'ServiciuNou' as NewsType });
+
+  const NUM_TO_NEWS_TYPE: Record<number, NewsType> = { 0: 'ServiciuNou', 1: 'Promotie', 2: 'MedicNou', 3: 'ActualizarePret' };
+
+  const fetchPublishedNews = useCallback(async () => {
+    setLoadingNews(true);
+    try {
+      const d = await api.get<NewsAPI[]>('/api/news/list');
+      setPublishedNews((d ?? []).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+    } catch {
+      setPublishedNews([]);
+    } finally {
+      setLoadingNews(false);
+    }
+  }, [api]);
+
+  useEffect(() => {
+    if (activeSection === 'noutati') void fetchPublishedNews();
+  }, [activeSection, fetchPublishedNews]);
 
   const handleSendNews = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await api.post('/api/news/create', { name: newsFormData.name, description: newsFormData.description, type: NEWS_TYPE_NUM[newsFormData.type] });
-      const newNewsEntry = { id: Date.now(), name: newsFormData.name, description: newsFormData.description, type: newsFormData.type, timestamp: new Date().toLocaleString(), ts: Date.now() };
-      setNewsHistory(prev => {
-        const updated = [newNewsEntry, ...prev];
-        try { localStorage.setItem('news_history', JSON.stringify(updated)); } catch { /* storage full */ }
-        return updated;
-      });
       log('Publicare noutate', 'create', newsFormData.name, 'news', `Noutate de tip "${newsTypeLabel(newsFormData.type)}" publicată pentru toți pacienții.`);
       setNewsFormData({ name: '', description: '', type: 'ServiciuNou' });
       alert(lbl('Noutate publicată pentru toți pacienții!', 'Новость опубликована для всех пациентов!', 'News published for all patients!'));
+      void fetchPublishedNews();
     } catch {
       alert(lbl('Eroare la publicare', 'Ошибка публикации', 'Publish error'));
+    }
+  };
+
+  const handleDeleteNews = async (id: number) => {
+    if (!window.confirm(lbl('Sigur doriți să ștergeți noutatea?', 'Удалить новость?', 'Delete this news?'))) return;
+    try {
+      await api.delete(`/api/news/${id}`);
+      log('Ștergere noutate', 'delete', String(id), 'news', 'Noutatea a fost ștearsă.');
+      void fetchPublishedNews();
+    } catch {
+      alert(lbl('Eroare la ștergere', 'Ошибка удаления', 'Delete error'));
+    }
+  };
+
+  const handleEditNews = (news: NewsAPI) => {
+    setEditingNews(news);
+    setNewsEditForm({ name: news.name, description: news.description, type: NUM_TO_NEWS_TYPE[news.type] ?? 'ServiciuNou' });
+    setShowNewsModal(true);
+  };
+
+  const handleSaveEditNews = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingNews) return;
+    try {
+      await api.put(`/api/news/update/${editingNews.id}`, { name: newsEditForm.name, description: newsEditForm.description, type: NEWS_TYPE_NUM[newsEditForm.type] });
+      log('Editare noutate', 'edit', newsEditForm.name, 'news', 'Noutatea a fost actualizată.');
+      setShowNewsModal(false);
+      setEditingNews(null);
+      void fetchPublishedNews();
+    } catch {
+      alert(lbl('Eroare la salvare', 'Ошибка', 'Error saving'));
     }
   };
 
@@ -946,28 +992,36 @@ const AdminDashboard: React.FC = () => {
                       <div className="news-history-card">
                         <div className="news-history-header">
                           <h3 className="news-history-title">{lbl('Noutăți Publicate','Опубликованные новости','Published News')}</h3>
-                          <span className="news-history-count">{newsHistory.length}</span>
+                          <span className="news-history-count">{publishedNews.length}</span>
                         </div>
-                        {newsHistory.length === 0 ? (
+                        {loadingNews ? (
+                            <div className="news-history-empty"><p>{lbl('Se încarcă...','Загрузка...','Loading...')}</p></div>
+                        ) : publishedNews.length === 0 ? (
                             <div className="news-history-empty">
-                              <div className="news-empty-icon"></div>
                               <p>{lbl('Nicio noutate publicată încă','Новостей пока нет','No news published yet')}</p>
                             </div>
                         ) : (
                             <div className="news-history-list">
-                              {newsHistory.map(entry => {
+                              {publishedNews.map(entry => {
                                 const isExp = expandedNewsIds.includes(entry.id);
+                                const typeKey = NUM_TO_NEWS_TYPE[entry.type] ?? 'ServiciuNou';
                                 return (
                                     <div key={entry.id} className={`news-history-item ${isExp ? 'expanded' : ''}`}>
                                       <div className="news-item-top">
-                                        <span className="news-type-badge">{newsTypeLabel(entry.type)}</span>
-                                        <span className="news-item-timestamp">{entry.timestamp}</span>
+                                        <span className="news-type-badge">{newsTypeLabel(typeKey)}</span>
+                                        <span className="news-item-timestamp">{new Date(entry.date).toLocaleString('ro-RO')}</span>
                                       </div>
                                       <strong className="news-item-title">{entry.name}</strong>
                                       {isExp && <p className="news-item-description">{entry.description}</p>}
-                                      <button className="btn-news-toggle" onClick={() => setExpandedNewsIds(prev => prev.includes(entry.id) ? prev.filter(x => x !== entry.id) : [...prev, entry.id])}>
-                                        {isExp ? lbl('Ascunde','Скрыть','Hide') : lbl('Vezi descrierea','Подробнее','See description')}
-                                      </button>
+                                      <div className="news-item-footer">
+                                        <button className="btn-news-toggle" onClick={() => setExpandedNewsIds(prev => prev.includes(entry.id) ? prev.filter(x => x !== entry.id) : [...prev, entry.id])}>
+                                          {isExp ? lbl('Ascunde','Скрыть','Hide') : lbl('Vezi descrierea','Подробнее','See description')}
+                                        </button>
+                                        <div className="news-item-actions">
+                                          <button className="btn-news-edit" onClick={() => handleEditNews(entry)}>{lbl('Editează','Редактировать','Edit')}</button>
+                                          <button className="btn-news-delete" onClick={() => handleDeleteNews(entry.id)}>{lbl('Șterge','Удалить','Delete')}</button>
+                                        </div>
+                                      </div>
                                     </div>
                                 );
                               })}
@@ -1158,6 +1212,36 @@ const AdminDashboard: React.FC = () => {
                   <div className="form-group"><label>{lbl('Rating (1-5)','Рейтинг (1-5)','Rating (1-5)')}</label><input type="number" min="1" max="5" required value={reviewFormData.rating} onChange={e => setReviewFormData({ ...reviewFormData, rating: parseInt(e.target.value) })} /></div>
                   <div className="form-group"><label>{lbl('Comentariu','Комментарий','Comment')}</label><textarea rows={4} required value={reviewFormData.reviewText} onChange={e => setReviewFormData({ ...reviewFormData, reviewText: e.target.value })} /></div>
                   <div className="modal-actions"><button type="button" className="btn-cancel" onClick={() => setShowReviewModal(false)}>{t.adminCancel}</button><button type="submit" className="btn-submit">{t.adminUpdate}</button></div>
+                </form>
+              </div>
+            </div>
+        )}
+
+        {/* MODAL EDITARE NOUTATE */}
+        {showNewsModal && editingNews && (
+            <div className="modal-overlay" onClick={() => setShowNewsModal(false)}>
+              <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h2>{lbl('Editează Noutatea','Редактировать новость','Edit News')}</h2>
+                  <button className="modal-close" onClick={() => setShowNewsModal(false)}>&times;</button>
+                </div>
+                <form onSubmit={handleSaveEditNews}>
+                  <div className="form-group">
+                    <label>{lbl('Titlu','Заголовок','Title')} * <span className="char-counter">{newsEditForm.name.length}/50</span></label>
+                    <input type="text" className="form-input" required maxLength={50} value={newsEditForm.name} onChange={e => setNewsEditForm({ ...newsEditForm, name: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label>{lbl('Descriere','Описание','Description')} * <span className="char-counter">{newsEditForm.description.length}/400</span></label>
+                    <textarea className="form-textarea" rows={5} required maxLength={400} value={newsEditForm.description} onChange={e => setNewsEditForm({ ...newsEditForm, description: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label>{lbl('Tip','Тип','Type')}</label>
+                    <CustomSelect options={(Object.keys(NEWS_TYPE_LABELS) as NewsType[]).map(type => ({ value: type, label: newsTypeLabel(type) }))} value={newsEditForm.type} onChange={val => setNewsEditForm({ ...newsEditForm, type: val as NewsType })} />
+                  </div>
+                  <div className="modal-actions">
+                    <button type="button" className="btn-cancel" onClick={() => setShowNewsModal(false)}>{lbl('Anulează','Отмена','Cancel')}</button>
+                    <button type="submit" className="btn-submit">{lbl('Salvează','Сохранить','Save')}</button>
+                  </div>
                 </form>
               </div>
             </div>
