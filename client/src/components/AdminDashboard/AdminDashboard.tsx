@@ -650,12 +650,9 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const [newsPatients, setNewsPatients] = useState<PatientAPI[]>([]);
-  const [newsSelectedIds, setNewsSelectedIds] = useState<number[]>([]);
-  const [newsPatientSearch, setNewsPatientSearch] = useState('');
   const [newsFormData, setNewsFormData] = useState({ name: '', description: '', type: 'ServiciuNou' as NewsType });
   const [newsHistory, setNewsHistory] = useState<Array<{
-    id: number; patientNames: string[]; name: string; description: string; type: NewsType; timestamp: string; ts: number;
+    id: number; name: string; description: string; type: NewsType; timestamp: string; ts: number;
   }>>(() => {
     try {
       const raw = localStorage.getItem('news_history');
@@ -667,47 +664,19 @@ const AdminDashboard: React.FC = () => {
   });
   const [expandedNewsIds, setExpandedNewsIds] = useState<number[]>([]);
 
-  useEffect(() => {
-    if (activeSection !== 'noutati') return;
-    api.get<PatientAPI[]>('/api/patients/list')
-        .then(d => setNewsPatients((d ?? []).filter(p => !p.isDeleted)))
-        .catch(() => setNewsPatients([]));
-  }, [activeSection, api]);
-
-  const filteredNewsPatients = newsPatients.filter(p => {
-    const name = `${p.firstName} ${p.lastName}`.toLowerCase();
-    return name.includes(newsPatientSearch.toLowerCase()) || p.email.toLowerCase().includes(newsPatientSearch.toLowerCase());
-  });
-
-  const allNewsSelected = filteredNewsPatients.length > 0 && filteredNewsPatients.every(p => newsSelectedIds.includes(p.id));
-
-  const toggleSelectAllNews = () => {
-    if (allNewsSelected) {
-      setNewsSelectedIds(prev => prev.filter(id => !filteredNewsPatients.some(p => p.id === id)));
-    } else {
-      setNewsSelectedIds(prev => [...new Set([...prev, ...filteredNewsPatients.map(p => p.id)])]);
-    }
-  };
-
   const handleSendNews = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newsSelectedIds.length === 0) {
-      alert(lbl('Selectați cel puțin un pacient', 'Выберите пациента', 'Select a patient'));
-      return;
-    }
     try {
       await api.post('/api/news/create', { name: newsFormData.name, description: newsFormData.description, type: NEWS_TYPE_NUM[newsFormData.type] });
-      const names = newsPatients.filter(p => newsSelectedIds.includes(p.id)).map(p => `${p.firstName} ${p.lastName}`);
-      const newNewsEntry = { id: Date.now(), patientNames: names, name: newsFormData.name, description: newsFormData.description, type: newsFormData.type, timestamp: new Date().toLocaleString(), ts: Date.now() };
+      const newNewsEntry = { id: Date.now(), name: newsFormData.name, description: newsFormData.description, type: newsFormData.type, timestamp: new Date().toLocaleString(), ts: Date.now() };
       setNewsHistory(prev => {
         const updated = [newNewsEntry, ...prev];
         try { localStorage.setItem('news_history', JSON.stringify(updated)); } catch { /* storage full */ }
         return updated;
       });
-      log('Publicare noutate', 'create', newsFormData.name, 'news', `Noutate de tip "${newsTypeLabel(newsFormData.type)}" publicată.`);
+      log('Publicare noutate', 'create', newsFormData.name, 'news', `Noutate de tip "${newsTypeLabel(newsFormData.type)}" publicată pentru toți pacienții.`);
       setNewsFormData({ name: '', description: '', type: 'ServiciuNou' });
-      setNewsSelectedIds([]);
-      alert(lbl('Noutate publicată!', 'Новость опубликована!', 'News published!'));
+      alert(lbl('Noutate publicată pentru toți pacienții!', 'Новость опубликована для всех пациентов!', 'News published for all patients!'));
     } catch {
       alert(lbl('Eroare la publicare', 'Ошибка публикации', 'Publish error'));
     }
@@ -944,27 +913,24 @@ const AdminDashboard: React.FC = () => {
               {activeSection === 'noutati' && (
                   <div className="section-content">
                     <div className="notifications-section">
-                      <div className="notification-content-grid">
-                        <PatientPicker filtered={filteredNewsPatients} selected={newsSelectedIds} onToggle={id => setNewsSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])} onToggleAll={toggleSelectAllNews} allSel={allNewsSelected} search={newsPatientSearch} onSearch={setNewsPatientSearch} title={lbl('Destinatari','Получатели','Recipients')} count={newsSelectedIds.length} language={language} getAvatar={getAvatar} />
-                        <div className="notification-form-panel">
-                          <form onSubmit={handleSendNews}>
-                            <div className="form-group">
-                              <label>{lbl('Titlu','Заголовок','Title')} * <span className="char-counter">{newsFormData.name.length}/100</span></label>
-                              <input type="text" className="form-input" required maxLength={100} value={newsFormData.name} onChange={e => setNewsFormData({ ...newsFormData, name: e.target.value })} />
-                            </div>
-                            <div className="form-group">
-                              <label>{lbl('Descriere','Описание','Description')} * <span className="char-counter">{newsFormData.description.length}/400</span></label>
-                              <textarea className="form-textarea" rows={5} required maxLength={400} value={newsFormData.description} onChange={e => setNewsFormData({ ...newsFormData, description: e.target.value })} />
-                            </div>
-                            <div className="form-group">
-                              <label>{lbl('Tip','Тип','Type')}</label>
-                              <CustomSelect options={(Object.keys(NEWS_TYPE_LABELS) as NewsType[]).map(type => ({ value: type, label: newsTypeLabel(type) }))} value={newsFormData.type} onChange={val => setNewsFormData({ ...newsFormData, type: val as NewsType })} />
-                            </div>
-                            <div className="form-actions">
-                              <button type="submit" className="btn-send-notification">{lbl('Publică Noutatea','Опубликовать','Publish')}</button>
-                            </div>
-                          </form>
-                        </div>
+                      <div className="notification-form-panel" style={{ maxWidth: '700px', margin: '0 auto' }}>
+                        <form onSubmit={handleSendNews}>
+                          <div className="form-group">
+                            <label>{lbl('Titlu','Заголовок','Title')} * <span className="char-counter">{newsFormData.name.length}/50</span></label>
+                            <input type="text" className="form-input" required maxLength={50} value={newsFormData.name} onChange={e => setNewsFormData({ ...newsFormData, name: e.target.value })} />
+                          </div>
+                          <div className="form-group">
+                            <label>{lbl('Descriere','Описание','Description')} * <span className="char-counter">{newsFormData.description.length}/400</span></label>
+                            <textarea className="form-textarea" rows={5} required maxLength={400} value={newsFormData.description} onChange={e => setNewsFormData({ ...newsFormData, description: e.target.value })} />
+                          </div>
+                          <div className="form-group">
+                            <label>{lbl('Tip','Тип','Type')}</label>
+                            <CustomSelect options={(Object.keys(NEWS_TYPE_LABELS) as NewsType[]).map(type => ({ value: type, label: newsTypeLabel(type) }))} value={newsFormData.type} onChange={val => setNewsFormData({ ...newsFormData, type: val as NewsType })} />
+                          </div>
+                          <div className="form-actions">
+                            <button type="submit" className="btn-send-notification">{lbl('Publică Noutatea','Опубликовать','Publish')}</button>
+                          </div>
+                        </form>
                       </div>
                       <div className="notification-history-section">
                         <h3 className="history-title">{lbl('Noutăți Publicate','Опубликованные новости','Published News')}</h3>
@@ -977,7 +943,6 @@ const AdminDashboard: React.FC = () => {
                                 return (
                                     <div key={entry.id} className="history-card">
                                       <div className="history-header"><div className="history-meta"><span><span style={{ background:'#3b82f6',color:'white',padding:'2px 10px',borderRadius:'12px',fontSize:'12px',marginRight:'8px' }}>{newsTypeLabel(entry.type)}</span><strong>{entry.name}</strong></span><span className="history-timestamp">{entry.timestamp}</span></div></div>
-                                      <div className="history-recipients"><span className="recipients-label">{lbl('Către','Кому','To')}:</span><div className="recipients-tags">{entry.patientNames.map((n,i) => (<span key={i} className="recipient-tag">{n}</span>))}</div></div>
                                       {isExp && <div className="history-content"><p className="history-message">{entry.description}</p></div>}
                                       <button className="btn-toggle-details" onClick={() => setExpandedNewsIds(prev => prev.includes(entry.id) ? prev.filter(x => x !== entry.id) : [...prev, entry.id])}>
                                         {isExp ? lbl('Ascunde','Скрыть','Hide') : lbl('Detalii','Детали','Details')}
