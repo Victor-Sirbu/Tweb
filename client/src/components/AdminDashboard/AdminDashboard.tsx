@@ -1232,7 +1232,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
                   <div className="form-group">
                     <label>{lbl('Descriere','Описание','Description')} * <span className="char-counter">{newsEditForm.description.length}/400</span></label>
-                    <textarea className="form-textarea" rows={5} required maxLength={400} value={newsEditForm.description} onChange={e => setNewsEditForm({ ...newsEditForm, description: e.target.value })} />
+                    <textarea className="form-textarea" rows={3} required maxLength={400} value={newsEditForm.description} onChange={e => setNewsEditForm({ ...newsEditForm, description: e.target.value })} />
                   </div>
                   <div className="form-group">
                     <label>{lbl('Tip','Тип','Type')}</label>
