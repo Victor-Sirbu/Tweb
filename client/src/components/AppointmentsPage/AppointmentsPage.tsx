@@ -445,8 +445,6 @@ const AppointmentsPage: React.FC = () => {
         <div className="appointments-page">
           <Navbar />
           <div className="appointments-container">
-            <h1 className="page-title">{t.apptTitle}</h1>
-
             {showSuccess && <div className="success-message">{t.apptSuccess}</div>}
 
             {apiError && (
@@ -458,115 +456,55 @@ const AppointmentsPage: React.FC = () => {
             <div className="form-card">
               <h2 className="section-title">{t.apptFormTitle}</h2>
               <form onSubmit={handleSubmit} className="appointment-form">
-                <div className="form-row">
+                <div className="form-row-2">
                   <div className="form-group">
                     <label>{t.apptPatientName}</label>
-                    <input
-                        type="text"
-                        name="patientName"
-                        value={formData.patientName}
-                        onChange={handleInputChange}
-                        required
-                    />
+                    <input type="text" name="patientName" value={formData.patientName} onChange={handleInputChange} required />
                   </div>
                   <div className="form-group">
                     <label>{t.apptPhone}</label>
-                    <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        required
-                    />
+                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required />
                   </div>
                 </div>
-
-                <div className="form-group">
-                  <label>{t.apptEmail}</label>
-                  <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      onBlur={handleEmailBlur}
-                      required
-                      readOnly={isAuthenticated && !!userEmail}
-                      style={isAuthenticated && userEmail ? { background: '#f1f5f9' } : {}}
-                  />
-                </div>
-
-                <div className="form-row">
+                <div className="form-row-2">
+                  <div className="form-group">
+                    <label>{t.apptEmail}</label>
+                    <input type="email" name="email" value={formData.email}
+                           onChange={handleInputChange} onBlur={handleEmailBlur} required
+                           readOnly={isAuthenticated && !!userEmail}
+                           style={isAuthenticated && userEmail ? { background: '#eef2ff', borderColor: '#c7d2fe' } : {}} />
+                  </div>
                   <div className="form-group">
                     <label>{t.apptSelectDoctor}</label>
-                    <CustomSelect
-                        options={doctorOptions}
-                        value={formData.doctorId}
-                        onChange={handleDoctorChange}
-                        placeholder={
-                          loadingMedici ? 'Se încarcă medicii...' : `-- ${t.apptSelectDoctor} --`
-                        }
-                        disabled={loadingMedici}
-                    />
+                    <CustomSelect options={doctorOptions} value={formData.doctorId} onChange={handleDoctorChange}
+                                  placeholder={loadingMedici ? 'Se încarcă...' : `-- ${t.apptSelectDoctor} --`} disabled={loadingMedici} />
                   </div>
+                </div>
+                <div className="form-row-2">
                   <div className="form-group">
                     <label>{t.apptSpecialization}</label>
-                    <input
-                        type="text"
-                        value={formData.specialization}
-                        readOnly
-                        style={{ background: '#f1f5f9' }}
-                        placeholder={`-- ${t.apptSpecialization} --`}
-                    />
+                    <input type="text" value={formData.specialization} readOnly
+                           style={{ background: '#f1f5f9' }} placeholder={`-- ${t.apptSpecialization} --`} />
                   </div>
-                </div>
-
-                <div className="form-row">
                   <div className="form-group">
                     <label>{t.apptDate}</label>
-                    <input
-                        type="date"
-                        name="date"
-                        value={formData.date}
-                        onChange={handleDateChange}
-                        min={getMinDate()}
-                        max={getMaxDate()}
-                        required
-                    />
+                    <input type="date" name="date" value={formData.date} onChange={handleDateChange}
+                           min={getMinDate()} max={getMaxDate()} required />
+                  </div>
+                </div>
+                <div className="form-row-2">
+                  <div className="form-group">
+                    <label>{t.apptTime}{loadingTimes && <span style={{ fontSize:'0.72rem', color:'#94a3b8', marginLeft:'6px' }}>Se verifică...</span>}</label>
+                    <CustomSelect options={timeOptions} value={formData.time}
+                                  onChange={(val) => setFormData((prev) => ({ ...prev, time: val }))}
+                                  placeholder={!canSelectTime ? 'Selectează mai întâi medicul și data' : `-- ${t.apptTime} --`}
+                                  disabled={!canSelectTime || loadingTimes} />
                   </div>
                   <div className="form-group">
-                    <label>
-                      {t.apptTime}
-                      {loadingTimes && (
-                          <span style={{ fontSize: '0.75rem', color: '#888', marginLeft: '8px' }}>
-                        Se verifică orele...
-                      </span>
-                      )}
-                    </label>
-                    <CustomSelect
-                        options={timeOptions}
-                        value={formData.time}
-                        onChange={(val) => setFormData((prev) => ({ ...prev, time: val }))}
-                        placeholder={
-                          !canSelectTime
-                              ? 'Selectează mai întâi medicul și data'
-                              : `-- ${t.apptTime} --`
-                        }
-                        disabled={!canSelectTime || loadingTimes}
-                    />
+                    <label>{t.apptReason}</label>
+                    <textarea name="reason" value={formData.reason} onChange={handleInputChange} rows={2} required />
                   </div>
                 </div>
-
-                <div className="form-group">
-                  <label>{t.apptReason}</label>
-                  <textarea
-                      name="reason"
-                      value={formData.reason}
-                      onChange={handleInputChange}
-                      rows={4}
-                      required
-                  />
-                </div>
-
                 <button type="submit" className="submit-btn" disabled={submitting}>
                   {submitting ? 'Se trimite...' : t.apptSubmit}
                 </button>

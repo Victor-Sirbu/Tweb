@@ -52,8 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const token = localStorage.getItem("token");
         if (!token) return null;
         const decoded = parseJwt(token);
+        const stored = localStorage.getItem("user");
+        const storedEmail = stored ? (() => { try { return JSON.parse(stored)?.email; } catch { return null; } })() : null;
         return decoded["email"]
             || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"]
+            || storedEmail
             || null;
     });
 
@@ -102,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
     const context = useContext(AuthContext);
     if (!context) throw new Error("useAuth must be used within AuthProvider");

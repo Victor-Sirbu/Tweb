@@ -1139,7 +1139,7 @@ const AdminDashboard: React.FC = () => {
         {/* MODAL PROGRAMARE - cu ore fixe si ocupate */}
         {showApptModal && (
             <div className="modal-overlay" onClick={() => setShowApptModal(false)}>
-              <div className="modal modal-appt" onClick={e => e.stopPropagation()}>
+              <div className="modal modal-appt" onClick={e => e.stopPropagation()} style={{ overflowY: "auto", maxHeight: "90vh" }}>
                 <div className="modal-header">
                   <h2>{editingAppt ? lbl('Editează Programare','Редактировать запись','Edit Appointment') : lbl('Adaugă Programare','Добавить запись','Add Appointment')}</h2>
                   <button className="modal-close" onClick={() => setShowApptModal(false)}>&times;</button>
