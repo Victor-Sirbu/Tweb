@@ -1098,3 +1098,227 @@
 .patients-list::-webkit-scrollbar-thumb:hover {
   background: #999;
 }
+
+/* ── Noutăți section ── */
+.news-page-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .news-page-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Form card */
+.news-form-card {
+  background: white;
+  border-radius: 20px;
+  padding: clamp(24px, 3.5vw, 36px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border: 1px solid #f0f0f0;
+}
+
+.news-form-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f5f6fa;
+}
+
+.news-form-header-icon {
+  display: none;
+}
+
+.news-form-title {
+  font-size: clamp(18px, 2.2vw, 22px);
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.news-form-subtitle {
+  font-size: 13px;
+  color: #888;
+}
+
+.news-form-card .form-group {
+  margin-bottom: 20px;
+}
+
+.news-form-card .form-input,
+.news-form-card .form-textarea {
+  width: 100%;
+  font-size: 14px;
+}
+
+.news-form-card .form-textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.news-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #f5f6fa;
+}
+
+.btn-publish-news {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(52,152,219,0.35);
+}
+
+.btn-publish-news:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(52,152,219,0.45);
+}
+
+/* History card */
+.news-history-card {
+  background: white;
+  border-radius: 20px;
+  padding: clamp(24px, 3.5vw, 36px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border: 1px solid #f0f0f0;
+}
+
+.news-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f5f6fa;
+}
+
+.news-history-title {
+  font-size: clamp(17px, 2vw, 20px);
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.news-history-count {
+  background: #3498db;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.news-history-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #aaa;
+}
+
+.news-empty-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.news-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.news-history-item {
+  border: 1.5px solid #eee;
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.news-history-item:hover {
+  border-color: #3498db;
+  box-shadow: 0 4px 12px rgba(52,152,219,0.1);
+}
+
+.news-history-item.expanded {
+  border-color: #3498db;
+  background: #fafcff;
+}
+
+.news-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.news-type-badge {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.news-item-timestamp {
+  font-size: 11px;
+  color: #aaa;
+  white-space: nowrap;
+}
+
+.news-item-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.news-item-description {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: #f5f6fa;
+  border-radius: 8px;
+}
+
+.btn-news-toggle {
+  background: none;
+  border: none;
+  color: #3498db;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.2s;
+}
+
+.btn-news-toggle:hover {
+  color: #2980b9;
+}

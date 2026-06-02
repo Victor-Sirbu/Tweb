@@ -912,40 +912,61 @@ const AdminDashboard: React.FC = () => {
 
               {activeSection === 'noutati' && (
                   <div className="section-content">
-                    <div className="notifications-section">
-                      <div className="notification-form-panel" style={{ maxWidth: '700px', margin: '0 auto' }}>
+                    <div className="news-page-layout">
+
+                      <div className="news-form-card">
+                        <div className="news-form-header">
+                          <div className="news-form-header-icon"></div>
+                          <div>
+                            <h2 className="news-form-title">{lbl('Publică o Noutate','Опубликовать новость','Publish News')}</h2>
+                            <p className="news-form-subtitle">{lbl('Noutatea va fi vizibilă tuturor pacienților','Новость будет видна всем пациентам','News will be visible to all patients')}</p>
+                          </div>
+                        </div>
                         <form onSubmit={handleSendNews}>
                           <div className="form-group">
                             <label>{lbl('Titlu','Заголовок','Title')} * <span className="char-counter">{newsFormData.name.length}/50</span></label>
-                            <input type="text" className="form-input" required maxLength={50} value={newsFormData.name} onChange={e => setNewsFormData({ ...newsFormData, name: e.target.value })} />
+                            <input type="text" className="form-input" required maxLength={50} placeholder={lbl('Ex: Reducere 20% la consultații...','Пример: Скидка 20%...','E.g. 20% off consultations...')} value={newsFormData.name} onChange={e => setNewsFormData({ ...newsFormData, name: e.target.value })} />
                           </div>
                           <div className="form-group">
                             <label>{lbl('Descriere','Описание','Description')} * <span className="char-counter">{newsFormData.description.length}/400</span></label>
-                            <textarea className="form-textarea" rows={5} required maxLength={400} value={newsFormData.description} onChange={e => setNewsFormData({ ...newsFormData, description: e.target.value })} />
+                            <textarea className="form-textarea" rows={6} required maxLength={400} placeholder={lbl('Descrie noutatea în detaliu...','Опишите новость подробно...','Describe the news in detail...')} value={newsFormData.description} onChange={e => setNewsFormData({ ...newsFormData, description: e.target.value })} />
                           </div>
                           <div className="form-group">
-                            <label>{lbl('Tip','Тип','Type')}</label>
+                            <label>{lbl('Tip Noutate','Тип новости','News Type')}</label>
                             <CustomSelect options={(Object.keys(NEWS_TYPE_LABELS) as NewsType[]).map(type => ({ value: type, label: newsTypeLabel(type) }))} value={newsFormData.type} onChange={val => setNewsFormData({ ...newsFormData, type: val as NewsType })} />
                           </div>
-                          <div className="form-actions">
-                            <button type="submit" className="btn-send-notification">{lbl('Publică Noutatea','Опубликовать','Publish')}</button>
+                          <div className="news-form-actions">
+                            <button type="submit" className="btn-publish-news">
+                              <span></span> {lbl('Publică Noutatea','Опубликовать','Publish News')}
+                            </button>
                           </div>
                         </form>
                       </div>
-                      <div className="notification-history-section">
-                        <h3 className="history-title">{lbl('Noutăți Publicate','Опубликованные новости','Published News')}</h3>
+
+                      <div className="news-history-card">
+                        <div className="news-history-header">
+                          <h3 className="news-history-title">{lbl('Noutăți Publicate','Опубликованные новости','Published News')}</h3>
+                          <span className="news-history-count">{newsHistory.length}</span>
+                        </div>
                         {newsHistory.length === 0 ? (
-                            <div className="history-empty"><p>{lbl('Nicio noutate','Нет новостей','No news')}</p></div>
+                            <div className="news-history-empty">
+                              <div className="news-empty-icon"></div>
+                              <p>{lbl('Nicio noutate publicată încă','Новостей пока нет','No news published yet')}</p>
+                            </div>
                         ) : (
-                            <div className="history-list">
+                            <div className="news-history-list">
                               {newsHistory.map(entry => {
                                 const isExp = expandedNewsIds.includes(entry.id);
                                 return (
-                                    <div key={entry.id} className="history-card">
-                                      <div className="history-header"><div className="history-meta"><span><span style={{ background:'#3b82f6',color:'white',padding:'2px 10px',borderRadius:'12px',fontSize:'12px',marginRight:'8px' }}>{newsTypeLabel(entry.type)}</span><strong>{entry.name}</strong></span><span className="history-timestamp">{entry.timestamp}</span></div></div>
-                                      {isExp && <div className="history-content"><p className="history-message">{entry.description}</p></div>}
-                                      <button className="btn-toggle-details" onClick={() => setExpandedNewsIds(prev => prev.includes(entry.id) ? prev.filter(x => x !== entry.id) : [...prev, entry.id])}>
-                                        {isExp ? lbl('Ascunde','Скрыть','Hide') : lbl('Detalii','Детали','Details')}
+                                    <div key={entry.id} className={`news-history-item ${isExp ? 'expanded' : ''}`}>
+                                      <div className="news-item-top">
+                                        <span className="news-type-badge">{newsTypeLabel(entry.type)}</span>
+                                        <span className="news-item-timestamp">{entry.timestamp}</span>
+                                      </div>
+                                      <strong className="news-item-title">{entry.name}</strong>
+                                      {isExp && <p className="news-item-description">{entry.description}</p>}
+                                      <button className="btn-news-toggle" onClick={() => setExpandedNewsIds(prev => prev.includes(entry.id) ? prev.filter(x => x !== entry.id) : [...prev, entry.id])}>
+                                        {isExp ? lbl('Ascunde','Скрыть','Hide') : lbl('Vezi descrierea','Подробнее','See description')}
                                       </button>
                                     </div>
                                 );
@@ -953,6 +974,7 @@ const AdminDashboard: React.FC = () => {
                             </div>
                         )}
                       </div>
+
                     </div>
                   </div>
               )}
