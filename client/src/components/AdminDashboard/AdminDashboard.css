@@ -405,7 +405,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(12px, 2vw, 20px);
+  padding: 12px;
+  box-sizing: border-box;
 }
 
 .modal {
@@ -414,19 +415,33 @@
   padding: clamp(16px, 2.5vw, 24px);
   max-width: min(95vw, 500px);
   width: 100%;
-  max-height: 85vh;
+  max-height: 88vh;
   overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: modalSlideIn 0.3s ease;
   display: flex;
   flex-direction: column;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
 }
+
+.modal::-webkit-scrollbar { width: 4px; }
+.modal::-webkit-scrollbar-track { background: transparent; }
+.modal::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
 .modal-wide {
   max-width: min(95vw, 620px);
-  max-height: 82vh;
+  max-height: 88vh;
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
 }
+
+.modal-wide::-webkit-scrollbar { width: 4px; }
+.modal-wide::-webkit-scrollbar-track { background: transparent; }
+.modal-wide::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
 .modal-appt {
   max-width: min(95vw, 800px);
@@ -507,6 +522,9 @@
   font-size: clamp(13px, 1.6vw, 14px);
   transition: border-color 0.2s ease;
   font-family: inherit;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .form-group input:focus,

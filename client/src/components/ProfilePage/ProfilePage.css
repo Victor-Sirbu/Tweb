@@ -866,3 +866,35 @@ textarea.form-input {
         flex-direction: column;
     }
 }
+
+/* ── Mobile overflow fixes ── */
+@media (max-width: 480px) {
+    .settings-card,
+    .sidebar-card,
+    .tab-content {
+        padding: 16px;
+        overflow: hidden;
+    }
+
+    .form-input {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        font-size: 14px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .profile-info-value {
+        max-width: 100%;
+        word-break: break-word;
+    }
+}

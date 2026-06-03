@@ -267,3 +267,46 @@ h1, h2, h3 { font-size: inherit; font-weight: inherit; }
   .appointment-details { grid-template-columns: 1fr; }
   .submit-btn { width: 100%; }
 }
+
+/* ── Mobile fixes ── */
+@media (max-width: 480px) {
+  .appointments-page {
+    padding: 70px 12px 30px;
+  }
+
+  .form-card,
+  .appointments-list-card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .form-row-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .custom-select-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .custom-select-toggle {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .submit-btn {
+    width: 100%;
+  }
+
+  .appointment-details {
+    grid-template-columns: 1fr;
+  }
+}
