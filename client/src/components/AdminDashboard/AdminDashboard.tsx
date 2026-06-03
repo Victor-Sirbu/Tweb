@@ -1276,7 +1276,7 @@ const AdminDashboard: React.FC = () => {
                       />
                     </div>
                   </div>
-                  <div className="form-group"><label>{lbl('Descriere','Описание','Description')}</label><textarea rows={3} required value={serviceFormData.serviceDescription} onChange={e => setServiceFormData({ ...serviceFormData, serviceDescription: e.target.value })} /></div>
+                  <div className="form-group"><label>{lbl('Descriere','Описание','Description')}</label><textarea rows={2} style={{ resize: 'vertical', minHeight: '60px' }} required value={serviceFormData.serviceDescription} onChange={e => setServiceFormData({ ...serviceFormData, serviceDescription: e.target.value })} /></div>
                   <div className="form-row">
                     <div className="form-group"><label>{lbl('Preț (MDL)','Цена (MDL)','Price (MDL)')}</label><input type="number" min="0" step="1" required value={serviceFormData.servicePrice} onChange={e => setServiceFormData({ ...serviceFormData, servicePrice: e.target.value })} /></div>
                     <div className="form-group"><label>{lbl('Durată (min)','Продолжительность (мин)','Duration (min)')}</label><input type="number" min="1" required value={serviceFormData.serviceDuration} onChange={e => setServiceFormData({ ...serviceFormData, serviceDuration: e.target.value })} /></div>
