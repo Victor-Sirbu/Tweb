@@ -415,12 +415,6 @@ const ProfilePage = () => {
         }
     };
 
-    const notifOptions = language === "ru"
-        ? ["Напоминание о записи (SMS)", "Напоминание о записи (Email)", "Результаты анализов доступны", "Акции и новости MediCare"]
-        : language === "en"
-            ? ["Appointment reminder (SMS)", "Appointment reminder (Email)", "Lab results available", "MediCare offers & news"]
-            : ["Reminder programări (SMS)", "Reminder programări (Email)", "Rezultate analize disponibile", "Oferte și noutăți MediCare"];
-
     const getInitials = (name: string) =>
         name.split(" ").filter(Boolean).map((w) => w[0]).join("").substring(0, 2).toUpperCase();
 
@@ -751,18 +745,6 @@ const ProfilePage = () => {
                                         <button className="outline-btn">{t.profChangePass}</button>
                                     </div>
 
-                                    <div className="settings-card full-width">
-                                        <h3 className="settings-card-title">{t.profNotifications}</h3>
-                                        <div className="notification-options">
-                                            {notifOptions.map((opt, i) => (
-                                                <label key={i} className="toggle-label">
-                                                    <span>{opt}</span>
-                                                    <input type="checkbox" defaultChecked={i < 3} className="toggle-input" />
-                                                    <span className="toggle-slider"></span>
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         )}

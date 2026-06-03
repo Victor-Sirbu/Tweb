@@ -76,6 +76,13 @@ const SPECIALITY_MAP: Record<number, string> = {
 
 const ALL_TIMES = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
 
+const CATEGORY_MAP: Record<number, { ro: string; ru: string; en: string }> = {
+  0: { ro: 'Generală',     ru: 'Общая',          en: 'General'    },
+  1: { ro: 'Specialitate', ru: 'Специальность',   en: 'Specialty'  },
+  2: { ro: 'Laborator',    ru: 'Лаборатория',     en: 'Laboratory' },
+  3: { ro: 'Imagistică',   ru: 'Визуализация',    en: 'Imaging'    },
+};
+
 type NewsType = 'ServiciuNou' | 'Promotie' | 'MedicNou' | 'ActualizarePret';
 
 const NEWS_TYPE_NUM: Record<NewsType, number> = {
@@ -1071,11 +1078,11 @@ const AdminDashboard: React.FC = () => {
                     {loadingServices ? <p>{lbl('Se încarcă...','Загрузка...','Loading...')}</p> : (
                         <div className="table-container">
                           <table className="patients-table">
-                            <thead><tr><th>{lbl('Nume','Название','Name')}</th><th>{lbl('Descriere','Описание','Description')}</th><th>{lbl('Preț (MDL)','Цена','Price')}</th><th>{lbl('Durată (min)','Прод.','Duration')}</th><th>{t.adminStatus}</th><th>{t.adminActions}</th></tr></thead>
+                            <thead><tr><th>{lbl('Nume','Название','Name')}</th><th>{lbl('Descriere','Описание','Description')}</th><th>{lbl('Categorie','Категория','Category')}</th><th>{lbl('Preț (MDL)','Цена','Price')}</th><th>{lbl('Durată (min)','Прод.','Duration')}</th><th>{t.adminStatus}</th><th>{t.adminActions}</th></tr></thead>
                             <tbody>
                             {services.map(s => (
                                 <tr key={s.id}>
-                                  <td>{s.serviceName}</td><td>{s.serviceDescription}</td><td>{s.servicePrice}</td><td>{s.serviceDuration}</td>
+                                  <td>{s.serviceName}</td><td>{s.serviceDescription}</td><td>{CATEGORY_MAP[s.category]?.[language as 'ro'|'ru'|'en'] ?? CATEGORY_MAP[s.category]?.ro ?? '-'}</td><td>{s.servicePrice}</td><td>{s.serviceDuration}</td>
                                   <td><span className={`status-badge ${s.isDeleted?'inactive':'active'}`}>{s.isDeleted?t.adminInactive:t.adminActive}</span></td>
                                   <td><div className="action-buttons">
                                     <button className="btn-action btn-edit" onClick={() => { setEditingService(s); setServiceFormData({ serviceName:s.serviceName,serviceDescription:s.serviceDescription,servicePrice:s.servicePrice.toString(),serviceDuration:s.serviceDuration.toString(),category:s.category }); setShowServiceModal(true); }}>{t.adminEdit}</button>
@@ -1250,10 +1257,25 @@ const AdminDashboard: React.FC = () => {
         {/* MODAL SERVICIU */}
         {showServiceModal && (
             <div className="modal-overlay" onClick={() => setShowServiceModal(false)}>
-              <div className="modal" onClick={e => e.stopPropagation()}>
+              <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
                 <div className="modal-header"><h2>{editingService ? lbl('Editează Serviciu','Редактировать услугу','Edit Service') : lbl('Adaugă Serviciu','Добавить услугу','Add Service')}</h2><button className="modal-close" onClick={() => setShowServiceModal(false)}>&times;</button></div>
                 <form onSubmit={handleSaveService}>
-                  <div className="form-group"><label>{lbl('Nume','Название','Name')}</label><input type="text" required value={serviceFormData.serviceName} onChange={e => setServiceFormData({ ...serviceFormData, serviceName: e.target.value })} /></div>
+                  <div className="form-row">
+                    <div className="form-group"><label>{lbl('Nume','Название','Name')}</label><input type="text" required value={serviceFormData.serviceName} onChange={e => setServiceFormData({ ...serviceFormData, serviceName: e.target.value })} /></div>
+                    <div className="form-group">
+                      <label>{lbl('Categorie','Категория','Category')}</label>
+                      <CustomSelect
+                          options={[
+                            { value: '0', label: lbl('Generală','Общая','General') },
+                            { value: '1', label: lbl('Specialitate','Специальность','Specialty') },
+                            { value: '2', label: lbl('Laborator','Лаборатория','Laboratory') },
+                            { value: '3', label: lbl('Imagistică','Визуализация','Imaging') },
+                          ]}
+                          value={String(serviceFormData.category)}
+                          onChange={val => setServiceFormData({ ...serviceFormData, category: parseInt(val) })}
+                      />
+                    </div>
+                  </div>
                   <div className="form-group"><label>{lbl('Descriere','Описание','Description')}</label><textarea rows={3} required value={serviceFormData.serviceDescription} onChange={e => setServiceFormData({ ...serviceFormData, serviceDescription: e.target.value })} /></div>
                   <div className="form-row">
                     <div className="form-group"><label>{lbl('Preț (MDL)','Цена (MDL)','Price (MDL)')}</label><input type="number" min="0" step="1" required value={serviceFormData.servicePrice} onChange={e => setServiceFormData({ ...serviceFormData, servicePrice: e.target.value })} /></div>
