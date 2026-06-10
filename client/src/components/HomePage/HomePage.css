@@ -375,8 +375,8 @@
 
 .testimonials-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
-    gap: clamp(20px, 3vw, 24px);
+    grid-template-columns: repeat(5, 1fr);
+    gap: clamp(12px, 2vw, 20px);
     transition: opacity 0.4s ease;
     opacity: 1;
 }
@@ -619,7 +619,7 @@
         grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
     }
     .testimonials-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
     .cta-buttons {
         flex-direction: column;
@@ -643,6 +643,9 @@
     }
     .step-card {
         min-width: 100%;
+    }
+    .testimonials-grid {
+        grid-template-columns: 1fr;
     }
 }
 

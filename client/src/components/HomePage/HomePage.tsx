@@ -84,7 +84,7 @@ const HomePage = () => {
     const [reviews, setReviews] = useState<ReviewAPI[]>([]);
     const [reviewPage, setReviewPage] = useState(0);
     const [reviewFading, setReviewFading] = useState(false);
-    const REVIEWS_PER_PAGE = 4;
+    const REVIEWS_PER_PAGE = 5;
 
     useEffect(() => {
         api.get<ReviewAPI[]>("/api/reviews/list")
